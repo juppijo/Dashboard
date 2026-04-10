@@ -3,161 +3,155 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard</title>
+  <title>◈ Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<!-- ═══════════════════ TOP BAR ═══════════════════ -->
+<!-- ╔══════════════ TOPBAR ══════════════╗ -->
 <header id="topbar">
   <div class="bar-left">
-    <div class="logo">◈ DASHBOARD</div>
-    <div id="dateDisplay" class="date-display"></div>
+    <span class="logo">◈ DASHBOARD</span>
+    <span id="dateDisplay" class="top-date"></span>
   </div>
   <div class="bar-right">
     <button class="ctrl-btn" id="btnSettings" title="Einstellungen">⚙</button>
-    <button class="ctrl-btn" id="btnTheme"    title="Theme wechseln">◑</button>
+    <button class="ctrl-btn" id="btnTheme"    title="Theme">◑</button>
     <button class="ctrl-btn" id="btnMode"     title="Hell / Dunkel">☀</button>
     <button class="ctrl-btn" id="btnFullscreen" title="Vollbild">⛶</button>
   </div>
 </header>
 
-<!-- ═══════════════════ GRID ═══════════════════ -->
+<!-- ╔══════════════ GRID ══════════════╗ -->
 <main id="grid">
 
-  <!-- CLOCK CARD -->
-  <article class="card card-clock" id="cardClock">
+  <!-- 1 · UHR -->
+  <article class="card" id="cardClock">
     <div class="card-label">Uhr</div>
-    <canvas id="analogClock" width="180" height="180"></canvas>
-    <div id="digitalClock" class="digital-clock"></div>
-  </article>
-
-  <!-- WEATHER CARD -->
-  <article class="card card-weather" id="cardWeather">
-    <div class="card-label">Wetter</div>
-    <div id="weatherContent">
-      <link rel="stylesheet" href="//openweathermap.org/themes/openweathermap/assets/vendor/owm/css/style.min.css">
-      <div id="openweathermap-widget-5"></div>
-      <script type="text/javascript">
-        window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
-        window.myWidgetParam.push({
-          id: 5,
-          cityid: '2792119',
-          appid: '995838237b169caecad49f5f0db3cef3',
-          units: 'metric',
-          containerid: 'openweathermap-widget-5',
-        });
-        (function() {
-          var script = document.createElement('script');
-          script.async = true;
-          script.charset = "utf-8";
-          script.src = "//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js";
-          var s = document.getElementsByTagName('script')[0];
-          s.parentNode.insertBefore(script, s);
-        })();
-      <\/script>
+    <div class="clock-body">
+      <canvas id="analogClock" width="160" height="160"></canvas>
+      <div id="digitalClock" class="digital"></div>
     </div>
   </article>
 
-  <!-- SLIDESHOW CARD -->
-  <article class="card card-slide" id="cardSlide">
+  <!-- 2 · WETTER (OWM Widget) -->
+  <article class="card" id="cardWeather">
+    <div class="card-label">Wetter</div>
+    <div id="owmWrapper">
+      <link rel="stylesheet" href="//openweathermap.org/themes/openweathermap/assets/vendor/owm/css/style.min.css" />
+      <div id="openweathermap-widget-5"></div>
+    </div>
+  </article>
+
+  <!-- 3 · DIASCHAU -->
+  <article class="card" id="cardSlide">
     <div class="card-label">Diaschau</div>
-    <div id="slideshow">
-      <div class="slide-wrapper">
+    <div id="slideArea">
+      <div id="slideFrame">
         <img id="slideImg" src="" alt="" />
-        <div id="slideCaption"></div>
+        <div id="slideCap"></div>
       </div>
-      <div class="slide-controls">
-        <button class="slide-btn" id="slidePrev">‹</button>
-        <span id="slideCounter"></span>
-        <button class="slide-btn" id="slideNext">›</button>
-        <button class="slide-btn" id="slidePlay" title="Automatisch">▶</button>
-        <label class="slide-upload-btn" title="Bilder laden">
-          ＋ <input type="file" id="slideInput" accept="image/*" multiple hidden />
+      <!-- Steuerleiste — immer sichtbar -->
+      <div id="slideBar">
+        <button class="sbtn" id="sPrev">&#8249;</button>
+        <span id="sCnt">0 / 0</span>
+        <button class="sbtn" id="sNext">&#8250;</button>
+        <button class="sbtn" id="sPlay" title="Autoplay">&#9654;</button>
+        <label class="upload-lbl" title="Bilder laden">
+          ＋<input type="file" id="sInput" accept="image/*" multiple hidden />
         </label>
       </div>
     </div>
-    <div id="slideEmpty" class="placeholder-msg">Bilder über ＋ hinzufügen</div>
+    <div id="slideEmpty">Bilder über <strong>＋</strong> hinzufügen</div>
   </article>
 
-  <!-- CALENDAR CARD -->
-  <article class="card card-calendar" id="cardCalendar">
+  <!-- 4 · KALENDER -->
+  <article class="card" id="cardCal">
     <div class="card-label">Google Kalender</div>
-    <div id="calendarContent">
-      <iframe
-        src="https://calendar.google.com/calendar/embed?src=juppi.jo%40gmail.com&ctz=Europe%2FBrussels&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&mode=AGENDA"
-        class="cal-embed"
-        frameborder="0"
-        scrolling="no"
-        allowfullscreen>
-      </iframe>
-    </div>
+    <iframe
+      id="calFrame"
+      src="https://calendar.google.com/calendar/embed?src=juppi.jo%40gmail.com&ctz=Europe%2FBrussels&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&mode=AGENDA"
+      frameborder="0" scrolling="no">
+    </iframe>
   </article>
 
-  <!-- TASKS CARD -->
-  <article class="card card-tasks" id="cardTasks">
-    <div class="card-label">Google Tasks</div>
-    <div id="tasksContent">
-      <div class="placeholder-msg">⚙ Anmelden für Tasks</div>
-      <button class="api-btn" id="btnTasksAuth">Anmelden</button>
-    </div>
-  </article>
-
-  <!-- NOTES CARD -->
-  <article class="card card-notes" id="cardNotes">
-    <div class="card-label">Notizen</div>
-    <div id="notesContent">
-      <div class="notes-toolbar">
-        <button class="note-tool" id="btnAddNote" title="Neue Notiz">＋</button>
-        <button class="note-tool" id="btnClearNotes" title="Alle löschen">🗑</button>
+  <!-- 5 · AUFGABEN -->
+  <article class="card" id="cardTasks">
+    <div class="card-label">Aufgaben</div>
+    <div id="tasksInner">
+      <div class="task-row">
+        <input id="taskInput" class="tinput" placeholder="Neue Aufgabe…" />
+        <button id="taskAdd" class="tadd-btn">+</button>
       </div>
-      <div id="notesList"></div>
+      <div id="taskList"></div>
     </div>
   </article>
 
-  <!-- MINI WIDGET CARD (erweiterbar) -->
-  <article class="card card-mini" id="cardMini">
-    <div class="card-label">Schnellinfo</div>
-    <div id="miniContent">
-      <div class="mini-row"><span class="mini-label">KW</span><span id="miniWeek"></span></div>
-      <div class="mini-row"><span class="mini-label">Tag</span><span id="miniDayOfYear"></span></div>
-      <div class="mini-row"><span class="mini-label">Sonnenaufgang</span><span id="miniSunrise">—</span></div>
-      <div class="mini-row"><span class="mini-label">Sonnenuntergang</span><span id="miniSunset">—</span></div>
+  <!-- 6 · NOTIZEN -->
+  <article class="card" id="cardNotes">
+    <div class="card-label">
+      Notizen
+      <button class="note-add-btn" id="btnAddNote" title="Neue Notiz">＋</button>
+    </div>
+    <div id="noteGrid"></div>
+  </article>
+
+  <!-- 7 · SCHNELLINFO -->
+  <article class="card" id="cardInfo">
+    <div class="card-label">Info</div>
+    <div id="infoList">
+      <div class="info-row"><span class="info-lbl">Kalenderwoche</span><span id="iKW"></span></div>
+      <div class="info-row"><span class="info-lbl">Tag des Jahres</span><span id="iDOY"></span></div>
+      <div class="info-row"><span class="info-lbl">Sonnenaufgang</span><span id="iRise">—</span></div>
+      <div class="info-row"><span class="info-lbl">Sonnenuntergang</span><span id="iSet">—</span></div>
     </div>
   </article>
 
 </main>
 
-<!-- ═══════════════════ SETTINGS MODAL ═══════════════════ -->
+<!-- ╔══════════════ EINSTELLUNGEN MODAL ══════════════╗ -->
+<div id="overlay" class="hidden"></div>
 <div id="settingsModal" class="modal hidden">
-  <div class="modal-box">
-    <div class="modal-title">⚙ Einstellungen</div>
-    <label>OpenWeather API-Key
-      <input type="text" id="cfgWeatherKey" placeholder="dein-api-key" />
+  <div class="mbox">
+    <div class="mtitle">⚙ Einstellungen</div>
+    <label>Diaschau Intervall (Sekunden)
+      <input type="number" id="cfgInterval" value="5" min="1" max="120" />
     </label>
-    <label>Ort (Stadt, z.B. Welkenraedt,BE)
-      <input type="text" id="cfgWeatherCity" placeholder="Welkenraedt,BE" />
+    <label>OpenWeather Stadt-ID (für Schnellinfo)
+      <input type="text" id="cfgCityId" placeholder="2792119" />
     </label>
-    <label>Google Client-ID (für Kalender &amp; Tasks)
-      <input type="text" id="cfgGoogleClientId" placeholder="xxxxx.apps.googleusercontent.com" />
+    <label>OpenWeather API-Key (für Schnellinfo)
+      <input type="text" id="cfgApiKey" placeholder="dein-key" />
     </label>
-    <label>Diaschau Intervall (Sek.)
-      <input type="number" id="cfgSlideInterval" value="5" min="1" max="60" />
-    </label>
-    <div class="modal-btns">
-      <button class="api-btn" id="btnSettingsSave">Speichern</button>
-      <button class="api-btn secondary" id="btnSettingsClose">Abbrechen</button>
+    <div class="mbtns">
+      <button class="mbtn" id="cfgSave">Speichern</button>
+      <button class="mbtn sec" id="cfgClose">Abbrechen</button>
     </div>
   </div>
 </div>
-<div id="modalOverlay" class="hidden"></div>
 
-<!-- Google API -->
-<script src="https://apis.google.com/js/api.js" async defer></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="app.js" defer></script>
+<!-- OWM Widget Script (ganz am Ende, nach dem DOM) -->
+<script>
+  window.myWidgetParam = window.myWidgetParam || [];
+  window.myWidgetParam.push({
+    id: 5,
+    cityid: '2792119',
+    appid: '995838237b169caecad49f5f0db3cef3',
+    units: 'metric',
+    containerid: 'openweathermap-widget-5',
+  });
+  (function () {
+    var sc = document.createElement('script');
+    sc.async = true;
+    sc.charset = 'utf-8';
+    sc.src = '//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js';
+    document.body.appendChild(sc);
+  })();
+</script>
+
+<script src="app.js"></script>
 </body>
 </html>
