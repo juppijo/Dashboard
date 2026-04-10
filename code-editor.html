@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>✦ CodeForge Editor</title>
+
+<!-- CodeMirror -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/nord.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/solarized.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/tomorrow-night-eighties.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closetag.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/comment/comment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/brace-fold.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/xml-fold.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Orbitron:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ── CSS Variables & Themes ───────────────────────────── */
+  :root {
+    --bg0: #0d0f14;
+    --bg1: #13161e;
+    --bg2: #1a1e28;
+    --bg3: #222636;
+    --border: #2e3348;
+    --accent: #7c6aff;
+    --accent2: #ff6a9b;
+    --accent3: #00e5c0;
+    --text: #e2e4f0;
+    --text2: #8890b0;
+    --text3: #555a78;
+    --tab-html: #ff6b6b;
+    --tab-css: #6bcbff;
+    --tab-js: #ffd86b;
+    --radius: 8px;
+    --font-ui: 'Inter', sans-serif;
+    --font-code: 'JetBrains Mono', monospace;
+    --font-brand: 'Orbitron', sans-serif;
+    --preview-bg: #fff;
+    --shadow: 0 4px 32px rgba(0,0,0,.5);
+  }
+
+  [data-light] {
+    --bg0: #f0f2f8;
+    --bg1: #ffffff;
+    --bg2: #e8eaf4;
+    --bg3: #d8dcea;
+    --border: #c8cce0;
+    --accent: #6253d8;
+    --accent2: #d94f82;
+    --accent3: #00a884;
+    --text: #1a1c2e;
+    --text2: #454868;
+    --text3: #8890b0;
+    --shadow: 0 4px 24px rgba(0,0,0,.12);
+  }
+
+  /* ── Resets ───────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: var(--font-ui);
+    background: var(--bg0);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    transition: background .3s, color .3s;
+  }
+
+  /* ── Top Bar ──────────────────────────────────────────── */
+  #topbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    height: 48px;
+    background: var(--bg1);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+  }
+
+  .brand {
+    font-family: var(--font-brand);
+    font-size: 13px;
+    letter-spacing: .15em;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+
+  .sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+
+  .btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 11px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg2);
+    color: var(--text2);
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .18s;
+    user-select: none;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--text); background: var(--bg3); }
+  .btn.active { border-color: var(--accent); color: var(--accent); background: var(--bg3); }
+  .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  .btn-run {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-color: transparent;
+    color: #fff;
+    font-weight: 600;
+  }
+  .btn-run:hover { filter: brightness(1.15); color: #fff; }
+
+  .spacer { flex: 1; }
+
+  /* Theme Dropdown */
+  .dropdown-wrap { position: relative; }
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: var(--bg1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    z-index: 999;
+    min-width: 160px;
+    box-shadow: var(--shadow);
+  }
+  .dropdown-wrap.open .dropdown-menu { display: block; }
+  .dropdown-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: background .14s, color .14s;
+  }
+  .dropdown-item:hover { background: var(--bg2); color: var(--text); }
+  .dropdown-item.active { color: var(--accent); }
+  .theme-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Status bar */
+  #statusbar {
+    display: flex; align-items: center; gap: 16px;
+    padding: 0 16px;
+    height: 24px;
+    background: var(--bg1);
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text3);
+    flex-shrink: 0;
+  }
+  #statusbar span { display: flex; align-items: center; gap: 4px; }
+  #cursor-pos { margin-left: auto; }
+
+  /* ── Main Layout ──────────────────────────────────────── */
+  #workspace {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── Editor Panel ─────────────────────────────────────── */
+  #editor-panel {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    min-width: 200px;
+    background: var(--bg1);
+    border-right: 1px solid var(--border);
+    transition: width .2s;
+    overflow: hidden;
+  }
+  #editor-panel.fullscreen {
+    position: absolute; inset: 0; z-index: 50; width: 100% !important;
+  }
+  #preview-panel.fullscreen {
+    position: absolute; inset: 0; z-index: 50; width: 100% !important;
+  }
+
+  /* File Tabs */
+  #file-tabs {
+    display: flex;
+    height: 38px;
+    background: var(--bg0);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .file-tab {
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 16px;
+    font-family: var(--font-code);
+    font-size: 12px;
+    color: var(--text3);
+    cursor: pointer;
+    border-right: 1px solid var(--border);
+    border-bottom: 2px solid transparent;
+    transition: all .16s;
+    user-select: none;
+    position: relative;
+  }
+  .file-tab:hover { color: var(--text2); background: var(--bg2); }
+  .file-tab.active { color: var(--text); background: var(--bg1); border-bottom-color: var(--tab-color); }
+  .file-tab[data-file="html"] { --tab-color: var(--tab-html); }
+  .file-tab[data-file="css"]  { --tab-color: var(--tab-css); }
+  .file-tab[data-file="js"]   { --tab-color: var(--tab-js); }
+  .tab-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--tab-color); flex-shrink: 0; }
+  .tab-modified { position: absolute; top: 6px; right: 6px; width: 5px; height: 5px; border-radius: 50%; background: var(--accent2); display: none; }
+  .file-tab.modified .tab-modified { display: block; }
+
+  /* CodeMirror */
+  #editors-wrap {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+  .editor-instance { display: none; height: 100%; }
+  .editor-instance.active { display: block; }
+
+  .CodeMirror {
+    height: 100% !important;
+    font-family: var(--font-code) !important;
+    font-size: 13.5px !important;
+    line-height: 1.7 !important;
+    border: none !important;
+  }
+  .CodeMirror-scroll { padding-bottom: 40px; }
+  .CodeMirror-gutters { border-right: 1px solid var(--border) !important; }
+
+  /* Light theme override for CM */
+  [data-light] .CodeMirror { background: #fafbff; color: #2a2d4a; }
+  [data-light] .CodeMirror-gutters { background: #f0f2f8; }
+  [data-light] .CodeMirror-linenumber { color: #8890b0; }
+
+  /* ── Resize Handle ────────────────────────────────────── */
+  #resize-handle {
+    width: 4px;
+    background: var(--border);
+    cursor: col-resize;
+    flex-shrink: 0;
+    transition: background .14s;
+    position: relative;
+    z-index: 10;
+  }
+  #resize-handle:hover, #resize-handle.dragging { background: var(--accent); }
+
+  /* ── Preview Panel ────────────────────────────────────── */
+  #preview-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg0);
+  }
+
+  #preview-topbar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 12px;
+    height: 38px;
+    background: var(--bg0);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .preview-label {
+    font-family: var(--font-code);
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: .08em;
+  }
+  .preview-url {
+    flex: 1;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-family: var(--font-code);
+    font-size: 11px;
+    color: var(--text3);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .url-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent3); flex-shrink: 0; }
+
+  #preview-frame {
+    flex: 1;
+    border: none;
+    background: var(--preview-bg);
+  }
+
+  /* ── Console Panel ────────────────────────────────────── */
+  #console-panel {
+    height: 0;
+    overflow: hidden;
+    transition: height .2s;
+    background: var(--bg0);
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+  }
+  #console-panel.open { height: 160px; }
+  #console-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text3);
+    flex-shrink: 0;
+  }
+  #console-log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 12px;
+    font-family: var(--font-code);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .log-line { padding: 1px 0; }
+  .log-line.error { color: #ff6b6b; }
+  .log-line.warn  { color: #ffd86b; }
+  .log-line.info  { color: var(--accent3); }
+  .log-line.log   { color: var(--text2); }
+
+  /* ── Animations ───────────────────────────────────────── */
+  @keyframes fadeIn { from { opacity:0; transform: translateY(-4px); } to { opacity:1; transform: translateY(0); } }
+  #topbar, #editor-panel, #preview-panel { animation: fadeIn .4s ease both; }
+
+  /* ── Scrollbar ────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  /* ── Settings Modal ───────────────────────────────────── */
+  #modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.6); z-index: 200;
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  #modal-overlay.open { display: flex; }
+  #modal {
+    background: var(--bg1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    width: 340px;
+    box-shadow: var(--shadow);
+    animation: fadeIn .2s ease;
+  }
+  .modal-title { font-family: var(--font-brand); font-size: 13px; letter-spacing: .1em; color: var(--accent); margin-bottom: 20px; }
+  .setting-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; font-size: 13px; color: var(--text2); }
+  .setting-row select, .setting-row input[type=range] {
+    background: var(--bg2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 6px; padding: 4px 8px; font-size: 12px; cursor: pointer;
+  }
+  input[type=range] { width: 100px; accent-color: var(--accent); }
+  #modal-close { margin-top: 16px; width: 100%; justify-content: center; }
+
+  /* ── Toast ────────────────────────────────────────────── */
+  #toast {
+    position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 30px; padding: 8px 20px;
+    font-size: 12px; color: var(--text); z-index: 999;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s;
+    white-space: nowrap;
+  }
+  #toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ── Top Bar ──────────────────────────────────────── -->
+<div id="topbar">
+  <div class="brand">✦ CODEFORGE</div>
+  <div class="sep"></div>
+
+  <button class="btn btn-run" onclick="runCode()" title="Ausführen (Ctrl+Enter)">
+    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 2.5l10 5.5-10 5.5V2.5z"/></svg>
+    Ausführen
+  </button>
+
+  <button class="btn" onclick="formatCode()" title="Code formatieren">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M2 4h12M2 8h8M2 12h10"/>
+    </svg>
+    Format
+  </button>
+
+  <button class="btn" onclick="clearConsole(); toggleConsole()" title="Konsole">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="1" y="3" width="14" height="10" rx="2"/>
+      <path d="M4 7l2.5 2L4 11M8 11h4"/>
+    </svg>
+    Konsole
+  </button>
+
+  <div class="sep"></div>
+
+  <!-- Theme Dropdown -->
+  <div class="dropdown-wrap" id="theme-dropdown">
+    <button class="btn" onclick="toggleDropdown('theme-dropdown')" title="Editor-Theme">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="8" r="5"/><circle cx="8" cy="8" r="2"/>
+      </svg>
+      Theme
+    </button>
+    <div class="dropdown-menu" id="theme-menu">
+      <div class="dropdown-item active" onclick="setTheme('dracula')" data-theme="dracula">
+        <span class="theme-dot" style="background:#6272a4"></span>Dracula
+      </div>
+      <div class="dropdown-item" onclick="setTheme('monokai')" data-theme="monokai">
+        <span class="theme-dot" style="background:#a6e22e"></span>Monokai
+      </div>
+      <div class="dropdown-item" onclick="setTheme('material-darker')" data-theme="material-darker">
+        <span class="theme-dot" style="background:#89ddff"></span>Material Dark
+      </div>
+      <div class="dropdown-item" onclick="setTheme('nord')" data-theme="nord">
+        <span class="theme-dot" style="background:#88c0d0"></span>Nord
+      </div>
+      <div class="dropdown-item" onclick="setTheme('tomorrow-night-eighties')" data-theme="tomorrow-night-eighties">
+        <span class="theme-dot" style="background:#f99157"></span>Eighties
+      </div>
+      <div class="dropdown-item" onclick="setTheme('solarized dark')" data-theme="solarized dark">
+        <span class="theme-dot" style="background:#268bd2"></span>Solarized Dark
+      </div>
+      <div class="dropdown-item" onclick="setTheme('solarized light')" data-theme="solarized light">
+        <span class="theme-dot" style="background:#657b83"></span>Solarized Light
+      </div>
+      <div class="dropdown-item" onclick="setTheme('default')" data-theme="default">
+        <span class="theme-dot" style="background:#ccc"></span>Default
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" id="lightbtn" onclick="toggleLight()" title="Hell/Dunkel">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="8" cy="8" r="3"/>
+      <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/>
+    </svg>
+    Hell
+  </button>
+
+  <button class="btn" onclick="openSettings()">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="8" cy="8" r="2.5"/>
+      <path d="M8 1v1.5M8 13.5V15M15 8h-1.5M2.5 8H1M12.7 3.3l-1.06 1.06M4.36 11.64L3.3 12.7M12.7 12.7l-1.06-1.06M4.36 4.36L3.3 3.3"/>
+    </svg>
+    Einstellungen
+  </button>
+
+  <div class="spacer"></div>
+
+  <button class="btn" onclick="downloadCode()" title="Speichern">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M8 2v8M5 7l3 3 3-3"/><rect x="2" y="11" width="12" height="3" rx="1"/>
+    </svg>
+    Speichern
+  </button>
+
+  <button class="btn" id="fullbtn-editor" onclick="toggleFullscreen('editor')" title="Editor Vollbild">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/>
+    </svg>
+    Vollbild
+  </button>
+
+  <button class="btn" id="fullbtn-preview" onclick="toggleFullscreen('preview')" title="Vorschau Vollbild">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="1" y="3" width="14" height="10" rx="2"/>
+      <path d="M4 6l2 2-2 2M8 10h4"/>
+    </svg>
+    Vorschau ⛶
+  </button>
+</div>
+
+<!-- ── Workspace ─────────────────────────────────────── -->
+<div id="workspace">
+
+  <!-- Editor Panel -->
+  <div id="editor-panel">
+    <div id="file-tabs">
+      <div class="file-tab active" data-file="html" onclick="switchTab('html')">
+        <span class="tab-dot"></span>index.html
+        <span class="tab-modified"></span>
+      </div>
+      <div class="file-tab" data-file="css" onclick="switchTab('css')">
+        <span class="tab-dot"></span>style.css
+        <span class="tab-modified"></span>
+      </div>
+      <div class="file-tab" data-file="js" onclick="switchTab('js')">
+        <span class="tab-dot"></span>script.js
+        <span class="tab-modified"></span>
+      </div>
+    </div>
+    <div id="editors-wrap">
+      <div class="editor-instance active" id="ed-html"></div>
+      <div class="editor-instance"        id="ed-css"></div>
+      <div class="editor-instance"        id="ed-js"></div>
+    </div>
+  </div>
+
+  <!-- Resize Handle -->
+  <div id="resize-handle"></div>
+
+  <!-- Preview Panel -->
+  <div id="preview-panel">
+    <div id="preview-topbar">
+      <span class="preview-label">VORSCHAU</span>
+      <div class="preview-url">
+        <span class="url-dot"></span>
+        <span>preview://local</span>
+      </div>
+      <button class="btn" onclick="reloadPreview()" title="Neu laden">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M13.5 8A5.5 5.5 0 1 1 8 2.5c1.8 0 3.4.87 4.4 2.2"/><path d="M11 2.5l2 2.2-2 2"/>
+        </svg>
+      </button>
+    </div>
+    <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+    <div id="console-panel">
+      <div id="console-header">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="1" y="3" width="14" height="10" rx="2"/>
+          <path d="M4 7l2 2-2 2M8 11h4"/>
+        </svg>
+        KONSOLE
+        <button class="btn" style="margin-left:auto;padding:2px 8px;font-size:11px" onclick="clearConsole()">Leeren</button>
+      </div>
+      <div id="console-log"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Status Bar ──────────────────────────────────── -->
+<div id="statusbar">
+  <span id="status-file">HTML</span>
+  <span id="status-theme">● Dracula</span>
+  <span id="status-autorun">⚡ Auto-Run: An</span>
+  <span id="cursor-pos">Zeile 1, Spalte 1</span>
+</div>
+
+<!-- Settings Modal -->
+<div id="modal-overlay">
+  <div id="modal">
+    <div class="modal-title">⚙ EINSTELLUNGEN</div>
+    <div class="setting-row">
+      <label>Schriftgröße</label>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input type="range" id="set-fontsize" min="11" max="20" value="13" oninput="setFontSize(this.value)">
+        <span id="set-fontsize-val" style="min-width:24px;font-size:12px;color:var(--text2)">13</span>
+      </div>
+    </div>
+    <div class="setting-row">
+      <label>Tab-Breite</label>
+      <select onchange="setTabSize(+this.value)">
+        <option value="2">2 Leerzeichen</option>
+        <option value="4" selected>4 Leerzeichen</option>
+        <option value="8">8 Leerzeichen</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <label>Auto-Run</label>
+      <select id="set-autorun" onchange="autoRunDelay = +this.value">
+        <option value="600">600ms</option>
+        <option value="1000" selected>1s</option>
+        <option value="2000">2s</option>
+        <option value="0">Aus</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <label>Zeilennummern</label>
+      <select onchange="setLineNums(this.value==='true')">
+        <option value="true" selected>An</option>
+        <option value="false">Aus</option>
+      </select>
+    </div>
+    <button class="btn" id="modal-close" onclick="closeSettings()">Schließen</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ──────────────────────────────────────────────────────────
+//  State
+// ──────────────────────────────────────────────────────────
+let currentTab = 'html';
+let currentTheme = 'dracula';
+let autoRunDelay = 1000;
+let autoRunTimer = null;
+let isLightMode = false;
+let editorFullscreen = false;
+let previewFullscreen = false;
+
+// Default starter code
+const DEFAULT_HTML = `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meine Seite</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>✦ Hallo, CodeForge!</h1>
+    <p>Bearbeite HTML, CSS und JS — die Vorschau aktualisiert sich live.</p>
+    <button onclick="greet()">Klick mich</button>
+    <div id="output"></div>
+  </div>
+  <script src="script.js"><\/script>
+</body>
+</html>`;
+
+const DEFAULT_CSS = `/* ── Stile ───────────────────────── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: linear-gradient(135deg, #13161e 0%, #1a1e28 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e2e4f0;
+}
+
+.container {
+  text-align: center;
+  padding: 48px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  max-width: 520px;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 16px;
+  background: linear-gradient(90deg, #7c6aff, #ff6a9b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+p {
+  color: #8890b0;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+button {
+  padding: 10px 28px;
+  background: linear-gradient(135deg, #7c6aff, #ff6a9b);
+  border: none;
+  border-radius: 30px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .15s, filter .15s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+
+#output {
+  margin-top: 20px;
+  font-size: 1.4rem;
+  min-height: 32px;
+}`;
+
+const DEFAULT_JS = `// ── Skript ───────────────────────────
+const messages = [
+  '🎉 Willkommen!',
+  '🚀 CodeForge rockt!',
+  '✨ Toll gemacht!',
+  '💡 Kreativ sein!',
+  '🔥 Weiter so!'
+];
+
+let count = 0;
+
+function greet() {
+  const out = document.getElementById('output');
+  out.style.opacity = '0';
+  out.style.transform = 'translateY(10px)';
+  out.style.transition = 'all .3s';
+  
+  setTimeout(() => {
+    out.textContent = messages[count % messages.length];
+    out.style.opacity = '1';
+    out.style.transform = 'translateY(0)';
+    count++;
+  }, 150);
+}`;
+
+// ──────────────────────────────────────────────────────────
+//  CodeMirror Setup
+// ──────────────────────────────────────────────────────────
+const cmOptions = {
+  theme: 'dracula',
+  lineNumbers: true,
+  matchBrackets: true,
+  autoCloseBrackets: true,
+  autoCloseTags: true,
+  indentUnit: 4,
+  tabSize: 4,
+  indentWithTabs: false,
+  foldGutter: true,
+  gutters: ['CodeMirror-linenumbers','CodeMirror-foldgutter'],
+  extraKeys: {
+    'Ctrl-Enter': runCode,
+    'Cmd-Enter':  runCode,
+    'Ctrl-/': (cm) => cm.execCommand('toggleComment'),
+    'Cmd-/':  (cm) => cm.execCommand('toggleComment'),
+  }
+};
+
+const editors = {
+  html: CodeMirror(document.getElementById('ed-html'), {
+    ...cmOptions, mode: 'htmlmixed', value: DEFAULT_HTML
+  }),
+  css: CodeMirror(document.getElementById('ed-css'), {
+    ...cmOptions, mode: 'css', value: DEFAULT_CSS
+  }),
+  js: CodeMirror(document.getElementById('ed-js'), {
+    ...cmOptions, mode: 'javascript', value: DEFAULT_JS
+  }),
+};
+
+// cursor position in statusbar
+Object.values(editors).forEach(ed => {
+  ed.on('cursorActivity', () => {
+    const c = ed.getCursor();
+    document.getElementById('cursor-pos').textContent =
+      `Zeile ${c.line+1}, Spalte ${c.ch+1}`;
+  });
+  ed.on('change', () => {
+    scheduleAutoRun();
+    markModified(currentTab);
+  });
+});
+
+// ──────────────────────────────────────────────────────────
+//  Tab Switching
+// ──────────────────────────────────────────────────────────
+function switchTab(file) {
+  currentTab = file;
+  document.querySelectorAll('.file-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.file === file));
+  document.querySelectorAll('.editor-instance').forEach(e =>
+    e.classList.toggle('active', e.id === `ed-${file}`));
+  editors[file].refresh();
+  editors[file].focus();
+
+  const labels = { html:'HTML', css:'CSS', js:'JavaScript' };
+  document.getElementById('status-file').textContent = labels[file];
+}
+
+function markModified(file) {
+  document.querySelector(`.file-tab[data-file="${file}"]`).classList.add('modified');
+}
+
+// ──────────────────────────────────────────────────────────
+//  Run / Preview
+// ──────────────────────────────────────────────────────────
+function runCode() {
+  const html = editors.html.getValue();
+  const css  = editors.css.getValue();
+  const js   = editors.js.getValue();
+
+  const combined = html
+    .replace('</head>', `<style>\n${css}\n</style>\n</head>`)
+    .replace('</body>', `<script>\n${js}\n<\/script>\n</body>`);
+
+  const frame = document.getElementById('preview-frame');
+  frame.srcdoc = combined;
+
+  // clear modified indicators
+  document.querySelectorAll('.file-tab').forEach(t => t.classList.remove('modified'));
+  showToast('⚡ Ausgeführt');
+}
+
+function reloadPreview() { runCode(); }
+
+function scheduleAutoRun() {
+  if (!autoRunDelay) return;
+  clearTimeout(autoRunTimer);
+  autoRunTimer = setTimeout(runCode, autoRunDelay);
+}
+
+// ──────────────────────────────────────────────────────────
+//  Theme
+// ──────────────────────────────────────────────────────────
+function setTheme(theme) {
+  currentTheme = theme;
+  Object.values(editors).forEach(ed => ed.setOption('theme', theme));
+  document.querySelectorAll('.dropdown-item[data-theme]').forEach(el =>
+    el.classList.toggle('active', el.dataset.theme === theme));
+  document.getElementById('status-theme').textContent = `● ${theme}`;
+  closeAllDropdowns();
+}
+
+// ──────────────────────────────────────────────────────────
+//  Light / Dark
+// ──────────────────────────────────────────────────────────
+function toggleLight() {
+  isLightMode = !isLightMode;
+  document.documentElement.toggleAttribute('data-light', isLightMode);
+  const btn = document.getElementById('lightbtn');
+  btn.innerHTML = isLightMode
+    ? `<svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2zm0 1a5 5 0 1 1 0 10A5 5 0 0 1 8 3z"/><path d="M8 4a4 4 0 0 0 0 8V4z"/></svg> Dunkel`
+    : `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/></svg> Hell`;
+}
+
+// ──────────────────────────────────────────────────────────
+//  Fullscreen
+// ──────────────────────────────────────────────────────────
+function toggleFullscreen(which) {
+  if (which === 'editor') {
+    editorFullscreen = !editorFullscreen;
+    document.getElementById('editor-panel').classList.toggle('fullscreen', editorFullscreen);
+    document.getElementById('resize-handle').style.display = editorFullscreen ? 'none' : '';
+    document.getElementById('preview-panel').style.display = editorFullscreen ? 'none' : '';
+    document.getElementById('fullbtn-editor').classList.toggle('active', editorFullscreen);
+    if (editorFullscreen) showToast('Editor Vollbild — Esc zum Beenden');
+    else { document.getElementById('preview-panel').style.display = ''; document.getElementById('resize-handle').style.display = ''; }
+  } else {
+    previewFullscreen = !previewFullscreen;
+    document.getElementById('preview-panel').classList.toggle('fullscreen', previewFullscreen);
+    document.getElementById('resize-handle').style.display = previewFullscreen ? 'none' : '';
+    document.getElementById('editor-panel').style.display = previewFullscreen ? 'none' : '';
+    document.getElementById('fullbtn-preview').classList.toggle('active', previewFullscreen);
+    if (previewFullscreen) showToast('Vorschau Vollbild — Esc zum Beenden');
+    else { document.getElementById('editor-panel').style.display = ''; document.getElementById('resize-handle').style.display = ''; }
+  }
+  Object.values(editors).forEach(ed => ed.refresh());
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (editorFullscreen) toggleFullscreen('editor');
+    if (previewFullscreen) toggleFullscreen('preview');
+  }
+});
+
+// ──────────────────────────────────────────────────────────
+//  Resize Handle
+// ──────────────────────────────────────────────────────────
+const handle = document.getElementById('resize-handle');
+let dragging = false, startX = 0, startW = 0;
+
+handle.addEventListener('mousedown', e => {
+  dragging = true; startX = e.clientX;
+  startW = document.getElementById('editor-panel').offsetWidth;
+  handle.classList.add('dragging');
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+});
+
+document.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const w = Math.max(200, Math.min(startW + e.clientX - startX,
+    document.getElementById('workspace').offsetWidth - 200));
+  document.getElementById('editor-panel').style.width = w + 'px';
+});
+
+document.addEventListener('mouseup', () => {
+  if (!dragging) return;
+  dragging = false;
+  handle.classList.remove('dragging');
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
+  Object.values(editors).forEach(ed => ed.refresh());
+});
+
+// ──────────────────────────────────────────────────────────
+//  Console
+// ──────────────────────────────────────────────────────────
+let consoleOpen = false;
+function toggleConsole() {
+  consoleOpen = !consoleOpen;
+  document.getElementById('console-panel').classList.toggle('open', consoleOpen);
+}
+function clearConsole() {
+  document.getElementById('console-log').innerHTML = '';
+}
+function logToConsole(type, args) {
+  const div = document.createElement('div');
+  div.className = `log-line ${type}`;
+  const prefix = { log:'▸', error:'✖', warn:'⚠', info:'ℹ' }[type] || '▸';
+  div.textContent = prefix + ' ' + args.join(' ');
+  document.getElementById('console-log').appendChild(div);
+  if (!consoleOpen) toggleConsole();
+}
+
+// Intercept console from iframe
+window.addEventListener('message', e => {
+  if (e.data?.type === 'console') logToConsole(e.data.level, e.data.args);
+});
+
+// ──────────────────────────────────────────────────────────
+//  Settings
+// ──────────────────────────────────────────────────────────
+function openSettings() {
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target.id === 'modal-overlay') closeSettings();
+});
+
+function setFontSize(v) {
+  document.getElementById('set-fontsize-val').textContent = v;
+  Object.values(editors).forEach(ed => {
+    ed.getWrapperElement().style.fontSize = v + 'px';
+    ed.refresh();
+  });
+}
+function setTabSize(n) {
+  Object.values(editors).forEach(ed => { ed.setOption('tabSize', n); ed.setOption('indentUnit', n); });
+}
+function setLineNums(v) {
+  Object.values(editors).forEach(ed => ed.setOption('lineNumbers', v));
+}
+
+// ──────────────────────────────────────────────────────────
+//  Format (basic beautify via indent)
+// ──────────────────────────────────────────────────────────
+function formatCode() {
+  const ed = editors[currentTab];
+  const total = ed.lineCount();
+  for (let i = 0; i < total; i++) {
+    const line = ed.getLine(i);
+    if (line.trim() !== line && line.trim() === '') {
+      ed.replaceRange('', {line:i,ch:0},{line:i,ch:line.length});
+    }
+  }
+  showToast('✓ Formatiert');
+}
+
+// ──────────────────────────────────────────────────────────
+//  Save / Download
+// ──────────────────────────────────────────────────────────
+function downloadCode() {
+  const html = editors.html.getValue();
+  const css  = editors.css.getValue();
+  const js   = editors.js.getValue();
+
+  const combined = html
+    .replace('</head>', `<style>\n${css}\n</style>\n</head>`)
+    .replace('</body>', `<script>\n${js}\n<\/script>\n</body>`);
+
+  const a = document.createElement('a');
+  a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(combined);
+  a.download = 'index.html';
+  a.click();
+  showToast('💾 Gespeichert als index.html');
+}
+
+// ──────────────────────────────────────────────────────────
+//  Dropdown
+// ──────────────────────────────────────────────────────────
+function toggleDropdown(id) {
+  const el = document.getElementById(id);
+  const wasOpen = el.classList.contains('open');
+  closeAllDropdowns();
+  if (!wasOpen) el.classList.add('open');
+}
+function closeAllDropdowns() {
+  document.querySelectorAll('.dropdown-wrap').forEach(d => d.classList.remove('open'));
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.dropdown-wrap')) closeAllDropdowns();
+});
+
+// ──────────────────────────────────────────────────────────
+//  Toast
+// ──────────────────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ──────────────────────────────────────────────────────────
+//  Init
+// ──────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  runCode();
+  Object.values(editors).forEach(ed => ed.refresh());
+  // keyboard shortcut hints in statusbar
+  const sb = document.getElementById('statusbar');
+  const hint = document.createElement('span');
+  hint.style.marginLeft = '8px';
+  hint.textContent = 'Ctrl+Enter: Ausführen · Ctrl+/: Kommentar';
+  sb.insertBefore(hint, document.getElementById('cursor-pos'));
+});
+</script>
+</body>
+</html>
