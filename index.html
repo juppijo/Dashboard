@@ -39,7 +39,26 @@
   <article class="card card-weather" id="cardWeather">
     <div class="card-label">Wetter</div>
     <div id="weatherContent">
-      <div class="placeholder-msg">⚙ API-Key in Einstellungen eingeben</div>
+      <link rel="stylesheet" href="//openweathermap.org/themes/openweathermap/assets/vendor/owm/css/style.min.css">
+      <div id="openweathermap-widget-5"></div>
+      <script type="text/javascript">
+        window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
+        window.myWidgetParam.push({
+          id: 5,
+          cityid: '2792119',
+          appid: '995838237b169caecad49f5f0db3cef3',
+          units: 'metric',
+          containerid: 'openweathermap-widget-5',
+        });
+        (function() {
+          var script = document.createElement('script');
+          script.async = true;
+          script.charset = "utf-8";
+          script.src = "//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js";
+          var s = document.getElementsByTagName('script')[0];
+          s.parentNode.insertBefore(script, s);
+        })();
+      <\/script>
     </div>
   </article>
 

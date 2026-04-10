@@ -396,20 +396,15 @@ body::before {
 .fc-day-temp { font-size: 0.72rem; color: var(--text); }
 
 /* ── SLIDESHOW ── */
-.card-slide { display: flex; flex-direction: column; min-height: 340px; }
-
-#slideshow { display: flex; flex-direction: column; flex: 1; gap: 0.6rem; }
+.card-slide { display: flex; flex-direction: column; min-height: 380px; padding-bottom: 0.8rem; }
+#slideshow { display: flex; flex-direction: column; flex: 1; gap: 0.7rem; min-height: 0; }
 .slide-wrapper {
   flex: 1; border-radius: 8px; overflow: hidden;
   background: rgba(0,0,0,0.2);
   position: relative; display: flex; align-items: center; justify-content: center;
-  min-height: 220px;
+  min-height: 260px;
 }
-#slideImg {
-  width: 100%; height: 100%; object-fit: cover;
-  display: block;
-  transition: opacity 0.6s ease;
-}
+#slideImg { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 0.6s ease; }
 #slideCaption {
   position: absolute; bottom: 0; left: 0; right: 0;
   background: linear-gradient(transparent, rgba(0,0,0,0.6));
@@ -417,27 +412,23 @@ body::before {
   opacity: 0; transition: opacity 0.3s;
 }
 .slide-wrapper:hover #slideCaption { opacity: 1; }
-
 .slide-controls {
   display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+  flex-shrink: 0; padding: 0.4rem 0.6rem;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
 }
 .slide-btn {
-  background: var(--surface); border: 1px solid var(--border);
-  color: var(--text); border-radius: 6px;
-  padding: 0.25rem 0.6rem; font-size: 0.9rem;
-  cursor: pointer; transition: all 0.2s;
+  background: transparent; border: none; color: var(--text); border-radius: 6px;
+  padding: 0.3rem 0.7rem; font-size: 1.1rem; cursor: pointer; transition: color 0.2s;
 }
-.slide-btn:hover { background: var(--surface-h); color: var(--accent); border-color: var(--accent); }
-#slideCounter { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); min-width: 3rem; text-align: center; }
-
+.slide-btn:hover { color: var(--accent); }
+#slideCounter { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); min-width: 3.5rem; text-align: center; }
 .slide-upload-btn {
-  background: var(--surface); border: 1px solid var(--border);
-  color: var(--accent); border-radius: 6px;
-  padding: 0.25rem 0.6rem; font-size: 0.9rem;
-  cursor: pointer; transition: all 0.2s; font-weight: 500;
+  background: var(--accent); border: none; color: #000; border-radius: 6px;
+  padding: 0.3rem 0.9rem; font-size: 0.9rem; cursor: pointer; font-weight: 700;
+  transition: opacity 0.2s; margin-left: 0.3rem; letter-spacing: 0.02em;
 }
-.slide-upload-btn:hover { background: var(--surface-h); border-color: var(--accent); }
-
+.slide-upload-btn:hover { opacity: 0.82; }
 #slideEmpty { text-align: center; padding: 3rem 0; }
 
 /* ── CALENDAR ── */
@@ -670,4 +661,16 @@ body::before {
     grid-column: 1 !important;
     grid-row: auto !important;
   }
+}
+
+/* ── OWM WIDGET ANPASSUNG ── */
+.card-weather { min-height: 260px; overflow: hidden; }
+#weatherContent { overflow: hidden; }
+#openweathermap-widget-5 { width: 100%; }
+#openweathermap-widget-5 > div { border-radius: 8px !important; }
+
+/* Dark-Mode: Widget invertieren */
+[data-mode="dark"] #openweathermap-widget-5 {
+  filter: invert(1) hue-rotate(180deg) brightness(0.88) contrast(0.92);
+  border-radius: 8px;
 }
