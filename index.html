@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="cosmos" data-mode="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ═══════════════════ TOP BAR ═══════════════════ -->
+<header id="topbar">
+  <div class="bar-left">
+    <div class="logo">◈ DASHBOARD</div>
+    <div id="dateDisplay" class="date-display"></div>
+  </div>
+  <div class="bar-right">
+    <button class="ctrl-btn" id="btnSettings" title="Einstellungen">⚙</button>
+    <button class="ctrl-btn" id="btnTheme"    title="Theme wechseln">◑</button>
+    <button class="ctrl-btn" id="btnMode"     title="Hell / Dunkel">☀</button>
+    <button class="ctrl-btn" id="btnFullscreen" title="Vollbild">⛶</button>
+  </div>
+</header>
+
+<!-- ═══════════════════ GRID ═══════════════════ -->
+<main id="grid">
+
+  <!-- CLOCK CARD -->
+  <article class="card card-clock" id="cardClock">
+    <div class="card-label">Uhr</div>
+    <canvas id="analogClock" width="180" height="180"></canvas>
+    <div id="digitalClock" class="digital-clock"></div>
+  </article>
+
+  <!-- WEATHER CARD -->
+  <article class="card card-weather" id="cardWeather">
+    <div class="card-label">Wetter</div>
+    <div id="weatherContent">
+      <div class="placeholder-msg">⚙ API-Key in Einstellungen eingeben</div>
+    </div>
+  </article>
+
+  <!-- SLIDESHOW CARD -->
+  <article class="card card-slide" id="cardSlide">
+    <div class="card-label">Diaschau</div>
+    <div id="slideshow">
+      <div class="slide-wrapper">
+        <img id="slideImg" src="" alt="" />
+        <div id="slideCaption"></div>
+      </div>
+      <div class="slide-controls">
+        <button class="slide-btn" id="slidePrev">‹</button>
+        <span id="slideCounter"></span>
+        <button class="slide-btn" id="slideNext">›</button>
+        <button class="slide-btn" id="slidePlay" title="Automatisch">▶</button>
+        <label class="slide-upload-btn" title="Bilder laden">
+          ＋ <input type="file" id="slideInput" accept="image/*" multiple hidden />
+        </label>
+      </div>
+    </div>
+    <div id="slideEmpty" class="placeholder-msg">Bilder über ＋ hinzufügen</div>
+  </article>
+
+  <!-- CALENDAR CARD -->
+  <article class="card card-calendar" id="cardCalendar">
+    <div class="card-label">Google Kalender</div>
+    <div id="calendarContent">
+      <div class="placeholder-msg">⚙ Client-ID in Einstellungen & Anmelden</div>
+      <button class="api-btn" id="btnCalAuth">Google Anmelden</button>
+    </div>
+  </article>
+
+  <!-- TASKS CARD -->
+  <article class="card card-tasks" id="cardTasks">
+    <div class="card-label">Google Tasks</div>
+    <div id="tasksContent">
+      <div class="placeholder-msg">⚙ Anmelden für Tasks</div>
+      <button class="api-btn" id="btnTasksAuth">Anmelden</button>
+    </div>
+  </article>
+
+  <!-- NOTES CARD -->
+  <article class="card card-notes" id="cardNotes">
+    <div class="card-label">Notizen</div>
+    <div id="notesContent">
+      <div class="notes-toolbar">
+        <button class="note-tool" id="btnAddNote" title="Neue Notiz">＋</button>
+        <button class="note-tool" id="btnClearNotes" title="Alle löschen">🗑</button>
+      </div>
+      <div id="notesList"></div>
+    </div>
+  </article>
+
+  <!-- MINI WIDGET CARD (erweiterbar) -->
+  <article class="card card-mini" id="cardMini">
+    <div class="card-label">Schnellinfo</div>
+    <div id="miniContent">
+      <div class="mini-row"><span class="mini-label">KW</span><span id="miniWeek"></span></div>
+      <div class="mini-row"><span class="mini-label">Tag</span><span id="miniDayOfYear"></span></div>
+      <div class="mini-row"><span class="mini-label">Sonnenaufgang</span><span id="miniSunrise">—</span></div>
+      <div class="mini-row"><span class="mini-label">Sonnenuntergang</span><span id="miniSunset">—</span></div>
+    </div>
+  </article>
+
+</main>
+
+<!-- ═══════════════════ SETTINGS MODAL ═══════════════════ -->
+<div id="settingsModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-title">⚙ Einstellungen</div>
+    <label>OpenWeather API-Key
+      <input type="text" id="cfgWeatherKey" placeholder="dein-api-key" />
+    </label>
+    <label>Ort (Stadt, z.B. Welkenraedt,BE)
+      <input type="text" id="cfgWeatherCity" placeholder="Welkenraedt,BE" />
+    </label>
+    <label>Google Client-ID (für Kalender &amp; Tasks)
+      <input type="text" id="cfgGoogleClientId" placeholder="xxxxx.apps.googleusercontent.com" />
+    </label>
+    <label>Diaschau Intervall (Sek.)
+      <input type="number" id="cfgSlideInterval" value="5" min="1" max="60" />
+    </label>
+    <div class="modal-btns">
+      <button class="api-btn" id="btnSettingsSave">Speichern</button>
+      <button class="api-btn secondary" id="btnSettingsClose">Abbrechen</button>
+    </div>
+  </div>
+</div>
+<div id="modalOverlay" class="hidden"></div>
+
+<!-- Google API -->
+<script src="https://apis.google.com/js/api.js" async defer></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!-- OpenWeather Widget - Large with 8-Day Forecast -->
+<link rel="stylesheet" href="//openweathermap.org/themes/openweathermap/assets/vendor/owm/css/style.min.css">
+<script src="//unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
+<div id="openweathermap-widget-1"></div>
+<script type="text/javascript">
+	window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
+	window.myWidgetParam.push({
+		id: 1,
+		cityid: '2792119',
+		appid: '995838237b169caecad49f5f0db3cef3',
+		units: 'metric',
+		containerid: 'openweathermap-widget-1',
+	});
+(function() {
+	var script = document.createElement('script');
+	script.async = true;
+	script.charset = "utf-8";
+	script.src = "//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js";
+	var s = document.getElementsByTagName('script')[0];
+	s.parentNode.insertBefore(script, s);
+	})();
+</script>
