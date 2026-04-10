@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profi Starboard</title>
     <link rel="stylesheet" href="https://openweathermap.org/themes/openweathermap/assets/vendor/owm/css/style.min.css">
-    
+
     <style>
         :root[data-theme="light"] {
             --bg-color: #eef2f3;
@@ -93,7 +93,7 @@
 
         <div class="card" style="grid-row: span 2;">
             <h3>Wetter (Lontzen)</h3>
-            <div id="openweathermap-widget-1"></div>
+            <div id="openweathermap-widget-5"></div>
         </div>
 
         <div class="card" style="grid-column: span 2;">
@@ -127,15 +127,39 @@
 
     <script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
     <script>
-        // --- WETTER CONFIG ---
+
+        // --- WETTER CONFIG 1 ---
+          window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
+          window.myWidgetParam.push({
+            id: 5,
+            cityid: '2792119',
+            appid: '995838237b169caecad49f5f0db3cef3',
+            units: 'metric',
+            containerid: 'openweathermap-widget-5',
+          });
+          (function() {
+            var script = document.createElement('script');
+            script.async = true;
+            script.charset = "utf-8";
+            script.src = "//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js";
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(script, s);
+          })();
+
+
+        // --- WETTER CONFIG 2 ---
         window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
         window.myWidgetParam.push({
-            id: 1, cityid: '2792119', appid: '995838237b169caecad49f5f0db3cef3',
-            units: 'metric', containerid: 'openweathermap-widget-1',
+            id: 1, 
+            cityid: '2792119', 
+            appid: '995838237b169caecad49f5f0db3cef3',
+            units: 'metric', 
+            containerid: 'openweathermap-widget-1',
         });
         (function() {
             var script = document.createElement('script');
-            script.async = true; script.charset = "utf-8";
+            script.async = true; 
+            script.charset = "utf-8";
             script.src = "https://openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js";
             var s = document.getElementsByTagName('script')[0];
             s.parentNode.insertBefore(script, s);

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mein Starboard</title>
+    <link rel="stylesheet" href="https://openweathermap.org/themes/openweathermap/assets/vendor/owm/css/style.min.css">
+
     <style>
         /* CSS VARIABLEN FÜR THEMES */
         :root[data-theme="light"] {
@@ -105,33 +107,9 @@
             <div class="placeholder"><iframe src="https://calendar.google.com/calendar/embed?src=juppi.jo%40gmail.com&ctz=Europe%2FBrussels" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></div>
         </div>
 
-        <div class="card">
-            <h3>Wetter</h3>
-            <div class="placeholder">OpenWeather Widget API hier einfügen
-
-                <!-- OpenWeather Widget - Detailed Card -->
-                <link rel="stylesheet" href="//openweathermap.org/themes/openweathermap/assets/vendor/owm/css/style.min.css">
-                <div id="openweathermap-widget-5"></div>
-                <script type="text/javascript">
-                  window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
-                  window.myWidgetParam.push({
-                    id: 5,
-                    cityid: '2792119',
-                    appid: '995838237b169caecad49f5f0db3cef3',
-                    units: 'metric',
-                    containerid: 'openweathermap-widget-5',
-                  });
-                  (function() {
-                    var script = document.createElement('script');
-                    script.async = true;
-                    script.charset = "utf-8";
-                    script.src = "//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js";
-                    var s = document.getElementsByTagName('script')[0];
-                    s.parentNode.insertBefore(script, s);
-                  })();
-                </script>
-
-            </div>
+        <div class="card" style="grid-row: span 2;">
+            <h3>Wetter (Lontzen)</h3>
+            <div id="openweathermap-widget-5"></div>
         </div>
 
         <div class="card">
@@ -148,6 +126,13 @@
         </div>
 
         <div class="card">
+            <h3>Google Keep</h3>
+            <div style="text-align: center; padding: 20px;">
+                <a href="https://keep.google.com" target="_blank" style="color: var(--accent-color); text-decoration: none;">Öffne Google Keep ↗</a>
+            </div>
+        </div>
+
+        <div class="card">
             <h3>Dia-Show</h3>
             <img id="slideshow" src="https://picsum.photos/400/300" alt="Random Image" style="width:100%; border-radius:10px;">
         </div>
@@ -159,6 +144,43 @@
     </div>
 
     <script>
+        // --- WETTER CONFIG 1 ---
+          window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
+          window.myWidgetParam.push({
+            id: 5,
+            cityid: '2792119',
+            appid: '995838237b169caecad49f5f0db3cef3',
+            units: 'metric',
+            containerid: 'openweathermap-widget-5',
+          });
+          (function() {
+            var script = document.createElement('script');
+            script.async = true;
+            script.charset = "utf-8";
+            script.src = "//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js";
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(script, s);
+          })();
+
+
+        // --- WETTER CONFIG 2 ---
+        window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
+        window.myWidgetParam.push({
+            id: 1, 
+            cityid: '2792119', 
+            appid: '995838237b169caecad49f5f0db3cef3',
+            units: 'metric', 
+            containerid: 'openweathermap-widget-1',
+        });
+        (function() {
+            var script = document.createElement('script');
+            script.async = true; 
+            script.charset = "utf-8";
+            script.src = "https://openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js";
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(script, s);
+        })();
+
         // 1. UHR LOGIK
         function updateClock() {
             const now = new Date();
@@ -185,6 +207,18 @@
                     document.exitFullscreen();
                 }
             }
+        }
+
+        // --- TASKS ---
+        function addTask() {
+            const input = document.getElementById('task-input');
+            if (input.value === '') return;
+            const container = document.getElementById('task-container');
+            const div = document.createElement('div');
+            div.className = 'task-item';
+            div.innerHTML = `<span>${input.value}</span><span class="delete-btn" onclick="this.parentElement.remove()">✕</span>`;
+            container.appendChild(div);
+            input.value = '';
         }
 
         // 4. EINFACHE DIA-SHOW (Beispiel)
