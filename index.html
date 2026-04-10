@@ -42,7 +42,7 @@
     <div class="card-label">Wetter</div>
     <div id="owmWrapper">
       <link rel="stylesheet" href="//openweathermap.org/themes/openweathermap/assets/vendor/owm/css/style.min.css" />
-      <div id="openweathermap-widget-5"></div>
+      <div id="openweathermap-widget-1"></div>
     </div>
   </article>
 
@@ -90,6 +90,14 @@
     </div>
   </article>
 
+  <!-- 5 · AUFGABEN -->
+  <article class="card" id="Gkeep">
+      <div class="card-label">Google Keep</div>
+        <div style="text-align: center; padding: 20px;">
+            <a href="https://keep.google.com" target="_blank" style="color: var(--accent-color); text-decoration: none;">Öffne Google Keep ↗</a>
+        </div>
+  </article>
+
   <!-- 6 · NOTIZEN -->
   <article class="card" id="cardNotes">
     <div class="card-label">
@@ -135,6 +143,8 @@
 
 <!-- OWM Widget Script (ganz am Ende, nach dem DOM) -->
 <script>
+
+  /* --- WETTER CONFIG 1 ---
   window.myWidgetParam = window.myWidgetParam || [];
   window.myWidgetParam.push({
     id: 5,
@@ -147,9 +157,29 @@
     var sc = document.createElement('script');
     sc.async = true;
     sc.charset = 'utf-8';
-    sc.src = '//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js';
+    sc.src = "https://openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js";
     document.body.appendChild(sc);
   })();
+  */
+
+  // --- WETTER CONFIG 2 ---
+  window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
+  window.myWidgetParam.push({
+      id: 1, 
+      cityid: '2792119', 
+      appid: '995838237b169caecad49f5f0db3cef3',
+      units: 'metric', 
+      containerid: 'openweathermap-widget-1',
+  });
+  (function() {
+    var script = document.createElement('script');
+    script.async = true; 
+    script.charset = "utf-8";
+    script.src = "https://openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js";
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(script, s);
+  })();
+
 </script>
 
 <script src="app.js"></script>
