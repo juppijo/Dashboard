@@ -102,12 +102,36 @@
 
         <div class="card">
             <h3>Google Kalender</h3>
-            <div class="placeholder">Google Kalender Embed hier einfügen</div>
+            <div class="placeholder"><iframe src="https://calendar.google.com/calendar/embed?src=juppi.jo%40gmail.com&ctz=Europe%2FBrussels" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></div>
         </div>
 
         <div class="card">
             <h3>Wetter</h3>
-            <div class="placeholder">OpenWeather Widget API hier einfügen</div>
+            <div class="placeholder">OpenWeather Widget API hier einfügen
+
+                <!-- OpenWeather Widget - Detailed Card -->
+                <link rel="stylesheet" href="//openweathermap.org/themes/openweathermap/assets/vendor/owm/css/style.min.css">
+                <div id="openweathermap-widget-5"></div>
+                <script type="text/javascript">
+                  window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
+                  window.myWidgetParam.push({
+                    id: 5,
+                    cityid: '2792119',
+                    appid: '995838237b169caecad49f5f0db3cef3',
+                    units: 'metric',
+                    containerid: 'openweathermap-widget-5',
+                  });
+                  (function() {
+                    var script = document.createElement('script');
+                    script.async = true;
+                    script.charset = "utf-8";
+                    script.src = "//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js";
+                    var s = document.getElementsByTagName('script')[0];
+                    s.parentNode.insertBefore(script, s);
+                  })();
+                </script>
+
+            </div>
         </div>
 
         <div class="card">
@@ -120,7 +144,7 @@
 
         <div class="card">
             <h3>Notizen</h3>
-            <div class="placeholder">Google Keep Link / IFrame</div>
+            <div class="placeholder"><iframe src="https://keep.google.com" width="100%" height="500px"></iframe></div>
         </div>
 
         <div class="card">
