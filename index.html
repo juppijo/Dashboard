@@ -25,7 +25,7 @@
   </div>
 </header>
 
-<!-- ╔══════════════ GRID ══════════════╗ -->
+<!-- ╔══════════════ GRID (free-form) ══════════════╗ -->
 <main id="grid">
 
   <!-- 1 · UHR -->
@@ -35,6 +35,7 @@
       <canvas id="analogClock" width="160" height="160"></canvas>
       <div id="digitalClock" class="digital"></div>
     </div>
+    <div class="resize-handle" data-id="cardClock"></div>
   </article>
 
   <!-- 2 · WETTER (OWM Widget) -->
@@ -44,6 +45,7 @@
       <link rel="stylesheet" href="//openweathermap.org/themes/openweathermap/assets/vendor/owm/css/style.min.css" />
       <div id="openweathermap-widget-5"></div>
     </div>
+    <div class="resize-handle" data-id="cardWeather"></div>
   </article>
 
   <!-- 3 · DIASCHAU -->
@@ -54,18 +56,19 @@
         <img id="slideImg" src="" alt="" />
         <div id="slideCap"></div>
       </div>
-      <!-- Steuerleiste — immer sichtbar -->
       <div id="slideBar">
         <button class="sbtn" id="sPrev">&#8249;</button>
         <span id="sCnt">0 / 0</span>
         <button class="sbtn" id="sNext">&#8250;</button>
         <button class="sbtn" id="sPlay" title="Autoplay">&#9654;</button>
+        <button class="sbtn" id="sDel"  title="Bild löschen">🗑</button>
         <label class="upload-lbl" title="Bilder laden">
           ＋<input type="file" id="sInput" accept="image/*" multiple hidden />
         </label>
       </div>
     </div>
     <div id="slideEmpty">Bilder über <strong>＋</strong> hinzufügen</div>
+    <div class="resize-handle" data-id="cardSlide"></div>
   </article>
 
   <!-- 4 · KALENDER -->
@@ -76,6 +79,7 @@
       src="https://calendar.google.com/calendar/embed?src=juppi.jo%40gmail.com&ctz=Europe%2FBrussels&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&mode=AGENDA"
       frameborder="0" scrolling="no">
     </iframe>
+    <div class="resize-handle" data-id="cardCal"></div>
   </article>
 
   <!-- 5 · AUFGABEN -->
@@ -88,26 +92,29 @@
       </div>
       <div id="taskList"></div>
     </div>
+    <div class="resize-handle" data-id="cardTasks"></div>
   </article>
 
-  <!-- 5 · AUFGABEN -->
+  <!-- 6 · GOOGLE KEEP -->
   <article class="card" id="Gkeep">
-      <div class="card-label">Google Keep</div>
-        <div style="text-align: center; padding: 20px;">
-            <a href="https://keep.google.com" target="_blank" style="color: var(--accent-color); text-decoration: none;">Öffne Google Keep ↗</a>
-        </div>
+    <div class="card-label">Google Keep</div>
+    <div style="text-align: center; padding: 20px;">
+      <a href="https://keep.google.com" target="_blank" style="color: var(--ac); text-decoration: none;">Öffne Google Keep ↗</a>
+    </div>
+    <div class="resize-handle" data-id="Gkeep"></div>
   </article>
 
-  <!-- 6 · NOTIZEN -->
+  <!-- 7 · NOTIZEN -->
   <article class="card" id="cardNotes">
     <div class="card-label">
       Notizen
       <button class="note-add-btn" id="btnAddNote" title="Neue Notiz">＋</button>
     </div>
     <div id="noteGrid"></div>
+    <div class="resize-handle" data-id="cardNotes"></div>
   </article>
 
-  <!-- 7 · SCHNELLINFO -->
+  <!-- 8 · SCHNELLINFO -->
   <article class="card" id="cardInfo">
     <div class="card-label">Info</div>
     <div id="infoList">
@@ -116,6 +123,7 @@
       <div class="info-row"><span class="info-lbl">Sonnenaufgang</span><span id="iRise">—</span></div>
       <div class="info-row"><span class="info-lbl">Sonnenuntergang</span><span id="iSet">—</span></div>
     </div>
+    <div class="resize-handle" data-id="cardInfo"></div>
   </article>
 
 </main>
@@ -137,14 +145,13 @@
     <div class="mbtns">
       <button class="mbtn" id="cfgSave">Speichern</button>
       <button class="mbtn sec" id="cfgClose">Abbrechen</button>
+      <button class="mbtn sec" id="cfgResetLayout" title="Karten auf Standard zurücksetzen">↺ Layout</button>
     </div>
   </div>
 </div>
 
-<!-- OWM Widget Script (ganz am Ende, nach dem DOM) -->
+<!-- OWM Widget Script -->
 <script>
-
-  // --- WETTER CONFIG 1 ---
   window.myWidgetParam = window.myWidgetParam || [];
   window.myWidgetParam.push({
     id: 5,
@@ -160,26 +167,6 @@
     sc.src = "https://openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js";
     document.body.appendChild(sc);
   })();
-
-
-  /* --- WETTER CONFIG 2 ---
-  window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
-  window.myWidgetParam.push({
-      id: 1, 
-      cityid: '2792119', 
-      appid: '995838237b169caecad49f5f0db3cef3',
-      units: 'metric', 
-      containerid: 'openweathermap-widget-1',
-  });
-  (function() {
-    var script = document.createElement('script');
-    script.async = true; 
-    script.charset = "utf-8";
-    script.src = "https://openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js";
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(script, s);
-  })();
-  */
 </script>
 
 <script src="app.js"></script>

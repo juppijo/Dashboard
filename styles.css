@@ -90,30 +90,35 @@ body::before {
   border-color: var(--ac); box-shadow: 0 0 10px var(--glow);
 }
 
-/* ── GRID ── */
+/* ══════════════════════════════════════════
+   GRID — free-form absolute layout
+══════════════════════════════════════════ */
 #grid {
-  position: relative; z-index: 1;
-  display: grid;
-  grid-template-columns: 260px 1fr 300px;
-  grid-template-rows: auto auto auto;
-  gap: 1rem;
-  padding: 1rem 1.2rem 1.4rem;
+  position: relative;
+  z-index: 1;
   flex: 1;
+  min-height: calc(100vh - 50px);
+  /* No display:grid — cards are absolutely positioned */
 }
 
 /* ── CARD BASE ── */
 .card {
+  position: absolute;          /* free-form positioning */
   background: var(--sf);
   border: 1px solid var(--bd);
   border-radius: 14px;
   padding: 1.1rem 1.2rem 1.2rem;
   box-shadow: 0 6px 28px rgba(0,0,0,.35);
   backdrop-filter: blur(12px);
-  transition: background .4s, border-color .4s;
-  position: relative; overflow: hidden;
+  transition: background .4s, border-color .4s, box-shadow .2s;
+  overflow: hidden;
   animation: fadeUp .45s ease both;
 }
 .card:hover { background: var(--sfh); }
+.card.dragging {
+  box-shadow: 0 16px 50px rgba(0,0,0,.55), 0 0 0 1px var(--ac);
+  transition: box-shadow .15s;
+}
 .card::before {
   content: '';
   position: absolute; top: 0; left: 0; right: 0; height: 1.5px;
@@ -131,26 +136,46 @@ body::before {
 .card:nth-child(5){animation-delay:.20s}
 .card:nth-child(6){animation-delay:.24s}
 .card:nth-child(7){animation-delay:.28s}
+.card:nth-child(8){animation-delay:.32s}
 
+/* ── CARD LABEL — drag handle ── */
 .card-label {
   font-family: 'DM Mono', monospace;
   font-size: .62rem; font-weight: 500;
   letter-spacing: .18em; text-transform: uppercase;
   color: var(--ac); margin-bottom: .9rem;
   display: flex; align-items: center; gap: .5rem;
+  cursor: grab;
+  user-select: none;
 }
+.card-label:active { cursor: grabbing; }
 
-/* ── GRID LAYOUT ── */
-#cardClock   { grid-column: 1; grid-row: 1; }
-#cardWeather { grid-column: 2; grid-row: 1; }
-#cardSlide   { grid-column: 3; grid-row: 1 / 3; }
-#cardCal     { grid-column: 1 / 3; grid-row: 2; }
-#cardTasks   { grid-column: 1; grid-row: 3; }
-#cardNotes   { grid-column: 2; grid-row: 3; }
-#cardInfo    { grid-column: 3; grid-row: 3; }
+/* ── RESIZE HANDLE ── */
+.resize-handle {
+  position: absolute;
+  bottom: 5px; right: 5px;
+  width: 18px; height: 18px;
+  cursor: se-resize;
+  opacity: 0;
+  transition: opacity .2s;
+  z-index: 10;
+}
+.resize-handle::before,
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  background: var(--ac);
+  border-radius: 1px;
+}
+/* horizontal stripe */
+.resize-handle::before { width: 12px; height: 2px; bottom: 6px; right: 1px; }
+/* vertical stripe */
+.resize-handle::after  { width: 2px; height: 12px; bottom: 1px; right: 6px; }
+.card:hover .resize-handle { opacity: .65; }
+.resize-handle:hover { opacity: 1 !important; }
 
 /* ── UHR ── */
-#cardClock { display: flex; flex-direction: column; align-items: center; min-height: 260px; }
+#cardClock { display: flex; flex-direction: column; align-items: center; }
 .clock-body { display: flex; flex-direction: column; align-items: center; gap: .7rem; flex: 1; justify-content: center; }
 #analogClock { display: block; filter: drop-shadow(0 0 10px var(--glow)); }
 .digital {
@@ -160,9 +185,8 @@ body::before {
 }
 
 /* ── WETTER (OWM Widget) ── */
-#cardWeather { min-height: 260px; overflow: hidden; }
+#cardWeather { overflow: hidden; }
 #owmWrapper  { overflow: hidden; }
-/* Dark-mode: invertiere das Widget für passendes Aussehen */
 [data-mode="dark"] #owmWrapper {
   filter: invert(1) hue-rotate(180deg) brightness(.88) contrast(.93);
   border-radius: 8px;
@@ -172,18 +196,18 @@ body::before {
 /* ── DIASCHAU ── */
 #cardSlide {
   display: flex; flex-direction: column;
-  min-height: 360px;
-  overflow: visible;
 }
 #slideArea {
   display: flex; flex-direction: column;
   flex: 1; gap: .6rem;
+  min-height: 0;
 }
 #slideFrame {
   border-radius: 9px; overflow: hidden;
   background: rgba(0,0,0,.25); position: relative;
   display: flex; align-items: center; justify-content: center;
-  height: 240px; flex-shrink: 0;
+  flex: 1;                    /* fills remaining card height */
+  min-height: 80px;
 }
 #slideImg { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .5s; }
 #slideCap {
@@ -203,11 +227,12 @@ body::before {
 }
 .sbtn {
   background: transparent; border: none; color: var(--tx);
-  font-size: 1.2rem; padding: .25rem .6rem; border-radius: 5px;
+  font-size: 1.2rem; padding: .25rem .5rem; border-radius: 5px;
   cursor: pointer; transition: color .2s; line-height: 1;
   flex-shrink: 0;
 }
 .sbtn:hover { color: var(--ac); }
+#sDel { font-size: 1rem; }
 #sCnt {
   font-family: 'DM Mono', monospace; font-size: .63rem;
   color: var(--txd); min-width: 3.5rem; text-align: center;
@@ -225,9 +250,10 @@ body::before {
 }
 
 /* ── KALENDER ── */
-#cardCal { min-height: 300px; }
 #calFrame {
-  display: block; width: 100%; height: 280px;
+  display: block; width: 100%;
+  height: calc(100% - 2.2rem);   /* fills card below label */
+  min-height: 220px;
   border: none; border-radius: 8px;
 }
 [data-mode="dark"] #calFrame {
@@ -236,7 +262,6 @@ body::before {
 }
 
 /* ── AUFGABEN ── */
-#cardTasks { min-height: 220px; }
 #tasksInner { display: flex; flex-direction: column; gap: .5rem; height: calc(100% - 2rem); }
 .task-row { display: flex; gap: .4rem; }
 .tinput {
@@ -275,7 +300,6 @@ body::before {
 .tdel:hover { color: var(--ac); }
 
 /* ── NOTIZEN ── */
-#cardNotes { min-height: 220px; }
 .note-add-btn {
   margin-left: auto; background: none; border: none;
   color: var(--ac); font-size: 1rem; cursor: pointer;
@@ -286,7 +310,7 @@ body::before {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: .55rem;
-  max-height: 240px; overflow-y: auto;
+  max-height: calc(100% - 2.5rem); overflow-y: auto;
 }
 .ncard {
   background: var(--sf); border: 1px solid var(--bd);
@@ -312,7 +336,6 @@ body::before {
 }
 
 /* ── SCHNELLINFO ── */
-#cardInfo { min-height: 180px; }
 .info-row {
   display: flex; justify-content: space-between; align-items: baseline;
   padding: .42rem 0; border-bottom: 1px solid var(--bd); font-size: .78rem;
@@ -356,7 +379,7 @@ body::before {
   font-size: .8rem; font-family: 'DM Mono', monospace; outline: none;
 }
 .mbox input:focus { border-color: var(--ac); }
-.mbtns { display: flex; gap: .6rem; margin-top: .2rem; }
+.mbtns { display: flex; gap: .6rem; margin-top: .2rem; flex-wrap: wrap; }
 .mbtn {
   background: var(--ac); color: #000; border: none;
   border-radius: 7px; padding: .42rem 1rem;
@@ -378,21 +401,7 @@ body::before {
 /* ── HIDDEN ── */
 .hidden { display: none !important; }
 
-/* ── RESPONSIVE ── */
-@media (max-width: 1050px) {
-  #grid { grid-template-columns: 1fr 1fr; }
-  #cardClock  { grid-column: 1; grid-row: 1; }
-  #cardWeather{ grid-column: 2; grid-row: 1; }
-  #cardSlide  { grid-column: 1 / 3; grid-row: 2; }
-  #cardCal    { grid-column: 1 / 3; grid-row: 3; }
-  #cardTasks  { grid-column: 1; grid-row: 4; }
-  #cardNotes  { grid-column: 2; grid-row: 4; }
-  #cardInfo   { grid-column: 1 / 3; grid-row: 5; }
-}
-@media (max-width: 620px) {
-  #grid { grid-template-columns: 1fr; }
-  #cardClock,#cardWeather,#cardSlide,
-  #cardCal,#cardTasks,#cardNotes,#cardInfo {
-    grid-column: 1 !important; grid-row: auto !important;
-  }
+/* ── RESPONSIVE hint ── */
+@media (max-width: 700px) {
+  .resize-handle { opacity: .5 !important; }
 }

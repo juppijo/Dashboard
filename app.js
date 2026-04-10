@@ -88,6 +88,200 @@ document.getElementById('cfgSave').addEventListener('click', function () {
   if (cfg.apiKey) fetchSunTimes();
 });
 
+document.getElementById('cfgResetLayout').addEventListener('click', function () {
+  if (confirm('Layout auf Standard zurücksetzen?')) {
+    localStorage.removeItem(LAYOUT_KEY);
+    closeModal();
+    location.reload();
+  }
+});
+
+/* ─────────────────────────────────────────
+   LAYOUT — drag & resize
+   Cards are absolutely positioned inside #grid.
+   Layout is persisted in localStorage.
+───────────────────────────────────────── */
+const LAYOUT_KEY = 'db_layout_v1';
+
+/* Default positions (designed for ~1280 px viewport).
+   x/y = left/top in px inside #grid  |  w/h = width/height in px  */
+const DEFAULT_LAYOUT = {
+  cardClock:   { x: 0,   y: 0,   w: 260, h: 300 },
+  cardWeather: { x: 276, y: 0,   w: 656, h: 300 },
+  cardSlide:   { x: 948, y: 0,   w: 300, h: 632 },
+  cardCal:     { x: 0,   y: 316, w: 932, h: 300 },
+  Gkeep:       { x: 948, y: 316, w: 300, h: 150 },
+  cardTasks:   { x: 0,   y: 632, w: 260, h: 250 },
+  cardNotes:   { x: 276, y: 632, w: 420, h: 250 },
+  cardInfo:    { x: 712, y: 632, w: 220, h: 250 },
+};
+
+let layout = {};
+
+function loadLayout() {
+  try {
+    var saved = JSON.parse(localStorage.getItem(LAYOUT_KEY) || '{}');
+    // start from defaults, overlay saved values
+    Object.keys(DEFAULT_LAYOUT).forEach(function (id) {
+      layout[id] = Object.assign({}, DEFAULT_LAYOUT[id], saved[id] || {});
+    });
+  } catch (e) {
+    Object.keys(DEFAULT_LAYOUT).forEach(function (id) {
+      layout[id] = Object.assign({}, DEFAULT_LAYOUT[id]);
+    });
+  }
+}
+
+function saveLayout() {
+  localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout));
+}
+
+function applyLayout() {
+  Object.keys(layout).forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var p = layout[id];
+    el.style.left   = p.x + 'px';
+    el.style.top    = p.y + 'px';
+    el.style.width  = p.w + 'px';
+    el.style.height = p.h + 'px';
+  });
+}
+
+/* ── Drag via card-label ── */
+function initDrag(card, id) {
+  var label = card.querySelector('.card-label');
+  if (!label) return;
+
+  label.addEventListener('mousedown', function (e) {
+    // ignore clicks on buttons inside the label
+    if (e.target.closest('button')) return;
+    e.preventDefault();
+
+    var startX = e.clientX - layout[id].x;
+    var startY = e.clientY - layout[id].y;
+
+    card.style.zIndex = '50';
+    card.classList.add('dragging');
+
+    function onMove(e) {
+      layout[id].x = Math.max(0, e.clientX - startX);
+      layout[id].y = Math.max(0, e.clientY - startY);
+      card.style.left = layout[id].x + 'px';
+      card.style.top  = layout[id].y + 'px';
+    }
+
+    function onUp() {
+      card.style.zIndex = '';
+      card.classList.remove('dragging');
+      saveLayout();
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  /* Touch support for drag */
+  label.addEventListener('touchstart', function (e) {
+    if (e.target.closest('button')) return;
+    var t0 = e.touches[0];
+    var startX = t0.clientX - layout[id].x;
+    var startY = t0.clientY - layout[id].y;
+    card.style.zIndex = '50';
+    card.classList.add('dragging');
+
+    function onMove(e) {
+      var t = e.touches[0];
+      layout[id].x = Math.max(0, t.clientX - startX);
+      layout[id].y = Math.max(0, t.clientY - startY);
+      card.style.left = layout[id].x + 'px';
+      card.style.top  = layout[id].y + 'px';
+    }
+    function onEnd() {
+      card.style.zIndex = '';
+      card.classList.remove('dragging');
+      saveLayout();
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onEnd);
+    }
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+  }, { passive: true });
+}
+
+/* ── Resize via .resize-handle ── */
+function initResize(card, id) {
+  var handle = card.querySelector('.resize-handle');
+  if (!handle) return;
+
+  var MIN_W = 180, MIN_H = 130;
+
+  handle.addEventListener('mousedown', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    var startX = e.clientX, startY = e.clientY;
+    var startW = layout[id].w, startH = layout[id].h;
+
+    card.style.zIndex = '50';
+    card.style.transition = 'none';
+
+    function onMove(e) {
+      layout[id].w = Math.max(MIN_W, startW + (e.clientX - startX));
+      layout[id].h = Math.max(MIN_H, startH + (e.clientY - startY));
+      card.style.width  = layout[id].w + 'px';
+      card.style.height = layout[id].h + 'px';
+    }
+    function onUp() {
+      card.style.zIndex = '';
+      card.style.transition = '';
+      saveLayout();
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  /* Touch support for resize */
+  handle.addEventListener('touchstart', function (e) {
+    e.stopPropagation();
+    var t0 = e.touches[0];
+    var startX = t0.clientX, startY = t0.clientY;
+    var startW = layout[id].w, startH = layout[id].h;
+    card.style.zIndex = '50';
+    card.style.transition = 'none';
+
+    function onMove(e) {
+      var t = e.touches[0];
+      layout[id].w = Math.max(MIN_W, startW + (t.clientX - startX));
+      layout[id].h = Math.max(MIN_H, startH + (t.clientY - startY));
+      card.style.width  = layout[id].w + 'px';
+      card.style.height = layout[id].h + 'px';
+    }
+    function onEnd() {
+      card.style.zIndex = '';
+      card.style.transition = '';
+      saveLayout();
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onEnd);
+    }
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+  }, { passive: true });
+}
+
+function initDragResize() {
+  Object.keys(layout).forEach(function (id) {
+    var card = document.getElementById(id);
+    if (!card) return;
+    initDrag(card, id);
+    initResize(card, id);
+  });
+}
+
 /* ─────────────────────────────────────────
    UHR — Analog (Canvas) + Digital
 ───────────────────────────────────────── */
@@ -225,15 +419,21 @@ var sCnt      = document.getElementById('sCnt');
 var slideArea = document.getElementById('slideArea');
 var slideEmpty= document.getElementById('slideEmpty');
 
-// Gespeicherte Slides laden (nur Metadaten + kleine Thumbnails)
+// Gespeicherte Slides laden
 try {
   var saved = JSON.parse(localStorage.getItem('db_slides') || '[]');
   slides = saved;
 } catch (e) { slides = []; }
 
+function saveSlides() {
+  var toSave = slides.slice(-30).map(function (s) {
+    return { name: s.name, url: s.url.substring(0, 300000) };
+  });
+  try { localStorage.setItem('db_slides', JSON.stringify(toSave)); } catch (err) {}
+}
+
 function showSlide(idx) {
   if (slides.length === 0) {
-    // Bar bleibt sichtbar, nur Bild-Frame ausblenden
     document.getElementById('slideFrame').style.display = 'none';
     slideEmpty.style.display = 'block';
     sCnt.textContent = '0 / 0';
@@ -268,6 +468,17 @@ document.getElementById('sPlay').addEventListener('click', function () {
   resetSlideTimer();
 });
 
+/* ── Bild löschen ── */
+document.getElementById('sDel').addEventListener('click', function () {
+  if (slides.length === 0) return;
+  var name = slides[slideIdx].name;
+  if (!confirm('Bild löschen: ' + name + '?')) return;
+  slides.splice(slideIdx, 1);
+  saveSlides();
+  showSlide(Math.min(slideIdx, slides.length - 1));
+  resetSlideTimer();
+});
+
 document.getElementById('sInput').addEventListener('change', function (e) {
   var files = Array.from(e.target.files);
   var count = 0;
@@ -277,11 +488,7 @@ document.getElementById('sInput').addEventListener('change', function (e) {
       slides.push({ name: file.name, url: ev.target.result });
       count++;
       if (count === files.length) {
-        // Speichere max. 30 Slides; kürze DataURL auf 300 KB pro Bild
-        var toSave = slides.slice(-30).map(function (s) {
-          return { name: s.name, url: s.url.substring(0, 300000) };
-        });
-        try { localStorage.setItem('db_slides', JSON.stringify(toSave)); } catch (err) {}
+        saveSlides();
         showSlide(slides.length - 1);
         resetSlideTimer();
       }
@@ -296,6 +503,15 @@ document.addEventListener('keydown', function (e) {
   if (e.target.matches('input, textarea')) return;
   if (e.key === 'ArrowRight') showSlide(slideIdx + 1);
   if (e.key === 'ArrowLeft')  showSlide(slideIdx - 1);
+  if (e.key === 'Delete' && slides.length > 0) {
+    var name = slides[slideIdx].name;
+    if (confirm('Bild löschen: ' + name + '?')) {
+      slides.splice(slideIdx, 1);
+      saveSlides();
+      showSlide(Math.min(slideIdx, slides.length - 1));
+      resetSlideTimer();
+    }
+  }
   if (e.key === 'f' || e.key === 'F') {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(function () {});
     else document.exitFullscreen();
@@ -417,3 +633,8 @@ loadCfg();
 themeIdx = Math.max(0, THEMES.indexOf(cfg.theme || 'cosmos'));
 applyAppearance();
 fetchSunTimes();
+
+// Layout muss nach applyAppearance laufen
+loadLayout();
+applyLayout();
+initDragResize();
