@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZamiEditor - HTML Live Preview</title>
+    <style>
+        :root {
+            --bg-color: #f5f5f5;
+            --container-bg: #ffffff;
+            --text-color: #333333;
+            --accent-color: #e67e22; /* Ein warmes Orange, passend zu herbstlichen Tönen */
+            --toolbar-bg: #eeeeee;
+            --border-color: #dddddd;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1e1e1e;
+            --container-bg: #2d2d2d;
+            --text-color: #f0f0f0;
+            --accent-color: #f39c12;
+            --toolbar-bg: #383838;
+            --border-color: #444444;
+        }
+
+        /* Sepia/Storybook Theme */
+        [data-theme="sepia"] {
+            --bg-color: #f4ecd8;
+            --container-bg: #fdf6e3;
+            --text-color: #5b4636;
+            --accent-color: #8c6339;
+            --toolbar-bg: #eee8d5;
+            --border-color: #d3af8e;
+        }
+
+        * { box-sizing: border-box; transition: background 0.3s, color 0.3s; }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            background-color: var(--toolbar-bg);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+
+        .toolbar h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            margin-right: 20px;
+            color: var(--accent-color);
+        }
+
+        button, select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            background: var(--container-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        /* Editor Area */
+        .editor-area {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .pane-title {
+            padding: 5px 15px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            background: var(--toolbar-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            padding: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            resize: none;
+            background: var(--container-bg);
+            color: var(--text-color);
+            outline: none;
+            line-height: 1.5;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white; /* Vorschau meist auf weiß für Realismus */
+        }
+
+        .divider {
+            width: 4px;
+            background: var(--border-color);
+            cursor: col-resize;
+        }
+
+        /* Fullscreen Mode */
+        .fullscreen-preview .pane:first-child, 
+        .fullscreen-preview .toolbar,
+        .fullscreen-preview .divider {
+            display: none;
+        }
+        
+        .fullscreen-preview .pane:last-child {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .exit-fs {
+            display: none;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        .fullscreen-preview .exit-fs { display: block; }
+
+    </style>
+</head>
+<body>
+
+<div class="main-container" id="editorWrapper">
+    <div class="toolbar">
+        <h1>ZamiEditor</h1>
+        
+        <button onclick="toggleTheme()">🌓 Dark/Light</button>
+        
+        <select onchange="changeTheme(this.value)">
+            <option value="default">Standard</option>
+            <option value="dark">Deep Dark</option>
+            <option value="sepia">Impressionist Sepia</option>
+        </select>
+
+        <button onclick="clearCode()">Leeren</button>
+        <button onclick="downloadCode()">Speichern (.html)</button>
+        <button onclick="toggleFullscreen()" style="margin-left: auto;">⛶ Vollbild Vorschau</button>
+    </div>
+
+    <div class="editor-area">
+        <div class="pane">
+            <div class="pane-title">HTML / CSS / JS</div>
+            <textarea id="htmlInput" spellcheck="false" oninput="updatePreview()"><!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding-top: 50px; transition: 0.5s; }
+    h1 { color: #e67e22; }
+    .card { 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+      padding: 20px; 
+      max-width: 300px; 
+      margin: auto; 
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Hallo!</h1>
+    <p>Tippe hier etwas ein, um die Vorschau rechts zu sehen.</p>
+  </div>
+</body>
+</html></textarea>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="pane" id="previewPane">
+            <div class="pane-title">Vorschau</div>
+            <iframe id="preview"></iframe>
+            <button class="exit-fs" onclick="toggleFullscreen()">Beenden [ESC]</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const htmlInput = document.getElementById('htmlInput');
+    const preview = document.getElementById('preview');
+    const body = document.body;
+
+    // Live Preview Update
+    function updatePreview() {
+        const content = htmlInput.value;
+        const frameDoc = preview.contentDocument || preview.contentWindow.document;
+        frameDoc.open();
+        frameDoc.write(content);
+        frameDoc.close();
+    }
+
+    // Themes
+    function toggleTheme() {
+        const current = body.getAttribute('data-theme');
+        body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    }
+
+    function changeTheme(val) {
+        if(val === 'default') body.removeAttribute('data-theme');
+        else body.setAttribute('data-theme', val);
+    }
+
+    // Fullscreen
+    function toggleFullscreen() {
+        const wrapper = document.getElementById('editorWrapper');
+        wrapper.classList.toggle('fullscreen-preview');
+    }
+
+    // ESC Taste für Fullscreen-Exit
+    document.addEventListener('keydown', (e) => {
+        if (e.key === "Escape") {
+            document.getElementById('editorWrapper').classList.remove('fullscreen-preview');
+        }
+    });
+
+    // Code leeren
+    function clearCode() {
+        if(confirm("Möchtest du den Code wirklich löschen?")) {
+            htmlInput.value = "";
+            updatePreview();
+        }
+    }
+
+    // Download
+    function downloadCode() {
+        const text = htmlInput.value;
+        const blob = new Blob([text], { type: "text/html" });
+        const anchor = document.createElement("a");
+        anchor.download = "mein-projekt.html";
+        anchor.href = window.URL.createObjectURL(blob);
+        anchor.click();
+    }
+
+    // Initialer Aufruf
+    updatePreview();
+</script>
+
+</body>
+</html>
