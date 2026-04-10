@@ -42,7 +42,7 @@
     <div class="card-label">Wetter</div>
     <div id="owmWrapper">
       <link rel="stylesheet" href="//openweathermap.org/themes/openweathermap/assets/vendor/owm/css/style.min.css" />
-      <div id="openweathermap-widget-1"></div>
+      <div id="openweathermap-widget-5"></div>
     </div>
   </article>
 
@@ -144,7 +144,7 @@
 <!-- OWM Widget Script (ganz am Ende, nach dem DOM) -->
 <script>
 
-  /* --- WETTER CONFIG 1 ---
+  // --- WETTER CONFIG 1 ---
   window.myWidgetParam = window.myWidgetParam || [];
   window.myWidgetParam.push({
     id: 5,
@@ -160,9 +160,9 @@
     sc.src = "https://openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator-2.0.js";
     document.body.appendChild(sc);
   })();
-  */
 
-  // --- WETTER CONFIG 2 ---
+
+  /* --- WETTER CONFIG 2 ---
   window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
   window.myWidgetParam.push({
       id: 1, 
@@ -179,7 +179,7 @@
     var s = document.getElementsByTagName('script')[0];
     s.parentNode.insertBefore(script, s);
   })();
-
+  */
 </script>
 
 <script src="app.js"></script>
