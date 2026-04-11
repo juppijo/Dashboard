@@ -616,6 +616,144 @@ document.getElementById('btnAddNote').addEventListener('click', function () {
 renderNotes();
 
 /* ─────────────────────────────────────────
+   CUSTOM CARDS  (user-created link/embed cards)
+───────────────────────────────────────── */
+const CC_KEY = 'db_custom_cards_v1';
+var customCards = [];
+
+try { customCards = JSON.parse(localStorage.getItem(CC_KEY) || '[]'); } catch(e) {}
+
+function saveCustomCards() {
+  localStorage.setItem(CC_KEY, JSON.stringify(customCards));
+}
+
+/* Build DOM for one custom card and mount it into #grid */
+function mountCustomCard(card) {
+  var grid = document.getElementById('grid');
+  var el = document.createElement('article');
+  el.className = 'card';
+  el.id = card.id;
+
+  /* Label with delete button */
+  var labelHtml =
+    '<div class="card-label">' + esc(card.title) +
+    '<button class="cc-del-btn" data-ccid="' + card.id + '" title="Karte löschen">✕</button>' +
+    '</div>';
+
+  var contentHtml = '';
+
+  if (card.type === 'link') {
+    contentHtml =
+      '<div class="cc-link-wrap">' +
+      '<a class="cc-link-btn" href="' + esc(card.url) + '" target="_blank" rel="noopener">🔗 ' + esc(card.title) + ' ↗</a>' +
+      '</div>';
+  } else if (card.type === 'embed') {
+    contentHtml = '<iframe class="cc-frame" src="' + esc(card.url) + '" loading="lazy" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>';
+  } else {
+    /* both */
+    contentHtml =
+      '<div class="cc-link-wrap" style="padding:.4rem 0 .5rem">' +
+      '<a class="cc-link-btn" href="' + esc(card.url) + '" target="_blank" rel="noopener">🔗 In neuem Tab ↗</a>' +
+      '</div>' +
+      '<iframe class="cc-frame" src="' + esc(card.url) + '" loading="lazy" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups" style="height:calc(100% - 3.8rem)"></iframe>';
+  }
+
+  el.innerHTML = labelHtml + contentHtml + '<div class="resize-handle" data-id="' + card.id + '"></div>';
+  grid.appendChild(el);
+
+  /* Wire delete button */
+  el.querySelector('.cc-del-btn').addEventListener('click', function() {
+    var ccid = this.dataset.ccid;
+    if (!confirm('Karte "' + card.title + '" löschen?')) return;
+    customCards = customCards.filter(function(c){ return c.id !== ccid; });
+    saveCustomCards();
+    /* remove from layout */
+    delete layout[ccid];
+    saveLayout();
+    el.remove();
+  });
+
+  /* Apply saved or default position */
+  if (!layout[card.id]) {
+    /* place in a free spot: offset each new card slightly */
+    var offset = Object.keys(layout).length * 16;
+    layout[card.id] = { x: 80 + offset, y: 80 + offset, w: 340, h: 260 };
+    saveLayout();
+  }
+  var p = layout[card.id];
+  el.style.left   = p.x + 'px';
+  el.style.top    = p.y + 'px';
+  el.style.width  = p.w + 'px';
+  el.style.height = p.h + 'px';
+
+  /* Enable drag + resize */
+  initDrag(el, card.id);
+  initResize(el, card.id);
+}
+
+/* Restore persisted custom cards on load */
+function restoreCustomCards() {
+  customCards.forEach(function(c) { mountCustomCard(c); });
+}
+
+/* ── Modal logic ── */
+var cardModal = document.getElementById('cardModal');
+
+document.getElementById('btnAddCard').addEventListener('click', function() {
+  document.getElementById('ccTitle').value = '';
+  document.getElementById('ccUrl').value   = '';
+  document.getElementById('ccType').value  = 'link';
+  document.getElementById('ccEmbedHint').style.display = 'none';
+  overlay.classList.remove('hidden');
+  cardModal.classList.remove('hidden');
+  document.getElementById('ccTitle').focus();
+});
+
+document.getElementById('ccType').addEventListener('change', function() {
+  var hint = document.getElementById('ccEmbedHint');
+  hint.style.display = (this.value === 'embed' || this.value === 'both') ? 'block' : 'none';
+});
+
+document.getElementById('ccClose').addEventListener('click', function() {
+  overlay.classList.add('hidden');
+  cardModal.classList.add('hidden');
+});
+
+document.getElementById('ccSave').addEventListener('click', function() {
+  var title = document.getElementById('ccTitle').value.trim();
+  var url   = document.getElementById('ccUrl').value.trim();
+  var type  = document.getElementById('ccType').value;
+
+  if (!title) { document.getElementById('ccTitle').focus(); return; }
+  if (!url)   { document.getElementById('ccUrl').focus();   return; }
+
+  /* Ensure URL has protocol */
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+  var newCard = {
+    id:    'cc_' + Date.now(),
+    title: title,
+    url:   url,
+    type:  type
+  };
+
+  customCards.push(newCard);
+  saveCustomCards();
+  mountCustomCard(newCard);
+
+  overlay.classList.add('hidden');
+  cardModal.classList.add('hidden');
+});
+
+/* close modal on overlay click (shared overlay) — re-wire to handle both modals */
+overlay.removeEventListener('click', closeModal);
+overlay.addEventListener('click', function() {
+  closeModal();
+  overlay.classList.add('hidden');
+  cardModal.classList.add('hidden');
+});
+
+/* ─────────────────────────────────────────
    HELPER
 ───────────────────────────────────────── */
 function esc(s) {
@@ -638,3 +776,6 @@ fetchSunTimes();
 loadLayout();
 applyLayout();
 initDragResize();
+
+// Custom cards nach Layout init
+restoreCustomCards();

@@ -18,6 +18,7 @@
     <span id="dateDisplay" class="top-date"></span>
   </div>
   <div class="bar-right">
+    <button class="ctrl-btn" id="btnAddCard"  title="Karte hinzufügen">＋</button>
     <button class="ctrl-btn" id="btnSettings" title="Einstellungen">⚙</button>
     <button class="ctrl-btn" id="btnTheme"    title="Theme">◑</button>
     <button class="ctrl-btn" id="btnMode"     title="Hell / Dunkel">☀</button>
@@ -104,15 +105,6 @@
     <div class="resize-handle" data-id="Gkeep"></div>
   </article>
 
-    <!-- 6b · https://www.youtube.com/ -->
-  <article class="card" id="youtube">
-    <div class="card-label">Google Keep</div>
-    <div style="text-align: center; padding: 20px;">
-      <a href="https://www.youtube.com/" target="_blank" style="color: var(--ac); text-decoration: none;">Öffne youtube ↗</a>
-    </div>
-    <div class="resize-handle" data-id="youtube"></div>
-  </article>
-
   <!-- 7 · NOTIZEN -->
   <article class="card" id="cardNotes">
     <div class="card-label">
@@ -160,6 +152,33 @@
 </div>
 
 <!-- OWM Widget Script -->
+<!-- ╔══════════════ CUSTOM CARD MODAL ══════════════╗ -->
+<div id="cardModal" class="modal hidden">
+  <div class="mbox">
+    <div class="mtitle">＋ Neue Karte</div>
+    <label>Titel
+      <input type="text" id="ccTitle" placeholder="Meine Karte" />
+    </label>
+    <label>Typ
+      <select id="ccType" class="mselect">
+        <option value="link">🔗 Link-Button</option>
+        <option value="embed">⬛ Eingebettet (iframe)</option>
+        <option value="both">🔗＋⬛ Link &amp; Embed</option>
+      </select>
+    </label>
+    <label>URL
+      <input type="text" id="ccUrl" placeholder="https://…" />
+    </label>
+    <div class="embed-hint" id="ccEmbedHint" style="display:none">
+      ℹ️ Nicht alle Seiten erlauben Einbettung (X-Frame-Options). Falls leer bleibt → Link als Fallback.
+    </div>
+    <div class="mbtns">
+      <button class="mbtn" id="ccSave">Hinzufügen</button>
+      <button class="mbtn sec" id="ccClose">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
 <script>
   window.myWidgetParam = window.myWidgetParam || [];
   window.myWidgetParam.push({

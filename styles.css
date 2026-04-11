@@ -346,6 +346,47 @@ body::before {
   font-family: 'DM Mono', monospace; font-size: .72rem; color: var(--tx);
 }
 
+/* ── CUSTOM CARD MODAL extras ── */
+.mselect {
+  background: var(--sf); border: 1px solid var(--bd);
+  color: var(--tx); border-radius: 7px; padding: .42rem .65rem;
+  font-size: .8rem; font-family: 'DM Mono', monospace; outline: none;
+  cursor: pointer;
+}
+.mselect:focus { border-color: var(--ac); }
+.embed-hint {
+  font-size: .7rem; color: var(--txd); line-height: 1.5;
+  background: var(--sf); border: 1px solid var(--bd);
+  border-radius: 7px; padding: .5rem .7rem;
+}
+
+/* ── CUSTOM CARD content ── */
+.cc-link-wrap {
+  display: flex; align-items: center; justify-content: center;
+  padding: .8rem 0;
+}
+.cc-link-btn {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: var(--ac); color: #000;
+  border-radius: 8px; padding: .5rem 1.2rem;
+  font-size: .8rem; font-weight: 600; text-decoration: none;
+  transition: opacity .2s;
+}
+.cc-link-btn:hover { opacity: .8; }
+.cc-frame {
+  display: block; width: 100%;
+  height: calc(100% - 2.2rem);
+  min-height: 80px;
+  border: none; border-radius: 8px;
+  background: var(--sf);
+}
+.cc-del-btn {
+  margin-left: auto; background: none; border: none;
+  color: var(--txd); font-size: .85rem; cursor: pointer;
+  padding: 0 .1rem; line-height: 1; transition: color .2s;
+}
+.cc-del-btn:hover { color: var(--ac); }
+
 /* ── MODAL ── */
 #overlay {
   position: fixed; inset: 0; z-index: 200;
