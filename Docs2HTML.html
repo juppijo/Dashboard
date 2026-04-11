@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOCX → Buch Konverter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=Source+Serif+4:ital,wght@0,300;0,600;1,300&family=Bitter:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+<style>
+/* ═══════════════════════════════════════════════════
+   DOCX → BUCH KONVERTER  |  style.css
+   ═══════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Custom Properties ── */
+:root {
+    --accent:     #c9a84c;
+    --accent-dim: #a87e2e;
+    --paper:      #fdfaf3;
+    --text:       #2c3e50;
+    --text-muted: #7a869a;
+    --bg:         #0d0920;
+    --bg2:        #16103a;
+    --bar-bg:     rgba(10,7,30,0.88);
+    --bar-border: rgba(255,255,255,0.07);
+    --sp-bg:      #100d28;
+    --sp-border:  rgba(255,255,255,0.09);
+    --overlay-bg: rgba(0,0,0,0.65);
+    --font-body:  'Lora', serif;
+    --font-size:  15px;
+    --line-height:1.7;
+    --page-width: 75%;
+    --tr: 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ── Themes ── */
+body.theme-cosmos  { --bg:#0d0920;  --bg2:#16103a; --accent:#c9a84c; --sp-bg:#100d28; }
+body.theme-forest  { --bg:#0a1a0d;  --bg2:#102015; --accent:#6ab04c; --sp-bg:#0c1810; }
+body.theme-ocean   { --bg:#060e1e;  --bg2:#0c1830; --accent:#4fc3f7; --sp-bg:#081022; }
+body.theme-crimson { --bg:#140606;  --bg2:#200c0c; --accent:#e57373; --sp-bg:#160808; }
+body.theme-sepia   { --bg:#ede8df;  --bg2:#ddd6c8; --paper:#f9f4e8; --text:#3b2e1a; --accent:#8b6914;
+                     --bar-bg:rgba(50,35,15,0.92); --sp-bg:#faf5ea; --sp-border:rgba(0,0,0,0.1);
+                     --bar-border:rgba(0,0,0,0.08); --text-muted:#8b7355; --overlay-bg:rgba(100,80,40,0.5); }
+body.theme-mint    { --bg:#e8f5f0;  --bg2:#d5ede6; --paper:#f5faf8; --text:#1a3d2e; --accent:#00897b;
+                     --bar-bg:rgba(10,50,35,0.92); --sp-bg:#f0faf5; --sp-border:rgba(0,0,0,0.09);
+                     --bar-border:rgba(0,0,0,0.07); --text-muted:#4a7a68; --overlay-bg:rgba(10,50,35,0.5); }
+
+html, body { height: 100%; overflow: hidden; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); transition: background var(--tr), color var(--tr); }
+
+/* ════════════════════════════════
+   UPLOAD SCREEN
+   ════════════════════════════════ */
+#upload-screen {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; background: var(--bg);
+    transition: opacity 0.4s, transform 0.4s;
+}
+.upload-bg-anim {
+    position: absolute; inset: 0;
+    background:
+        radial-gradient(ellipse 80% 60% at 20% 40%, rgba(201,168,76,0.09) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 70%, rgba(100,80,200,0.08) 0%, transparent 60%);
+    animation: bgPulse 8s ease-in-out infinite alternate;
+}
+@keyframes bgPulse { from { opacity:.5; } to { opacity:1; } }
+
+.upload-card {
+    position: relative; width: min(520px, 92vw); padding: 52px 48px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.09); border-radius: 20px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 40px 100px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07);
+    text-align: center;
+    animation: cardIn 0.7s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes cardIn { from { opacity:0; transform:translateY(30px) scale(0.97); } to { opacity:1; transform:none; } }
+
+.upload-logo { width: 62px; margin: 0 auto 22px; color: var(--accent); filter: drop-shadow(0 0 14px rgba(201,168,76,0.4)); }
+
+.upload-title {
+    font-family: 'Playfair Display', serif; font-size: clamp(2rem,6vw,3rem);
+    font-weight: 700; color: #fff; letter-spacing: .04em; margin-bottom: 10px;
+}
+body.theme-sepia .upload-title, body.theme-mint .upload-title { color: var(--text); }
+.upload-title .arrow { color: var(--accent); margin: 0 8px; display:inline-block; animation: arrowBounce 2s ease-in-out infinite; }
+@keyframes arrowBounce { 0%,100%{transform:translateX(0);} 50%{transform:translateX(6px);} }
+
+.upload-sub { color: rgba(255,255,255,.42); font-size:.9rem; margin-bottom:32px; line-height:1.6; }
+.upload-sub code { background:rgba(255,255,255,.1); padding:1px 5px; border-radius:3px; font-family:monospace; font-size:.85em; }
+body.theme-sepia .upload-sub, body.theme-mint .upload-sub { color:var(--text-muted); }
+
+#drop-zone {
+    border: 2px dashed rgba(201,168,76,.28); border-radius: 14px;
+    padding: 36px 24px; cursor: pointer;
+    transition: all var(--tr); background: rgba(201,168,76,.03);
+}
+#drop-zone.drag-over { border-color: var(--accent); background: rgba(201,168,76,.08); transform: scale(1.01); }
+.drop-icon { width:50px; margin:0 auto 14px; color:var(--accent); opacity:.8; }
+.drop-text { color:rgba(255,255,255,.6); font-size:1rem; margin-bottom:6px; }
+body.theme-sepia .drop-text, body.theme-mint .drop-text { color:var(--text-muted); }
+.drop-or { color:rgba(255,255,255,.22); font-size:.8rem; margin:10px 0; }
+body.theme-sepia .drop-or, body.theme-mint .drop-or { color:var(--text-muted); opacity:.45; }
+.btn-upload-choose {
+    background: var(--accent); color:#fff; border:none; padding:11px 28px;
+    border-radius:50px; font-size:.9rem; font-weight:600; cursor:pointer;
+    transition:all var(--tr); letter-spacing:.03em; margin-bottom:16px; display:inline-block;
+}
+.btn-upload-choose:hover { background:var(--accent-dim); transform:translateY(-2px); box-shadow:0 8px 20px rgba(201,168,76,.3); }
+.drop-hint { font-size:.76rem; color:rgba(255,255,255,.28); }
+.drop-hint code, .drop-hint strong { background:rgba(255,255,255,.09); padding:1px 5px; border-radius:3px; }
+body.theme-sepia .drop-hint, body.theme-mint .drop-hint { color:var(--text-muted); opacity:.55; }
+
+#progress-wrap { margin-top:24px; }
+#progress-bar { height:4px; background:rgba(255,255,255,.08); border-radius:4px; overflow:hidden; margin-bottom:10px; }
+#progress-fill { height:100%; width:0%; background:linear-gradient(90deg,var(--accent),#e8d08c); border-radius:4px; transition:width .4s ease; }
+#progress-text { font-size:.84rem; color:rgba(255,255,255,.45); }
+body.theme-sepia #progress-text, body.theme-mint #progress-text { color:var(--text-muted); }
+
+/* ════════════════════════════════
+   READER SCREEN
+   ════════════════════════════════ */
+#reader-screen { height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+#reader-screen.zen-mode #topbar,
+#reader-screen.zen-mode #statusbar { opacity:0; pointer-events:none; }
+
+/* ── Topbar ── */
+#topbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 12px; height:54px; flex-shrink:0;
+    background: var(--bar-bg); border-bottom:1px solid var(--bar-border);
+    backdrop-filter:blur(16px); z-index:100;
+    transition: opacity .3s;
+}
+.bar-left, .bar-right { display:flex; align-items:center; gap:3px; }
+.bar-center { display:flex; align-items:center; gap:3px; }
+.book-title-display {
+    font-family:'Playfair Display',serif; font-size:.84rem;
+    color:rgba(255,255,255,.45); margin-left:8px;
+    max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+body.theme-sepia .book-title-display,
+body.theme-mint  .book-title-display { color:var(--text-muted); }
+
+#page-info {
+    font-size:.78rem; color:rgba(255,255,255,.5);
+    min-width:62px; text-align:center; font-family:monospace;
+    font-variant-numeric:tabular-nums;
+}
+body.theme-sepia #page-info, body.theme-mint #page-info { color:var(--text-muted); }
+
+.bar-btn {
+    height:34px; padding:0 8px; min-width:34px;
+    display:flex; align-items:center; justify-content:center; gap:5px;
+    background:transparent; border:none; border-radius:7px;
+    cursor:pointer; color:rgba(255,255,255,.52); transition:all var(--tr);
+    font-size:.75rem; font-weight:600; white-space:nowrap;
+}
+body.theme-sepia .bar-btn, body.theme-mint .bar-btn { color:var(--text-muted); }
+.bar-btn:hover { background:rgba(255,255,255,.08); color:var(--accent); }
+.bar-btn.active { color:var(--accent); background:rgba(201,168,76,.12); }
+.bar-btn svg { width:17px; height:17px; flex-shrink:0; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.bar-label { display:none; }
+@media (min-width: 860px) { .bar-label { display:inline; } }
+
+.bar-btn--accent {
+    background: rgba(201,168,76,.14); color: var(--accent);
+    border: 1px solid rgba(201,168,76,.25);
+}
+.bar-btn--accent:hover { background: rgba(201,168,76,.25); }
+
+.bar-btn--save {
+    background: var(--accent); color: #fff !important;
+    border: none; padding: 0 12px;
+}
+.bar-btn--save:hover { background: var(--accent-dim); transform:translateY(-1px); box-shadow:0 4px 12px rgba(201,168,76,.35); }
+
+.bar-btn#btn-speak.speaking { color:var(--accent); animation:pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.4;} }
+
+/* ── Book Stage ── */
+#book-stage {
+    flex:1; display:flex; align-items:center; justify-content:center;
+    overflow:hidden; position:relative; padding:14px;
+}
+#book-stage::before {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background: radial-gradient(ellipse 70% 50% at 50% 30%, rgba(201,168,76,.04) 0%, transparent 70%);
+}
+#book-container { width:var(--page-width); max-width:980px; height:100%; display:flex; flex-direction:column; transition:width .4s ease; }
+
+/* ── Spreads ── */
+.book-pages-wrapper { flex:1; overflow:hidden; position:relative; }
+.pages-track { display:flex; height:100%; transition:transform .5s cubic-bezier(.4,0,.2,1); }
+.page-spread { min-width:100%; height:100%; display:grid; gap:14px; padding:0 3px; }
+.page-spread.double { grid-template-columns:1fr 1fr; }
+.page-spread.single { grid-template-columns:1fr; max-width:640px; margin:0 auto; width:100%; }
+
+.book-page {
+    background:var(--paper); border-radius:3px;
+    box-shadow: 0 28px 80px rgba(0,0,0,.68), 0 0 0 1px rgba(0,0,0,.25);
+    overflow:hidden; display:flex; flex-direction:column; position:relative;
+    transition:background .3s;
+}
+.book-page::after {
+    content:''; position:absolute; top:0; right:0; bottom:0; width:4px;
+    background:linear-gradient(to right,transparent,rgba(0,0,0,.05)); pointer-events:none;
+}
+.page-inner {
+    flex:1; overflow-y:auto; padding:48px 46px 36px;
+    font-family:var(--font-body); font-size:var(--font-size);
+    line-height:var(--line-height); color:var(--text);
+    text-align:justify; hyphens:auto;
+    scrollbar-width:thin; scrollbar-color:rgba(0,0,0,.12) transparent;
+}
+.page-inner::-webkit-scrollbar { width:4px; }
+.page-inner::-webkit-scrollbar-thumb { background:rgba(0,0,0,.12); border-radius:2px; }
+.page-num {
+    text-align:center; font-size:.7rem; color:var(--text-muted);
+    padding:7px 0 12px; letter-spacing:.09em;
+    border-top:1px solid rgba(0,0,0,.06); opacity:.65;
+}
+
+/* ── Typography in pages ── */
+.page-inner h1 {
+    font-family:'Playfair Display',serif; font-size:1.65em; font-weight:700;
+    border-bottom:2px solid var(--accent); padding-bottom:.28em; margin-bottom:.55em;
+    line-height:1.2; color:var(--text); opacity:.92;
+}
+.page-inner h2 { font-family:'Playfair Display',serif; font-size:1.3em; font-weight:700; margin:1.1em 0 .45em; opacity:.85; }
+.page-inner h3, .page-inner h4 { font-size:1.08em; font-weight:600; margin:.9em 0 .35em; opacity:.8; }
+.page-inner p { margin-bottom:.85em; }
+.page-inner p:first-of-type::first-letter {
+    float:left; font-family:'Playfair Display',serif; font-size:3.1em;
+    line-height:.8; margin:.05em .08em 0 0; color:var(--accent); font-weight:700;
+}
+.page-inner blockquote {
+    border-left:3px solid var(--accent); padding:6px 14px;
+    margin:1em 0; font-style:italic; opacity:.78;
+    background:rgba(0,0,0,.03); border-radius:0 3px 3px 0;
+}
+.page-inner ul, .page-inner ol { padding-left:1.4em; margin-bottom:.85em; }
+.page-inner li { margin-bottom:.28em; }
+.page-inner img {
+    max-width:100%; max-height:48vh; display:block; margin:18px auto;
+    border-radius:4px; box-shadow:0 4px 16px rgba(0,0,0,.18);
+}
+.page-inner table { width:100%; border-collapse:collapse; margin:1em 0; font-size:.9em; }
+.page-inner th { padding:6px 10px; text-align:left; border-bottom:2px solid var(--accent); font-weight:600; background:rgba(0,0,0,.04); }
+.page-inner td { padding:5px 10px; border-bottom:1px solid rgba(0,0,0,.06); }
+
+/* TOC page */
+.toc-page-title { font-family:'Playfair Display',serif; font-size:1.5em; font-weight:700; margin-bottom:1.4em; padding-bottom:.35em; border-bottom:2px solid var(--accent); }
+.toc-page-list { list-style:none; }
+.toc-page-list li { display:flex; justify-content:space-between; align-items:baseline; padding:5px 0; border-bottom:1px dotted rgba(0,0,0,.1); cursor:pointer; transition:color var(--tr); }
+.toc-page-list li:hover { color:var(--accent); }
+.toc-page-list li .toc-num { font-size:.78em; color:var(--text-muted); font-family:monospace; }
+.toc-page-list li.toc-h2 { padding-left:14px; font-size:.92em; }
+.toc-page-list li.toc-h3 { padding-left:28px; font-size:.85em; opacity:.78; }
+
+/* ── Status Bar ── */
+#statusbar {
+    height:30px; display:flex; align-items:center; justify-content:space-between;
+    padding:0 18px; flex-shrink:0;
+    background:var(--bar-bg); border-top:1px solid var(--bar-border);
+    backdrop-filter:blur(16px); font-size:.73rem;
+    color:rgba(255,255,255,.28); transition:opacity .3s;
+}
+body.theme-sepia #statusbar, body.theme-mint #statusbar { color:var(--text-muted); }
+.sb-center { flex:1; display:flex; justify-content:center; }
+#page-dots { display:flex; gap:5px; align-items:center; }
+.page-dot { width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,.18); transition:all var(--tr); cursor:pointer; }
+.page-dot.active { background:var(--accent); transform:scale(1.5); }
+body.theme-sepia .page-dot, body.theme-mint .page-dot { background:rgba(0,0,0,.18); }
+#img-count-display { margin-right:12px; }
+
+/* ════════════════════════════════
+   STYLE PANEL
+   ════════════════════════════════ */
+#style-panel {
+    position:fixed; top:54px; right:0; width:298px; height:calc(100vh - 54px);
+    background:var(--sp-bg); border-left:1px solid var(--sp-border);
+    z-index:200; overflow-y:auto; backdrop-filter:blur(20px);
+    box-shadow:-18px 0 50px rgba(0,0,0,.28);
+    animation:slideIn .24s cubic-bezier(.4,0,.2,1);
+    scrollbar-width:thin;
+}
+@keyframes slideIn { from{transform:translateX(100%);} to{transform:none;} }
+.sp-header {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:16px 18px; border-bottom:1px solid var(--sp-border);
+    font-size:.84rem; font-weight:600; color:rgba(255,255,255,.8);
+    position:sticky; top:0; background:var(--sp-bg); z-index:1;
+}
+body.theme-sepia .sp-header, body.theme-mint .sp-header { color:var(--text); }
+.sp-close {
+    background:none; border:none; cursor:pointer;
+    color:rgba(255,255,255,.38); font-size:1rem;
+    padding:3px 7px; border-radius:4px; transition:all var(--tr);
+}
+body.theme-sepia .sp-close, body.theme-mint .sp-close { color:var(--text-muted); }
+.sp-close:hover { color:var(--accent); background:rgba(255,255,255,.06); }
+.sp-section { padding:16px 18px; border-bottom:1px solid var(--sp-border); }
+.sp-label { display:block; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.09em; color:rgba(255,255,255,.3); margin-bottom:11px; }
+body.theme-sepia .sp-label, body.theme-mint .sp-label { color:var(--text-muted); }
+
+.theme-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+.theme-btn {
+    padding:9px 5px; border-radius:8px; border:2px solid transparent;
+    cursor:pointer; font-size:.76rem; font-weight:700;
+    background:var(--tc,#222); color:var(--ta,#fff);
+    transition:all var(--tr); position:relative; overflow:hidden;
+}
+.theme-btn:hover { opacity:.85; }
+.theme-btn.active { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent); }
+
+.font-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+.font-btn {
+    padding:7px 9px; border-radius:6px;
+    border:1px solid rgba(255,255,255,.09);
+    background:rgba(255,255,255,.04); color:rgba(255,255,255,.6);
+    cursor:pointer; font-size:.78rem; transition:all var(--tr); text-align:left;
+}
+body.theme-sepia .font-btn, body.theme-mint .font-btn { color:var(--text); border-color:rgba(0,0,0,.1); background:rgba(0,0,0,.04); }
+.font-btn:hover { border-color:var(--accent); color:var(--accent); }
+.font-btn.active { border-color:var(--accent); background:rgba(201,168,76,.1); color:var(--accent); }
+
+.sp-slider {
+    width:100%; -webkit-appearance:none; height:4px;
+    background:rgba(255,255,255,.1); border-radius:4px; outline:none;
+}
+body.theme-sepia .sp-slider, body.theme-mint .sp-slider { background:rgba(0,0,0,.1); }
+.sp-slider::-webkit-slider-thumb {
+    -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:var(--accent); cursor:pointer; box-shadow:0 0 6px rgba(201,168,76,.4);
+}
+.color-row { display:flex; align-items:center; gap:11px; }
+.sp-color-input { width:38px; height:30px; border:2px solid rgba(255,255,255,.1); border-radius:6px; cursor:pointer; background:none; padding:2px; }
+.color-hint { font-size:.76rem; color:rgba(255,255,255,.32); }
+body.theme-sepia .color-hint, body.theme-mint .color-hint { color:var(--text-muted); }
+
+.layout-row { display:flex; gap:9px; }
+.layout-btn {
+    flex:1; padding:9px; border-radius:8px;
+    border:2px solid rgba(255,255,255,.09);
+    background:rgba(255,255,255,.04); color:rgba(255,255,255,.48);
+    cursor:pointer; font-size:.76rem; display:flex; flex-direction:column; align-items:center; gap:5px;
+    transition:all var(--tr);
+}
+body.theme-sepia .layout-btn, body.theme-mint .layout-btn { color:var(--text-muted); border-color:rgba(0,0,0,.1); background:rgba(0,0,0,.04); }
+.layout-btn svg { width:38px; height:26px; }
+.layout-btn:hover, .layout-btn.active { border-color:var(--accent); color:var(--accent); }
+
+/* ════════════════════════════════
+   TOC OVERLAY
+   ════════════════════════════════ */
+#toc-overlay {
+    position:fixed; inset:0; background:var(--overlay-bg);
+    z-index:300; display:flex; align-items:center; justify-content:center;
+    animation:fadeIn .2s; backdrop-filter:blur(5px);
+}
+@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+.toc-inner {
+    background:var(--sp-bg); border:1px solid var(--sp-border); border-radius:16px;
+    width:min(540px,90vw); max-height:74vh; display:flex; flex-direction:column;
+    overflow:hidden; box-shadow:0 40px 100px rgba(0,0,0,.5);
+    animation:scaleIn .24s cubic-bezier(.4,0,.2,1);
+}
+@keyframes scaleIn { from{opacity:0;transform:scale(.95);} to{opacity:1;transform:none;} }
+.toc-header {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:16px 20px; border-bottom:1px solid var(--sp-border);
+    font-size:.88rem; font-weight:700; font-family:'Playfair Display',serif;
+    color:rgba(255,255,255,.82); flex-shrink:0;
+}
+body.theme-sepia .toc-header, body.theme-mint .toc-header { color:var(--text); }
+#btn-toc-close { background:none; border:none; cursor:pointer; color:rgba(255,255,255,.38); font-size:1rem; padding:3px 7px; border-radius:4px; transition:all var(--tr); }
+body.theme-sepia #btn-toc-close, body.theme-mint #btn-toc-close { color:var(--text-muted); }
+#btn-toc-close:hover { color:var(--accent); }
+#toc-list { overflow-y:auto; padding:14px 20px; flex:1; }
+#toc-list::-webkit-scrollbar { width:4px; }
+#toc-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); border-radius:2px; }
+
+/* ════════════════════════════════
+   SAVE DIALOG
+   ════════════════════════════════ */
+#save-dialog {
+    position:fixed; inset:0; background:var(--overlay-bg);
+    z-index:400; display:flex; align-items:center; justify-content:center;
+    animation:fadeIn .2s; backdrop-filter:blur(5px);
+}
+.save-inner {
+    background:var(--sp-bg); border:1px solid var(--sp-border); border-radius:16px;
+    width:min(440px,90vw); overflow:hidden;
+    box-shadow:0 40px 100px rgba(0,0,0,.5);
+    animation:scaleIn .24s cubic-bezier(.4,0,.2,1);
+}
+.save-dlg-header {
+    display:flex; align-items:center; gap:10px;
+    padding:16px 18px; border-bottom:1px solid var(--sp-border);
+    font-size:.88rem; font-weight:700;
+    color:rgba(255,255,255,.82);
+}
+body.theme-sepia .save-dlg-header, body.theme-mint .save-dlg-header { color:var(--text); }
+.save-dlg-header .sp-close { margin-left:auto; }
+.save-dlg-body { padding:22px 22px 24px; }
+
+/* File tree */
+.file-tree {
+    background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.08);
+    border-radius:10px; padding:14px 16px; margin-bottom:18px;
+    font-family:'JetBrains Mono', 'Courier New', monospace; font-size:.8rem;
+}
+body.theme-sepia .file-tree, body.theme-mint .file-tree {
+    background:rgba(0,0,0,.06); border-color:rgba(0,0,0,.1);
+}
+.ft-title {
+    font-weight:700; margin-bottom:10px; font-size:.85rem;
+    color:rgba(255,255,255,.7);
+}
+body.theme-sepia .ft-title, body.theme-mint .ft-title { color:var(--text); }
+.ft-row {
+    padding:3px 0 3px 18px; color:rgba(255,255,255,.48);
+    display:flex; align-items:center; gap:7px;
+}
+body.theme-sepia .ft-row, body.theme-mint .ft-row { color:var(--text-muted); }
+.ft-folder { color:rgba(255,255,255,.68); }
+body.theme-sepia .ft-folder, body.theme-mint .ft-folder { color:var(--text); }
+.ft-icon { font-size:.9em; }
+.ft-badge {
+    background:rgba(201,168,76,.25); color:var(--accent);
+    padding:1px 7px; border-radius:10px; font-size:.72rem; font-weight:700; margin-left:4px;
+}
+
+.save-hint { font-size:.82rem; color:rgba(255,255,255,.38); line-height:1.55; margin-bottom:18px; }
+body.theme-sepia .save-hint, body.theme-mint .save-hint { color:var(--text-muted); }
+
+.save-actions { display:flex; flex-direction:column; gap:10px; }
+.btn-pick {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    background:var(--accent); color:#fff; border:none;
+    padding:12px 20px; border-radius:9px;
+    font-size:.88rem; font-weight:700; cursor:pointer;
+    transition:all var(--tr); letter-spacing:.02em;
+}
+.btn-pick:hover { background:var(--accent-dim); transform:translateY(-1px); box-shadow:0 6px 18px rgba(201,168,76,.3); }
+
+/* Progress bar (save) */
+.sp2-track { height:4px; background:rgba(255,255,255,.1); border-radius:4px; overflow:hidden; margin-bottom:8px; }
+body.theme-sepia .sp2-track, body.theme-mint .sp2-track { background:rgba(0,0,0,.1); }
+.sp2-fill { height:100%; width:0%; background:linear-gradient(90deg,var(--accent),#e8d08c); border-radius:4px; transition:width .3s ease; }
+#sp2-text { font-size:.8rem; color:rgba(255,255,255,.4); }
+body.theme-sepia #sp2-text, body.theme-mint #sp2-text { color:var(--text-muted); }
+
+/* Done state */
+.save-ok {
+    display:flex; align-items:center; gap:8px;
+    color:#4caf91; font-weight:700; font-size:.95rem; margin-bottom:6px;
+}
+.save-ok svg { stroke:#4caf91; }
+.save-done-path { font-size:.76rem; color:rgba(255,255,255,.3); word-break:break-all; font-family:monospace; }
+body.theme-sepia .save-done-path, body.theme-mint .save-done-path { color:var(--text-muted); }
+
+/* ── Toast ── */
+#toast {
+    position:fixed; bottom:46px; left:50%;
+    transform:translateX(-50%) translateY(16px);
+    background:rgba(15,12,40,.96); color:#fff;
+    padding:9px 20px; border-radius:50px;
+    font-size:.81rem; opacity:0; pointer-events:none;
+    transition:all .28s; border:1px solid rgba(255,255,255,.09);
+    backdrop-filter:blur(12px); z-index:9999; white-space:nowrap;
+}
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── Responsive ── */
+@media (max-width: 680px) {
+    .page-spread.double { grid-template-columns:1fr; }
+    .bar-left .book-title-display { display:none; }
+    #style-panel { width:100vw; }
+    .page-inner { padding:28px 20px 24px; }
+    :root { --page-width:95%; }
+}
+
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); border-radius:3px; }
+body.theme-sepia ::-webkit-scrollbar-thumb,
+body.theme-mint  ::-webkit-scrollbar-thumb { background:rgba(0,0,0,.1); }
+
+</style>
+</head>
+<body class="theme-cosmos" data-font="Lora">
+
+    <!-- ═══ UPLOAD SCREEN ═══ -->
+    <div id="upload-screen">
+        <div class="upload-bg-anim"></div>
+        <div class="upload-card">
+            <div class="upload-logo">
+                <svg viewBox="0 0 60 60" fill="none">
+                    <rect x="8"  y="4" width="34" height="44" rx="3" fill="currentColor" opacity="0.12"/>
+                    <rect x="12" y="4" width="34" height="44" rx="3" fill="currentColor" opacity="0.22"/>
+                    <rect x="16" y="4" width="34" height="44" rx="3" fill="currentColor" opacity="0.4" stroke="currentColor" stroke-width="1.5"/>
+                    <line x1="24" y1="16" x2="42" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="24" y1="22" x2="42" y2="22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="24" y1="28" x2="36" y2="28" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <h1 class="upload-title">DOCX<span class="arrow">→</span>BUCH</h1>
+            <p class="upload-sub">Word-Dokument in ein elegantes Web-Buch verwandeln.<br>Bilder werden als separate Dateien im <code>images/</code>-Ordner gespeichert.</p>
+            <div id="drop-zone">
+                <input type="file" id="file-input" accept=".docx" hidden>
+                <div class="drop-icon">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <path d="M24 4v28M14 22l10 10 10-10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 36v4a2 2 0 002 2h28a2 2 0 002-2v-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <p class="drop-text">Datei hierher ziehen</p>
+                <p class="drop-or">oder</p>
+                <button class="btn-upload-choose" onclick="document.getElementById('file-input').click()">Datei auswählen</button>
+                <p class="drop-hint">Unterstützt: <strong>.docx</strong> — Seitenumbruch mit <code>###</code></p>
+            </div>
+            <div id="progress-wrap" hidden>
+                <div id="progress-bar"><div id="progress-fill"></div></div>
+                <p id="progress-text">Verarbeite…</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ READER SCREEN ═══ -->
+    <div id="reader-screen" hidden>
+
+        <header id="topbar">
+            <div class="bar-left">
+                <button class="bar-btn" id="btn-back" title="Zurück zur Auswahl">
+                    <svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                </button>
+                <span id="book-title-display" class="book-title-display"></span>
+            </div>
+
+            <div class="bar-center">
+                <button class="bar-btn" id="btn-toc" title="Inhaltsverzeichnis">
+                    <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h10"/></svg>
+                </button>
+                <button class="bar-btn" id="btn-prev" title="Zurück">
+                    <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <span id="page-info">1 / 1</span>
+                <button class="bar-btn" id="btn-next" title="Vorwärts">
+                    <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+                <button class="bar-btn" id="btn-bookmark" title="Lesezeichen">
+                    <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+                </button>
+                <button class="bar-btn" id="btn-speak" title="Vorlesen">
+                    <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+                </button>
+            </div>
+
+            <div class="bar-right">
+                <button class="bar-btn bar-btn--accent" id="btn-preview" title="HTML-Vorschau in neuem Tab">
+                    <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span class="bar-label">Vorschau</span>
+                </button>
+                <button class="bar-btn bar-btn--save" id="btn-save" title="Als Ordner speichern (File System Access API)">
+                    <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <span class="bar-label">Speichern</span>
+                </button>
+                <button class="bar-btn" id="btn-style-panel" title="Stil-Einstellungen">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 004.93 19.07M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+                </button>
+                <button class="bar-btn" id="btn-dark" title="Hell / Dunkel">
+                    <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+                </button>
+                <button class="bar-btn" id="btn-zen" title="Zen-Modus (ESC beendet)">
+                    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </button>
+                <button class="bar-btn" id="btn-fullscreen" title="Vollbild">
+                    <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- STYLE PANEL -->
+        <div id="style-panel" hidden>
+            <div class="sp-header">
+                <span>Stil-Einstellungen</span>
+                <button class="sp-close" id="btn-style-close">✕</button>
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Thema</label>
+                <div class="theme-grid">
+                    <button class="theme-btn active" data-theme="cosmos"  style="--tc:#1a1035;--ta:#c9a84c">Cosmos</button>
+                    <button class="theme-btn"        data-theme="forest"  style="--tc:#0d1f12;--ta:#6ab04c">Wald</button>
+                    <button class="theme-btn"        data-theme="ocean"   style="--tc:#071428;--ta:#4fc3f7">Ozean</button>
+                    <button class="theme-btn"        data-theme="crimson" style="--tc:#1a0a0a;--ta:#e57373">Rubin</button>
+                    <button class="theme-btn"        data-theme="sepia"   style="--tc:#f5f0e8;--ta:#8b6914">Sepia</button>
+                    <button class="theme-btn"        data-theme="mint"    style="--tc:#e8f5f0;--ta:#00897b">Mint</button>
+                </div>
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Schriftart</label>
+                <div class="font-grid">
+                    <button class="font-btn active" data-font="Lora">Lora</button>
+                    <button class="font-btn" data-font="Playfair Display">Playfair</button>
+                    <button class="font-btn" data-font="Crimson Text">Crimson</button>
+                    <button class="font-btn" data-font="EB Garamond">Garamond</button>
+                    <button class="font-btn" data-font="Libre Baskerville">Baskerville</button>
+                    <button class="font-btn" data-font="Cormorant Garamond">Cormorant</button>
+                    <button class="font-btn" data-font="Source Serif 4">Source Serif</button>
+                    <button class="font-btn" data-font="Bitter">Bitter</button>
+                </div>
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Schriftgröße: <span id="font-size-val">15</span>px</label>
+                <input type="range" id="font-size-slider" min="11" max="24" value="15" class="sp-slider">
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Zeilenabstand: <span id="line-height-val">1.7</span></label>
+                <input type="range" id="line-height-slider" min="1.2" max="2.4" step="0.1" value="1.7" class="sp-slider">
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Seitenbreite: <span id="page-width-val">75</span>%</label>
+                <input type="range" id="page-width-slider" min="40" max="96" value="75" class="sp-slider">
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Akzentfarbe</label>
+                <div class="color-row">
+                    <input type="color" id="accent-color-picker" value="#c9a84c" class="sp-color-input">
+                    <span class="color-hint">Schaltflächen & Hervorhebungen</span>
+                </div>
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Papierfarbe</label>
+                <div class="color-row">
+                    <input type="color" id="paper-color-picker" value="#fdfaf3" class="sp-color-input">
+                    <span class="color-hint">Seitenhintergrund</span>
+                </div>
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Textfarbe</label>
+                <div class="color-row">
+                    <input type="color" id="text-color-picker" value="#2c3e50" class="sp-color-input">
+                    <span class="color-hint">Fließtext</span>
+                </div>
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Seitenlayout</label>
+                <div class="layout-row">
+                    <button class="layout-btn active" data-layout="double">
+                        <svg viewBox="0 0 40 28"><rect x="1" y="1" width="17" height="26" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor"/><rect x="22" y="1" width="17" height="26" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor"/></svg>
+                        Doppelseite
+                    </button>
+                    <button class="layout-btn" data-layout="single">
+                        <svg viewBox="0 0 40 28"><rect x="10" y="1" width="20" height="26" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor"/></svg>
+                        Einzelseite
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOC OVERLAY -->
+        <div id="toc-overlay" hidden>
+            <div class="toc-inner">
+                <div class="toc-header">
+                    <span>Inhaltsverzeichnis</span>
+                    <button id="btn-toc-close">✕</button>
+                </div>
+                <div id="toc-list"></div>
+            </div>
+        </div>
+
+        <!-- SAVE DIALOG -->
+        <div id="save-dialog" hidden>
+            <div class="save-inner">
+                <div class="save-dlg-header">
+                    <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <span>Buch-Ordner speichern</span>
+                    <button class="sp-close" id="btn-save-close">✕</button>
+                </div>
+                <div class="save-dlg-body">
+                    <!-- Dateibaum Vorschau -->
+                    <div class="file-tree">
+                        <div class="ft-title">📁 <span id="ft-folder-name">Buch_Ordner</span>/</div>
+                        <div class="ft-row"><span class="ft-icon">📄</span> index.html</div>
+                        <div class="ft-row"><span class="ft-icon">🎨</span> style.css</div>
+                        <div class="ft-row"><span class="ft-icon">⚙️</span> script.js</div>
+                        <div class="ft-row ft-folder">
+                            <span class="ft-icon">🖼️</span> images/
+                            <span class="ft-badge" id="ft-img-count"></span>
+                        </div>
+                    </div>
+                    <p class="save-hint">Wähle einen Zielordner auf deinem Computer.<br>Alle Dateien werden dort direkt abgelegt.</p>
+                    <div class="save-actions">
+                        <button class="btn-pick" id="btn-pick-folder">
+                            <svg viewBox="0 0 24 24" width="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+                            Ordner wählen & speichern
+                        </button>
+                    </div>
+                    <div id="save-prog" hidden>
+                        <div class="sp2-track"><div class="sp2-fill" id="sp2-fill"></div></div>
+                        <span id="sp2-text">Schreibe Dateien…</span>
+                    </div>
+                    <div id="save-done" hidden>
+                        <div class="save-ok">
+                            <svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Erfolgreich gespeichert!
+                        </div>
+                        <p class="save-done-path" id="save-done-path"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOOK STAGE -->
+        <main id="book-stage">
+            <div id="book-container"></div>
+        </main>
+
+        <!-- STATUS BAR -->
+        <div id="statusbar">
+            <div class="sb-left"><span id="word-count"></span></div>
+            <div class="sb-center"><div id="page-dots"></div></div>
+            <div class="sb-right">
+                <span id="img-count-display"></span>
+                <span id="reading-time"></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="script.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════
+   DOCX → BUCH KONVERTER  |  script.js
+   ═══════════════════════════════════════════════════ */
+'use strict';
+
+/* ── State ── */
+const state = {
+    pages:        [],    // Array of HTML strings
+    images:       [],    // [{filename, blob, mimeType}]
+    currentSpread: 0,
+    totalSpreads:  0,
+    layout:       'double',
+    speaking:     false,
+    title:        'Mein Buch',
+    wordCount:    0
+};
+
+/* ── DOM refs ── */
+const $ = id => document.getElementById(id);
+
+/* ════════════════════════════════
+   UPLOAD & CONVERSION
+   ════════════════════════════════ */
+function initUpload() {
+    const fileInput = $('file-input');
+    const dropZone  = $('drop-zone');
+
+    fileInput.addEventListener('change', e => {
+        if (e.target.files[0]) processFile(e.target.files[0]);
+    });
+    dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault(); dropZone.classList.remove('drag-over');
+        const f = e.dataTransfer.files[0];
+        if (f && f.name.endsWith('.docx')) processFile(f);
+        else showToast('Bitte eine .docx Datei wählen');
+    });
+    dropZone.addEventListener('click', e => {
+        if (!e.target.classList.contains('btn-upload-choose')) fileInput.click();
+    });
+}
+
+async function processFile(file) {
+    state.title  = file.name.replace(/\.docx$/i, '');
+    state.images = [];
+
+    const progressWrap = $('progress-wrap');
+    const dropZone     = $('drop-zone');
+    progressWrap.hidden = false;
+    dropZone.style.opacity = '0.4';
+    dropZone.style.pointerEvents = 'none';
+
+    setProgress(10, 'Datei wird gelesen…');
+
+    try {
+        const arrayBuffer = await file.arrayBuffer();
+        setProgress(30, 'Word-Format wird analysiert…');
+
+        let imgCounter = 0;
+
+        const result = await mammoth.convertToHtml({ arrayBuffer }, {
+            convertImage: mammoth.images.imgElement(async (image) => {
+                imgCounter++;
+                // Bestimme Dateiendung
+                const ext = (image.contentType || 'image/jpeg').split('/')[1]
+                              .replace('jpeg','jpg').replace('svg+xml','svg') || 'jpg';
+                const filename = `bild_${String(imgCounter).padStart(3,'0')}.${ext}`;
+
+                // Bild als Blob speichern
+                const arrayBuf = await image.read('arraybuffer');
+                const blob = new Blob([arrayBuf], { type: image.contentType || 'image/jpeg' });
+                state.images.push({ filename, blob, mimeType: image.contentType });
+
+                // In HTML → Pfad relativ zum Ausgabe-Ordner
+                return { src: `images/${filename}`, class: 'book-image', alt: `Bild ${imgCounter}` };
+            })
+        });
+
+        setProgress(65, 'Seiten werden aufgebaut…');
+        buildPages(result.value);
+        setProgress(90, 'Vorschau wird generiert…');
+        await new Promise(r => setTimeout(r, 120));
+        setProgress(100, 'Fertig!');
+        await new Promise(r => setTimeout(r, 280));
+
+        // Zum Reader wechseln
+        const uploadScreen = $('upload-screen');
+        uploadScreen.style.opacity = '0';
+        uploadScreen.style.transform = 'scale(1.04)';
+        uploadScreen.style.transition = 'all 0.38s ease';
+        await new Promise(r => setTimeout(r, 380));
+        uploadScreen.hidden = true;
+
+        const readerScreen = $('reader-screen');
+        readerScreen.hidden = false;
+
+        // Dateibaum im Save-Dialog aktualisieren
+        updateSaveDialogInfo();
+
+    } catch(err) {
+        console.error(err);
+        setProgress(0,'');
+        showToast('Fehler: ' + err.message);
+        dropZone.style.opacity = '1';
+        dropZone.style.pointerEvents = '';
+        $('progress-wrap').hidden = true;
+    }
+}
+
+function setProgress(pct, text) {
+    $('progress-fill').style.width = pct + '%';
+    $('progress-text').textContent = text;
+}
+
+/* ════════════════════════════════
+   PAGE BUILDING
+   ════════════════════════════════ */
+function buildPages(rawHtml) {
+    const parser = new DOMParser();
+    const doc  = parser.parseFromString(`<div id="r">${rawHtml}</div>`, 'text/html');
+    const root = doc.getElementById('r');
+
+    const rawPages = [];
+    let current = '';
+
+    for (const node of root.childNodes) {
+        const s = node.outerHTML || node.textContent || '';
+        if (s.includes('###')) {
+            current += s.replace(/###/g, '');
+            if (current.trim()) { rawPages.push(current); current = ''; }
+        } else {
+            current += s;
+        }
+    }
+    if (current.trim()) rawPages.push(current);
+
+    // TOC-Seite nach erster Seite einfügen
+    const tocHtml = buildInPageToc(rawPages);
+    state.pages = rawPages.length > 0
+        ? [rawPages[0], tocHtml, ...rawPages.slice(1)]
+        : [tocHtml];
+
+    // Auf gerade Anzahl auffüllen
+    if (state.pages.length % 2 !== 0) {
+        state.pages.push('<p style="text-align:center;margin-top:42%;opacity:.28;font-family:\'Playfair Display\',serif;font-size:1.1em;letter-spacing:.15em;">― FINIS ―</p>');
+    }
+
+    // Statistiken
+    const allText = state.pages.join(' ').replace(/<[^>]+>/g,' ');
+    state.wordCount = allText.split(/\s+/).filter(Boolean).length;
+
+    $('book-title-display').textContent = state.title;
+    renderReader();
+    restoreBookmark();
+}
+
+function buildInPageToc(pages) {
+    let items = '';
+    pages.forEach((p, i) => {
+        const m = p.match(/<h([1-3])[^>]*>([\s\S]*?)<\/h\1>/i);
+        if (m && i > 0) {
+            const lvl  = parseInt(m[1]);
+            const text = m[2].replace(/<[^>]+>/g,'').trim();
+            const cls  = lvl === 2 ? 'toc-h2' : lvl === 3 ? 'toc-h3' : '';
+            items += `<li class="${cls}" data-target="${i+2}"><span>${text}</span><span class="toc-num">${i+2}</span></li>`;
+        }
+    });
+    return `<div class="toc-page-title">Inhaltsverzeichnis</div><ul class="toc-page-list">${items}</ul>`;
+}
+
+/* ════════════════════════════════
+   RENDER
+   ════════════════════════════════ */
+function renderReader() {
+    const pps = state.layout === 'double' ? 2 : 1;
+    state.totalSpreads  = Math.ceil(state.pages.length / pps);
+    state.currentSpread = Math.min(state.currentSpread, state.totalSpreads - 1);
+
+    let html = '<div class="book-pages-wrapper"><div class="pages-track">';
+    for (let s = 0; s < state.totalSpreads; s++) {
+        html += `<div class="page-spread ${state.layout}">`;
+        const start = s * pps;
+        for (let p = start; p < start + pps && p < state.pages.length; p++) {
+            html += `<div class="book-page">
+                        <div class="page-inner">${state.pages[p]}</div>
+                        <div class="page-num">— ${p+1} —</div>
+                     </div>`;
+        }
+        html += '</div>';
+    }
+    html += '</div></div>';
+    $('book-container').innerHTML = html;
+
+    // TOC-Seiten-Links
+    $('book-container').querySelectorAll('.toc-page-list li[data-target]').forEach(li => {
+        li.addEventListener('click', () => {
+            const p   = parseInt(li.dataset.target) - 1;
+            const pps = state.layout === 'double' ? 2 : 1;
+            goToSpread(Math.floor(p / pps));
+        });
+    });
+
+    updateView();
+    buildTocOverlay();
+    buildPageDots();
+    updateStats();
+}
+
+function goToSpread(idx) {
+    state.currentSpread = Math.max(0, Math.min(idx, state.totalSpreads - 1));
+    updateView();
+}
+
+function updateView() {
+    const track = $('book-container').querySelector('.pages-track');
+    if (track) track.style.transform = `translateX(-${state.currentSpread * 100}%)`;
+
+    const pps   = state.layout === 'double' ? 2 : 1;
+    const first = state.currentSpread * pps + 1;
+    const last  = Math.min(first + pps - 1, state.pages.length);
+    $('page-info').textContent = first === last
+        ? `${first} / ${state.pages.length}`
+        : `${first}–${last} / ${state.pages.length}`;
+
+    $('btn-prev').style.opacity = state.currentSpread === 0 ? '.32' : '1';
+    $('btn-next').style.opacity = state.currentSpread >= state.totalSpreads - 1 ? '.32' : '1';
+    buildPageDots();
+}
+
+function buildPageDots() {
+    const el  = $('page-dots');
+    const max = 14;
+    if (state.totalSpreads <= 1) { el.innerHTML = ''; return; }
+    const cnt = Math.min(state.totalSpreads, max);
+    let html = '';
+    for (let i = 0; i < cnt; i++) {
+        const idx    = state.totalSpreads > max ? Math.round(i*(state.totalSpreads-1)/(max-1)) : i;
+        const active = idx === state.currentSpread ? ' active' : '';
+        html += `<div class="page-dot${active}" data-idx="${idx}"></div>`;
+    }
+    el.innerHTML = html;
+    el.querySelectorAll('.page-dot').forEach(d => {
+        d.addEventListener('click', () => goToSpread(parseInt(d.dataset.idx)));
+    });
+}
+
+function buildTocOverlay() {
+    const pps = state.layout === 'double' ? 2 : 1;
+    let html = '';
+    state.pages.forEach((p, i) => {
+        const m = p.match(/<h([1-3])[^>]*>([\s\S]*?)<\/h\1>/i);
+        if (m && i > 1) {
+            const lvl  = parseInt(m[1]);
+            const text = m[2].replace(/<[^>]+>/g,'').trim();
+            const si   = Math.floor(i / pps);
+            const ind  = (lvl - 1) * 16;
+            const fsz  = lvl === 1 ? '1em' : lvl === 2 ? '.9em' : '.82em';
+            html += `<div class="toc-entry" data-spread="${si}"
+                style="padding:7px 0 7px ${ind}px; border-bottom:1px solid rgba(255,255,255,.05);
+                       cursor:pointer; display:flex; justify-content:space-between;
+                       font-size:${fsz}; color:rgba(255,255,255,.72); transition:color .18s;"
+                onmouseover="this.style.color='var(--accent)'"
+                onmouseout="this.style.color='rgba(255,255,255,.72)'">
+                <span>${text}</span>
+                <span style="font-size:.74em;opacity:.45;font-family:monospace;margin-left:12px">${i+1}</span>
+            </div>`;
+        }
+    });
+    $('toc-list').innerHTML = html ||
+        '<p style="opacity:.38;font-size:.85rem;padding:8px 0">Keine Überschriften gefunden</p>';
+    $('toc-list').querySelectorAll('.toc-entry').forEach(el => {
+        el.addEventListener('click', () => {
+            goToSpread(parseInt(el.dataset.spread));
+            $('toc-overlay').hidden = true;
+        });
+    });
+}
+
+function updateStats() {
+    $('word-count').textContent = `${state.wordCount.toLocaleString('de-DE')} Wörter`;
+    const mins = Math.ceil(state.wordCount / 200);
+    $('reading-time').textContent = `≈ ${mins} Min`;
+    const imgN = state.images.length;
+    $('img-count-display').textContent = imgN > 0 ? `🖼 ${imgN} Bild${imgN!==1?'er':''}` : '';
+}
+
+function updateSaveDialogInfo() {
+    $('ft-folder-name').textContent = state.title;
+    const n = state.images.length;
+    $('ft-img-count').textContent = n > 0 ? `${n} Datei${n!==1?'en':''}` : 'leer';
+}
+
+/* ════════════════════════════════
+   NAVIGATION
+   ════════════════════════════════ */
+function prev() { stopSpeech(); if (state.currentSpread > 0) goToSpread(state.currentSpread - 1); }
+function next() { stopSpeech(); if (state.currentSpread < state.totalSpreads - 1) goToSpread(state.currentSpread + 1); }
+
+document.addEventListener('keydown', e => {
+    if (!$('reader-screen').hidden) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
+        if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prev();
+        if (e.key === 'Escape') {
+            $('style-panel').hidden = true;
+            $('btn-style-panel').classList.remove('active');
+            $('toc-overlay').hidden = true;
+            $('save-dialog').hidden = true;
+            $('reader-screen').classList.remove('zen-mode');
+            if (document.fullscreenElement) document.exitFullscreen();
+        }
+    }
+});
+
+let touchX = 0;
+document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive:true });
+document.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 48) dx < 0 ? next() : prev();
+});
+
+/* ════════════════════════════════
+   SPEECH
+   ════════════════════════════════ */
+function stopSpeech() {
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    state.speaking = false;
+    const btn = $('btn-speak');
+    if (btn) btn.classList.remove('speaking');
+}
+
+function toggleSpeech() {
+    const synth = window.speechSynthesis;
+    if (!synth) { showToast('Sprachausgabe nicht verfügbar'); return; }
+    if (synth.speaking) { stopSpeech(); return; }
+
+    const pps   = state.layout === 'double' ? 2 : 1;
+    const start = state.currentSpread * pps;
+    let text = '';
+    for (let i = start; i < start + pps && i < state.pages.length; i++) {
+        const d = document.createElement('div');
+        d.innerHTML = state.pages[i];
+        text += ' ' + (d.innerText || d.textContent);
+    }
+
+    const u = new SpeechSynthesisUtterance(text.trim());
+    u.lang = 'de-DE'; u.rate = 0.94;
+    u.onend = () => {
+        if (state.speaking) {
+            next();
+            setTimeout(() => {
+                if (state.currentSpread < state.totalSpreads - 1) toggleSpeech();
+                else stopSpeech();
+            }, 700);
+        }
+    };
+    synth.speak(u);
+    state.speaking = true;
+    $('btn-speak').classList.add('speaking');
+}
+
+/* ════════════════════════════════
+   BOOKMARK
+   ════════════════════════════════ */
+function saveBookmark() {
+    const key = 'bm_' + state.title;
+    localStorage.setItem(key, state.currentSpread);
+    showToast('🔖 Lesezeichen gesetzt');
+    $('btn-bookmark').classList.add('active');
+    setTimeout(() => $('btn-bookmark').classList.remove('active'), 1400);
+}
+
+function restoreBookmark() {
+    const key   = 'bm_' + state.title;
+    const saved = localStorage.getItem(key);
+    if (saved && parseInt(saved) > 0) {
+        setTimeout(() => {
+            if (confirm(`Lesezeichen gefunden. Weiter ab Seite ${parseInt(saved)+1}?`))
+                goToSpread(parseInt(saved));
+        }, 500);
+    }
+}
+
+/* ════════════════════════════════
+   VORSCHAU (neuer Tab)
+   ════════════════════════════════ */
+function openPreview() {
+    if (!state.pages.length) { showToast('Kein Inhalt zum Voranzeigen'); return; }
+
+    // Aktuelle Stilwerte auslesen
+    const cs     = getComputedStyle(document.documentElement);
+    const accent = cs.getPropertyValue('--accent').trim()  || '#c9a84c';
+    const paper  = cs.getPropertyValue('--paper').trim()   || '#fdfaf3';
+    const text   = cs.getPropertyValue('--text').trim()    || '#2c3e50';
+    const font   = document.body.dataset.font || 'Lora';
+    const fsize  = cs.getPropertyValue('--font-size').trim() || '15px';
+    const lh     = cs.getPropertyValue('--line-height').trim() || '1.7';
+
+    // Bilder als Object URLs einbetten (nur für Vorschau-Tab)
+    let pagesHtml = state.pages.map((p, i) => {
+        // Ersetzt images/xxx.jpg durch blob URLs für die Vorschau
+        let html = p;
+        state.images.forEach(img => {
+            const blobUrl = URL.createObjectURL(img.blob);
+            html = html.replace(new RegExp(`images/${img.filename}`, 'g'), blobUrl);
+        });
+        return `<article class="page-block" id="p${i+1}">
+                    <div class="page-num-label">Seite ${i+1}</div>
+                    ${html}
+                </article>`;
+    }).join('\n<hr class="page-divider">\n');
+
+    const html = `<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vorschau – ${escHtml(state.title)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=${encodeURIComponent(font)}:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root { --accent:${accent}; --paper:${paper}; --text:${text}; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+    background: #1a1428;
+    font-family:'${font}',serif;
+    font-size:${fsize}; line-height:${lh};
+    color:var(--text);
+    padding: 40px 20px 80px;
+}
+.preview-header {
+    text-align:center; margin-bottom:40px;
+    font-family:'Playfair Display',serif;
+    color:rgba(255,255,255,.6);
+}
+.preview-header h1 { font-size:1.6rem; color:var(--accent); margin-bottom:6px; }
+.preview-header p  { font-size:.85rem; }
+.page-block {
+    background:var(--paper); color:var(--text);
+    max-width:740px; margin:0 auto 0;
+    padding: 52px 56px 44px;
+    border-radius:4px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.55);
+    position:relative;
+}
+.page-num-label {
+    position:absolute; bottom:14px; left:50%; transform:translateX(-50%);
+    font-size:.7rem; opacity:.45; letter-spacing:.1em; font-family:monospace;
+}
+.page-divider {
+    border:none; max-width:740px; margin:28px auto;
+    border-top: 1px dashed rgba(255,255,255,.1);
+}
+h1 { font-family:'Playfair Display',serif; font-size:1.65em; font-weight:700;
+     border-bottom:2px solid var(--accent); padding-bottom:.28em; margin-bottom:.55em; }
+h2 { font-family:'Playfair Display',serif; font-size:1.3em; font-weight:700; margin:1.1em 0 .45em; }
+h3, h4 { font-size:1.08em; font-weight:600; margin:.9em 0 .35em; }
+p { margin-bottom:.85em; text-align:justify; hyphens:auto; }
+p:first-of-type::first-letter {
+    float:left; font-family:'Playfair Display',serif; font-size:3.1em;
+    line-height:.8; margin:.05em .08em 0 0; color:var(--accent); font-weight:700;
+}
+blockquote { border-left:3px solid var(--accent); padding:6px 14px; margin:1em 0; font-style:italic; opacity:.8; }
+img { max-width:100%; max-height:50vh; display:block; margin:18px auto; border-radius:4px; box-shadow:0 4px 16px rgba(0,0,0,.18); }
+ul, ol { padding-left:1.4em; margin-bottom:.85em; }
+li { margin-bottom:.28em; }
+table { width:100%; border-collapse:collapse; margin:1em 0; font-size:.9em; }
+th { padding:6px 10px; border-bottom:2px solid var(--accent); font-weight:600; }
+td { padding:5px 10px; border-bottom:1px solid rgba(0,0,0,.07); }
+.toc-page-title { font-family:'Playfair Display',serif; font-size:1.5em; font-weight:700; margin-bottom:1.4em; padding-bottom:.35em; border-bottom:2px solid var(--accent); }
+.toc-page-list  { list-style:none; }
+.toc-page-list li { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px dotted rgba(0,0,0,.1); }
+.toc-page-list li .toc-num { font-family:monospace; font-size:.8em; opacity:.55; }
+.toc-h2 { padding-left:14px; font-size:.92em; }
+.toc-h3 { padding-left:28px; font-size:.85em; opacity:.78; }
+</style>
+</head>
+<body>
+<div class="preview-header">
+    <h1>${escHtml(state.title)}</h1>
+    <p>${state.pages.length} Seiten · ${state.wordCount.toLocaleString('de-DE')} Wörter · ${state.images.length} Bild${state.images.length!==1?'er':''}</p>
+</div>
+${pagesHtml}
+</body>
+</html>`;
+
+    const blob = new Blob([html], { type:'text/html;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    showToast('Vorschau in neuem Tab geöffnet');
+}
+
+/* ════════════════════════════════
+   SAVE TO FOLDER  (File System Access API)
+   ════════════════════════════════ */
+function openSaveDialog() {
+    if (!state.pages.length) { showToast('Bitte zuerst eine Datei laden'); return; }
+    if (!('showDirectoryPicker' in window)) {
+        showToast('File System Access API nicht verfügbar (Chrome/Edge benötigt)');
+        return;
+    }
+    $('save-dialog').hidden = false;
+    $('save-prog').hidden = true;
+    $('save-done').hidden = true;
+    $('btn-pick-folder').hidden = false;
+    updateSaveDialogInfo();
+}
+
+async function saveToFolder() {
+    let dirHandle;
+    try {
+        dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+    } catch(e) {
+        if (e.name !== 'AbortError') showToast('Ordner-Auswahl fehlgeschlagen');
+        return;
+    }
+
+    $('btn-pick-folder').hidden = true;
+    $('save-prog').hidden = false;
+    $('save-done').hidden = true;
+
+    try {
+        const total = 3 + state.images.length; // index.html, style.css, script.js + Bilder
+        let done = 0;
+
+        const setP = (msg) => {
+            $('sp2-fill').style.width = Math.round(done/total*100)+'%';
+            $('sp2-text').textContent = msg;
+        };
+
+        // ── 1) images/ Unterordner anlegen ──
+        let imgDir = null;
+        if (state.images.length > 0) {
+            imgDir = await dirHandle.getDirectoryHandle('images', { create: true });
+        }
+
+        // ── 2) Bilder speichern ──
+        for (const img of state.images) {
+            setP(`Bild: ${img.filename}`);
+            const fh  = await imgDir.getFileHandle(img.filename, { create: true });
+            const ws  = await fh.createWritable();
+            await ws.write(img.blob);
+            await ws.close();
+            done++;
+            setP(`Bild ${done}/${state.images.length} gespeichert…`);
+        }
+
+        // ── 3) style.css ──
+        setP('Schreibe style.css…');
+        await writeTextFile(dirHandle, 'style.css', await fetchLocalFile('style.css'));
+        done++; setP('style.css ✓');
+
+        // ── 4) script.js ──
+        setP('Schreibe script.js…');
+        await writeTextFile(dirHandle, 'script.js', await fetchLocalFile('script.js'));
+        done++; setP('script.js ✓');
+
+        // ── 5) index.html (mit eingebetteten Seiten) ──
+        setP('Schreibe index.html…');
+        const indexContent = buildOutputHtml();
+        await writeTextFile(dirHandle, 'index.html', indexContent);
+        done++; setP('Fertig!');
+
+        $('sp2-fill').style.width = '100%';
+        await new Promise(r => setTimeout(r, 200));
+        $('save-prog').hidden = true;
+        $('save-done').hidden = false;
+        $('save-done-path').textContent = `→ ${dirHandle.name}/`;
+        showToast('✓ Buch gespeichert in: ' + dirHandle.name);
+
+    } catch(err) {
+        console.error(err);
+        $('sp2-text').textContent = 'Fehler: ' + err.message;
+        showToast('Fehler beim Speichern: ' + err.message);
+    }
+}
+
+async function writeTextFile(dirHandle, filename, content) {
+    const fh = await dirHandle.getFileHandle(filename, { create: true });
+    const ws = await fh.createWritable();
+    await ws.write(content);
+    await ws.close();
+}
+
+async function fetchLocalFile(filename) {
+    const resp = await fetch(filename);
+    return await resp.text();
+}
+
+/* Baut die endgültige index.html für den gespeicherten Ordner */
+function buildOutputHtml() {
+    const cs     = getComputedStyle(document.documentElement);
+    const accent = cs.getPropertyValue('--accent').trim()  || '#c9a84c';
+    const paper  = cs.getPropertyValue('--paper').trim()   || '#fdfaf3';
+    const text   = cs.getPropertyValue('--text').trim()    || '#2c3e50';
+    const font   = document.body.dataset.font || 'Lora';
+    const fsize  = cs.getPropertyValue('--font-size').trim() || '15px';
+    const lh     = cs.getPropertyValue('--line-height').trim() || '1.7';
+    const theme  = (document.body.className.match(/theme-(\S+)/) || ['','cosmos'])[1];
+
+    const pagesDivs = state.pages.map((p, i) =>
+        `<div class="book-page"><div class="page-inner">${p}</div><div class="page-num">— ${i+1} —</div></div>`
+    ).join('\n');
+
+    return `<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${escHtml(state.title)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=${encodeURIComponent(font)}:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  :root {
+    --accent: ${accent};
+    --paper:  ${paper};
+    --text:   ${text};
+    --font-body: '${font}', serif;
+    --font-size: ${fsize};
+    --line-height: ${lh};
+  }
+</style>
+</head>
+<body class="theme-${theme}" data-font="${font}">
+
+<div id="reader-screen">
+  <header id="topbar">
+    <div class="bar-left">
+      <span class="book-title-display">${escHtml(state.title)}</span>
+    </div>
+    <div class="bar-center">
+      <button class="bar-btn" id="btn-toc" title="Inhaltsverzeichnis">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h10"/></svg>
+      </button>
+      <button class="bar-btn" id="btn-prev"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span id="page-info">1 / ${state.pages.length}</span>
+      <button class="bar-btn" id="btn-next"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button class="bar-btn" id="btn-bookmark" title="Lesezeichen">
+        <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+      </button>
+      <button class="bar-btn" id="btn-speak">
+        <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+      </button>
+    </div>
+    <div class="bar-right">
+      <button class="bar-btn" id="btn-style-panel">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 004.93 19.07M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+      </button>
+      <button class="bar-btn" id="btn-dark">
+        <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
+      <button class="bar-btn" id="btn-zen">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </button>
+      <button class="bar-btn" id="btn-fullscreen">
+        <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- STYLE PANEL -->
+  <div id="style-panel" hidden>
+    <div class="sp-header"><span>Stil-Einstellungen</span><button class="sp-close" id="btn-style-close">✕</button></div>
+    <div class="sp-section">
+      <label class="sp-label">Thema</label>
+      <div class="theme-grid">
+        <button class="theme-btn" data-theme="cosmos"  style="--tc:#1a1035;--ta:#c9a84c">Cosmos</button>
+        <button class="theme-btn" data-theme="forest"  style="--tc:#0d1f12;--ta:#6ab04c">Wald</button>
+        <button class="theme-btn" data-theme="ocean"   style="--tc:#071428;--ta:#4fc3f7">Ozean</button>
+        <button class="theme-btn" data-theme="crimson" style="--tc:#1a0a0a;--ta:#e57373">Rubin</button>
+        <button class="theme-btn" data-theme="sepia"   style="--tc:#f5f0e8;--ta:#8b6914">Sepia</button>
+        <button class="theme-btn" data-theme="mint"    style="--tc:#e8f5f0;--ta:#00897b">Mint</button>
+      </div>
+    </div>
+    <div class="sp-section">
+      <label class="sp-label">Schriftart</label>
+      <div class="font-grid">
+        <button class="font-btn" data-font="Lora">Lora</button>
+        <button class="font-btn" data-font="Playfair Display">Playfair</button>
+        <button class="font-btn" data-font="Crimson Text">Crimson</button>
+        <button class="font-btn" data-font="EB Garamond">Garamond</button>
+        <button class="font-btn" data-font="Libre Baskerville">Baskerville</button>
+        <button class="font-btn" data-font="Cormorant Garamond">Cormorant</button>
+        <button class="font-btn" data-font="Source Serif 4">Source Serif</button>
+        <button class="font-btn" data-font="Bitter">Bitter</button>
+      </div>
+    </div>
+    <div class="sp-section">
+      <label class="sp-label">Schriftgröße: <span id="font-size-val">15</span>px</label>
+      <input type="range" id="font-size-slider" min="11" max="24" value="15" class="sp-slider">
+    </div>
+    <div class="sp-section">
+      <label class="sp-label">Zeilenabstand: <span id="line-height-val">1.7</span></label>
+      <input type="range" id="line-height-slider" min="1.2" max="2.4" step="0.1" value="1.7" class="sp-slider">
+    </div>
+    <div class="sp-section">
+      <label class="sp-label">Seitenbreite: <span id="page-width-val">75</span>%</label>
+      <input type="range" id="page-width-slider" min="40" max="96" value="75" class="sp-slider">
+    </div>
+    <div class="sp-section">
+      <label class="sp-label">Akzentfarbe</label>
+      <div class="color-row"><input type="color" id="accent-color-picker" value="${accent}" class="sp-color-input"><span class="color-hint">Schaltflächen & Hervorhebungen</span></div>
+    </div>
+    <div class="sp-section">
+      <label class="sp-label">Papierfarbe</label>
+      <div class="color-row"><input type="color" id="paper-color-picker" value="${paper}" class="sp-color-input"><span class="color-hint">Seitenhintergrund</span></div>
+    </div>
+    <div class="sp-section">
+      <label class="sp-label">Textfarbe</label>
+      <div class="color-row"><input type="color" id="text-color-picker" value="${text}" class="sp-color-input"><span class="color-hint">Fließtext</span></div>
+    </div>
+    <div class="sp-section">
+      <label class="sp-label">Seitenlayout</label>
+      <div class="layout-row">
+        <button class="layout-btn active" data-layout="double">
+          <svg viewBox="0 0 40 28"><rect x="1" y="1" width="17" height="26" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor"/><rect x="22" y="1" width="17" height="26" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor"/></svg>
+          Doppelseite
+        </button>
+        <button class="layout-btn" data-layout="single">
+          <svg viewBox="0 0 40 28"><rect x="10" y="1" width="20" height="26" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor"/></svg>
+          Einzelseite
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOC OVERLAY -->
+  <div id="toc-overlay" hidden>
+    <div class="toc-inner">
+      <div class="toc-header"><span>Inhaltsverzeichnis</span><button id="btn-toc-close">✕</button></div>
+      <div id="toc-list"></div>
+    </div>
+  </div>
+
+  <main id="book-stage">
+    <div id="book-container">
+      <div class="book-pages-wrapper">
+        <div class="pages-track">
+          <!-- Doppelseiten-Spreads -->
+          ${buildSpreadsHtml(state.pages)}
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="statusbar">
+    <div class="sb-left"><span id="word-count">${state.wordCount.toLocaleString('de-DE')} Wörter</span></div>
+    <div class="sb-center"><div id="page-dots"></div></div>
+    <div class="sb-right"><span id="reading-time">≈ ${Math.ceil(state.wordCount/200)} Min</span></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="script.js"></script>
+</body>
+</html>`;
+}
+
+function buildSpreadsHtml(pages) {
+    let html = '';
+    for (let s = 0; s < Math.ceil(pages.length / 2); s++) {
+        html += `<div class="page-spread double">`;
+        for (let p = s*2; p < s*2+2 && p < pages.length; p++) {
+            html += `<div class="book-page"><div class="page-inner">${pages[p]}</div><div class="page-num">— ${p+1} —</div></div>`;
+        }
+        html += `</div>`;
+    }
+    return html;
+}
+
+function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ════════════════════════════════
+   STYLE PANEL LOGIC
+   ════════════════════════════════ */
+function initStylePanel() {
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            setTheme(btn.dataset.theme);
+        });
+    });
+
+    document.querySelectorAll('.font-btn').forEach(btn => {
+        btn.style.fontFamily = `'${btn.dataset.font}',serif`;
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.body.dataset.font = btn.dataset.font;
+            document.documentElement.style.setProperty('--font-body', `'${btn.dataset.font}',serif`);
+        });
+    });
+
+    const fsS = $('font-size-slider'), fsV = $('font-size-val');
+    fsS.addEventListener('input', () => { fsV.textContent = fsS.value; document.documentElement.style.setProperty('--font-size', fsS.value+'px'); });
+
+    const lhS = $('line-height-slider'), lhV = $('line-height-val');
+    lhS.addEventListener('input', () => { lhV.textContent = parseFloat(lhS.value).toFixed(1); document.documentElement.style.setProperty('--line-height', lhS.value); });
+
+    const pwS = $('page-width-slider'), pwV = $('page-width-val');
+    pwS.addEventListener('input', () => { pwV.textContent = pwS.value; document.documentElement.style.setProperty('--page-width', pwS.value+'%'); });
+
+    $('accent-color-picker').addEventListener('input', e => document.documentElement.style.setProperty('--accent', e.target.value));
+    $('paper-color-picker').addEventListener('input',  e => document.documentElement.style.setProperty('--paper',  e.target.value));
+    $('text-color-picker').addEventListener('input',   e => document.documentElement.style.setProperty('--text',   e.target.value));
+
+    document.querySelectorAll('.layout-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            state.layout = btn.dataset.layout;
+            if (state.pages.length > 0) renderReader();
+        });
+    });
+}
+
+function setTheme(theme) {
+    document.body.className = document.body.className.replace(/theme-\S+/,'').trim() + ' theme-' + theme;
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.theme === theme));
+    const d = { cosmos:{paper:'#fdfaf3',text:'#2c3e50',accent:'#c9a84c'}, forest:{paper:'#f5fdf5',text:'#1a2d1a',accent:'#6ab04c'}, ocean:{paper:'#f0f8ff',text:'#0d2040',accent:'#4fc3f7'}, crimson:{paper:'#fff5f5',text:'#2d0a0a',accent:'#e57373'}, sepia:{paper:'#f9f4e8',text:'#3b2e1a',accent:'#8b6914'}, mint:{paper:'#f5faf8',text:'#1a3d2e',accent:'#00897b'} };
+    const v = d[theme] || d.cosmos;
+    document.documentElement.style.setProperty('--paper',  v.paper);
+    document.documentElement.style.setProperty('--text',   v.text);
+    document.documentElement.style.setProperty('--accent', v.accent);
+    $('paper-color-picker').value  = v.paper;
+    $('text-color-picker').value   = v.text;
+    $('accent-color-picker').value = v.accent;
+}
+
+/* ════════════════════════════════
+   TOAST
+   ════════════════════════════════ */
+let toastTimer;
+function showToast(msg) {
+    $('toast').textContent = msg;
+    $('toast').classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => $('toast').classList.remove('show'), 2800);
+}
+
+/* ════════════════════════════════
+   INIT
+   ════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+    initUpload();
+    initStylePanel();
+
+    $('btn-prev').addEventListener('click', prev);
+    $('btn-next').addEventListener('click', next);
+    $('btn-speak').addEventListener('click', toggleSpeech);
+    $('btn-bookmark').addEventListener('click', saveBookmark);
+    $('btn-preview').addEventListener('click', openPreview);
+    $('btn-save').addEventListener('click', openSaveDialog);
+    $('btn-pick-folder').addEventListener('click', saveToFolder);
+    $('btn-save-close').addEventListener('click', () => $('save-dialog').hidden = true);
+    $('save-dialog').addEventListener('click', e => { if (e.target === $('save-dialog')) $('save-dialog').hidden = true; });
+
+    $('btn-back').addEventListener('click', () => {
+        stopSpeech();
+        $('reader-screen').hidden = true;
+        const us = $('upload-screen');
+        us.hidden = false; us.style.opacity = '1'; us.style.transform = 'none';
+        $('progress-wrap').hidden = true;
+        $('progress-fill').style.width = '0%';
+        $('file-input').value = '';
+        const dz = $('drop-zone');
+        dz.style.opacity = '1'; dz.style.pointerEvents = '';
+    });
+
+    $('btn-toc').addEventListener('click', () => $('toc-overlay').hidden = false);
+    $('btn-toc-close').addEventListener('click', () => $('toc-overlay').hidden = true);
+    $('toc-overlay').addEventListener('click', e => { if (e.target === $('toc-overlay')) $('toc-overlay').hidden = true; });
+
+    $('btn-style-panel').addEventListener('click', () => {
+        const sp = $('style-panel');
+        const open = sp.hidden;
+        sp.hidden = !open;
+        $('btn-style-panel').classList.toggle('active', open);
+    });
+    $('btn-style-close').addEventListener('click', () => {
+        $('style-panel').hidden = true;
+        $('btn-style-panel').classList.remove('active');
+    });
+
+    $('btn-dark').addEventListener('click', () => {
+        const light = ['sepia','mint'].some(t => document.body.classList.contains('theme-'+t));
+        setTheme(light ? 'cosmos' : 'sepia');
+    });
+
+    $('btn-zen').addEventListener('click', () => {
+        $('reader-screen').classList.toggle('zen-mode');
+        if ($('reader-screen').classList.contains('zen-mode')) showToast('Zen-Modus — ESC zum Beenden');
+    });
+
+    $('btn-fullscreen').addEventListener('click', () => {
+        if (!document.fullscreenElement) { document.documentElement.requestFullscreen?.(); $('btn-fullscreen').classList.add('active'); }
+        else { document.exitFullscreen?.(); $('btn-fullscreen').classList.remove('active'); }
+    });
+    document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) $('btn-fullscreen').classList.remove('active'); });
+});
+
+</script>
+</body>
+</html>
