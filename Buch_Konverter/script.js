@@ -66,6 +66,14 @@ async function processFile(file) {
             })
         });
 
+        // Blob-URL-Map aufbauen: "images/bild_001.jpg" → blob:...
+        // state.pages behalten die relativen Pfade (für ZIP-Export)
+        // Im Reader werden sie live durch Blob-URLs ersetzt
+        state.blobUrlMap = {};
+        state.images.forEach(img => {
+            state.blobUrlMap['images/' + img.filename] = URL.createObjectURL(img.blob);
+        });
+
         setProgress(65, 'Seiten aufbauen…');
         buildPages(result.value);
         setProgress(100, 'Fertig!');
@@ -131,6 +139,17 @@ function buildPages(rawHtml) {
     restoreBookmark();
 }
 
+// Ersetzt "images/bild_001.jpg" durch die echten Blob-URLs für den Live-Reader
+function injectBlobUrls(html) {
+    if (!state.blobUrlMap || Object.keys(state.blobUrlMap).length === 0) return html;
+    Object.entries(state.blobUrlMap).forEach(([path, blobUrl]) => {
+        // Ersetzt src="images/..." und src='images/...'
+        html = html.split('"' + path + '"').join('"' + blobUrl + '"');
+        html = html.split("'" + path + "'").join("'" + blobUrl + "'");
+    });
+    return html;
+}
+
 function buildTocPage(pages) {
     let li = '';
     pages.forEach((p, i) => {
@@ -158,7 +177,9 @@ function renderReader() {
         html += '<div class="page-spread ' + state.layout + '">';
         const start = s * pps;
         for (let p = start; p < start + pps && p < state.pages.length; p++) {
-            html += '<div class="book-page"><div class="page-inner">' + state.pages[p] + '</div><div class="page-num">&#8212; ' + (p+1) + ' &#8212;</div></div>';
+            // Für die Anzeige: relative Bildpfade → Blob-URLs ersetzen
+            const pageHtml = injectBlobUrls(state.pages[p]);
+            html += '<div class="book-page"><div class="page-inner">' + pageHtml + '</div><div class="page-num">&#8212; ' + (p+1) + ' &#8212;</div></div>';
         }
         html += '</div>';
     }
