@@ -56,22 +56,28 @@ async function processFile(file) {
         const result = await mammoth.convertToHtml({ arrayBuffer }, {
             convertImage: mammoth.images.imgElement(async (image) => {
                 imgCounter++;
-                const ext = ((image.contentType || 'image/jpeg').split('/')[1] || 'jpg')
-                              .replace('jpeg','jpg').replace('svg+xml','svg');
+                const contentType = image.contentType || 'image/jpeg';
+                const ext = contentType.split('/')[1]
+                              .replace('jpeg','jpg')
+                              .replace('svg+xml','svg')
+                              .replace('png','png') || 'jpg';
                 const filename = 'bild_' + String(imgCounter).padStart(3,'0') + '.' + ext;
-                const buf  = await image.read('arraybuffer');
-                const blob = new Blob([buf], { type: image.contentType || 'image/jpeg' });
-                state.images.push({ filename, blob, mimeType: image.contentType });
-                return { src: 'images/' + filename, class: 'book-image', alt: 'Bild ' + imgCounter };
-            })
-        });
 
-        // Blob-URL-Map aufbauen: "images/bild_001.jpg" → blob:...
-        // state.pages behalten die relativen Pfade (für ZIP-Export)
-        // Im Reader werden sie live durch Blob-URLs ersetzt
-        state.blobUrlMap = {};
-        state.images.forEach(img => {
-            state.blobUrlMap['images/' + img.filename] = URL.createObjectURL(img.blob);
+                // base64 lesen — das ist die korrekte Mammoth-Browser-API
+                const b64 = await image.read('base64');
+                const dataUrl = 'data:' + contentType + ';base64,' + b64;
+
+                // Blob für ZIP-Export aus base64 erzeugen
+                const byteChars = atob(b64);
+                const byteArr = new Uint8Array(byteChars.length);
+                for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+                const blob = new Blob([byteArr], { type: contentType });
+
+                state.images.push({ filename, blob, dataUrl, mimeType: contentType });
+
+                // Im HTML direkt die Data-URL einsetzen → sofort sichtbar, kein Pfad-Problem
+                return { src: dataUrl, class: 'book-image', alt: 'Bild ' + imgCounter };
+            })
         });
 
         setProgress(65, 'Seiten aufbauen…');
@@ -139,13 +145,11 @@ function buildPages(rawHtml) {
     restoreBookmark();
 }
 
-// Ersetzt "images/bild_001.jpg" durch die echten Blob-URLs für den Live-Reader
-function injectBlobUrls(html) {
-    if (!state.blobUrlMap || Object.keys(state.blobUrlMap).length === 0) return html;
-    Object.entries(state.blobUrlMap).forEach(([path, blobUrl]) => {
-        // Ersetzt src="images/..." und src='images/...'
-        html = html.split('"' + path + '"').join('"' + blobUrl + '"');
-        html = html.split("'" + path + "'").join("'" + blobUrl + "'");
+// Für den ZIP-Export: ersetzt data:... URLs zurück zu relativen images/-Pfaden
+function dataUrlsToRelative(html) {
+    state.images.forEach(img => {
+        // data URL kann sehr lang sein — einfacher Split ist zuverlässiger als Regex
+        html = html.split(img.dataUrl).join('images/' + img.filename);
     });
     return html;
 }
@@ -177,9 +181,7 @@ function renderReader() {
         html += '<div class="page-spread ' + state.layout + '">';
         const start = s * pps;
         for (let p = start; p < start + pps && p < state.pages.length; p++) {
-            // Für die Anzeige: relative Bildpfade → Blob-URLs ersetzen
-            const pageHtml = injectBlobUrls(state.pages[p]);
-            html += '<div class="book-page"><div class="page-inner">' + pageHtml + '</div><div class="page-num">&#8212; ' + (p+1) + ' &#8212;</div></div>';
+            html += '<div class="book-page"><div class="page-inner">' + state.pages[p] + '</div><div class="page-num">&#8212; ' + (p+1) + ' &#8212;</div></div>';
         }
         html += '</div>';
     }
@@ -368,15 +370,10 @@ function openPrint() {
     const fsize  = cs.getPropertyValue('--font-size').trim() || '15px';
     const lh     = cs.getPropertyValue('--line-height').trim() || '1.7';
 
-    // Bilder-Blob-URLs für das Print-Fenster aufbauen
+    // Bilder sind bereits als data-URLs in state.pages eingebettet — direkt verwenden
     let pagesHtml = '';
     state.pages.forEach((p, i) => {
-        let html = p;
-        state.images.forEach(img => {
-            const blobUrl = URL.createObjectURL(img.blob);
-            html = html.split('images/' + img.filename).join(blobUrl);
-        });
-        pagesHtml += '<div class="a4-page">' + html + '</div>\n';
+        pagesHtml += '<div class="a4-page">' + p + '</div>\n';
     });
 
     const doc = `<!DOCTYPE html>
@@ -566,14 +563,10 @@ function openPreview() {
 
     let pagesHtml = '';
     state.pages.forEach((p, i) => {
-        let html = p;
-        state.images.forEach(img => {
-            const blobUrl = URL.createObjectURL(img.blob);
-            html = html.split('images/' + img.filename).join(blobUrl);
-        });
+        // Bilder sind bereits als data-URLs eingebettet — direkt verwenden
         pagesHtml += '<article class="page-block" id="p' + (i+1) + '">'
                    + '<div class="page-num-label">Seite ' + (i+1) + '</div>'
-                   + html + '</article>\n<hr class="page-divider">\n';
+                   + p + '</article>\n<hr class="page-divider">\n';
     });
 
     const doc = '<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">'
@@ -722,7 +715,9 @@ function buildOutputHtml() {
     for (let s = 0; s < spreads; s++) {
         spreadHtml += '<div class="page-spread double">';
         for (let p = s*pps; p < s*pps+pps && p < state.pages.length; p++) {
-            spreadHtml += '<div class="book-page"><div class="page-inner">' + state.pages[p] + '</div><div class="page-num">&#8212; ' + (p+1) + ' &#8212;</div></div>';
+            // Data-URLs → relative images/-Pfade zurückkonvertieren für gespeicherte Version
+            const pageHtml = dataUrlsToRelative(state.pages[p]);
+            spreadHtml += '<div class="book-page"><div class="page-inner">' + pageHtml + '</div><div class="page-num">&#8212; ' + (p+1) + ' &#8212;</div></div>';
         }
         spreadHtml += '</div>';
     }
