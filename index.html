@@ -166,8 +166,8 @@
         <option value="both">🔗＋⬛ Link &amp; Embed</option>
       </select>
     </label>
-    <label>URL
-      <input type="text" id="ccUrl" placeholder="https://…" />
+    <label id="ccUrlLabel">URL oder iframe-Code
+      <textarea id="ccUrl" rows="4" placeholder="https://example.com&#10;— oder —&#10;&lt;iframe src=&quot;…&quot;&gt;&lt;/iframe&gt;"></textarea>
     </label>
     <div class="embed-hint" id="ccEmbedHint" style="display:none">
       ℹ️ Nicht alle Seiten erlauben Einbettung (X-Frame-Options). Falls leer bleibt → Link als Fallback.

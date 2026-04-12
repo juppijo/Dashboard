@@ -648,7 +648,25 @@ function mountCustomCard(card) {
 
   var contentHtml = '';
 
-  if (card.type === 'link') {
+  if (card.rawHtml) {
+    /* Raw embed code — wrap in a responsive container */
+    var embedBlock =
+      '<div class="cc-embed-raw">' + card.rawHtml + '</div>';
+
+    if (card.type === 'link' && card.url) {
+      contentHtml =
+        '<div class="cc-link-wrap">' +
+        '<a class="cc-link-btn" href="' + esc(card.url) + '" target="_blank" rel="noopener">🔗 ' + esc(card.title) + ' ↗</a>' +
+        '</div>';
+    } else if (card.type === 'both' && card.url) {
+      contentHtml =
+        '<div class="cc-link-wrap" style="padding:.4rem 0 .5rem">' +
+        '<a class="cc-link-btn" href="' + esc(card.url) + '" target="_blank" rel="noopener">🔗 In neuem Tab ↗</a>' +
+        '</div>' + embedBlock;
+    } else {
+      contentHtml = embedBlock;
+    }
+  } else if (card.type === 'link') {
     contentHtml =
       '<div class="cc-link-wrap">' +
       '<a class="cc-link-btn" href="' + esc(card.url) + '" target="_blank" rel="noopener">🔗 ' + esc(card.title) + ' ↗</a>' +
@@ -727,20 +745,32 @@ document.getElementById('ccClose').addEventListener('click', function() {
 
 document.getElementById('ccSave').addEventListener('click', function() {
   var title = document.getElementById('ccTitle').value.trim();
-  var url   = document.getElementById('ccUrl').value.trim();
+  var raw   = document.getElementById('ccUrl').value.trim();
   var type  = document.getElementById('ccType').value;
 
   if (!title) { document.getElementById('ccTitle').focus(); return; }
-  if (!url)   { document.getElementById('ccUrl').focus();   return; }
+  if (!raw)   { document.getElementById('ccUrl').focus();   return; }
 
-  /* Ensure URL has protocol */
-  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  var url     = null;
+  var rawHtml = null;
+
+  /* Detect raw iframe/embed code */
+  if (/^\s*<(iframe|embed|object)/i.test(raw)) {
+    rawHtml = raw;
+    /* Try to extract a src for the link-button fallback */
+    var m = raw.match(/\bsrc=["']([^"']+)["']/i);
+    url = m ? m[1] : null;
+  } else {
+    url = raw;
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  }
 
   var newCard = {
-    id:    'cc_' + Date.now(),
-    title: title,
-    url:   url,
-    type:  type
+    id:      'cc_' + Date.now(),
+    title:   title,
+    url:     url,
+    rawHtml: rawHtml,   /* null when pure URL */
+    type:    type
   };
 
   customCards.push(newCard);

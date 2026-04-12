@@ -354,7 +354,14 @@ body::before {
   cursor: pointer;
 }
 .mselect:focus { border-color: var(--ac); }
-.embed-hint {
+.mbox textarea {
+  background: var(--sf); border: 1px solid var(--bd);
+  color: var(--tx); border-radius: 7px; padding: .42rem .65rem;
+  font-size: .75rem; font-family: 'DM Mono', monospace; outline: none;
+  resize: vertical; line-height: 1.5;
+}
+.mbox textarea:focus { border-color: var(--ac); }
+
   font-size: .7rem; color: var(--txd); line-height: 1.5;
   background: var(--sf); border: 1px solid var(--bd);
   border-radius: 7px; padding: .5rem .7rem;
@@ -364,6 +371,21 @@ body::before {
 .cc-link-wrap {
   display: flex; align-items: center; justify-content: center;
   padding: .8rem 0;
+}
+.cc-embed-raw {
+  width: 100%;
+  height: calc(100% - 2.2rem);
+  overflow: hidden;
+  border-radius: 8px;
+}
+.cc-embed-raw iframe,
+.cc-embed-raw embed,
+.cc-embed-raw object {
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  border-radius: 8px;
+  display: block;
 }
 .cc-link-btn {
   display: inline-flex; align-items: center; gap: .4rem;
