@@ -50,38 +50,45 @@ async function processFile(file) {
 
     try {
         const arrayBuffer = await file.arrayBuffer();
-        setProgress(30, 'Word-Format analysieren…');
+        setProgress(30, 'Bilder & Text extrahieren…');
 
-        let imgCounter = 0;
-        const result = await mammoth.convertToHtml({ arrayBuffer }, {
-            convertImage: mammoth.images.imgElement(async (image) => {
-                imgCounter++;
-                const contentType = image.contentType || 'image/jpeg';
-                const ext = contentType.split('/')[1]
-                              .replace('jpeg','jpg')
-                              .replace('svg+xml','svg')
-                              .replace('png','png') || 'jpg';
-                const filename = 'bild_' + String(imgCounter).padStart(3,'0') + '.' + ext;
+        // Mammoth OHNE eigenen Image-Handler → bettet Bilder automatisch
+        // als data:image/...;base64,... URLs direkt ins HTML ein.
+        // Das funktioniert garantiert in jedem Browser.
+        const result = await mammoth.convertToHtml({ arrayBuffer });
 
-                // base64 lesen — das ist die korrekte Mammoth-Browser-API
-                const b64 = await image.read('base64');
-                const dataUrl = 'data:' + contentType + ';base64,' + b64;
+        setProgress(60, 'Bilder für ZIP vorbereiten…');
 
-                // Blob für ZIP-Export aus base64 erzeugen
-                const byteChars = atob(b64);
-                const byteArr = new Uint8Array(byteChars.length);
-                for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
-                const blob = new Blob([byteArr], { type: contentType });
+        // Jetzt die eingebetteten data-URLs aus dem HTML extrahieren
+        // und als Blobs in state.images speichern (für ZIP-Export)
+        const dataUrlRegex = /src="(data:(image\/[^;]+);base64,([^"]+))"/g;
+        let match;
+        let counter = 0;
+        let processedHtml = result.value;
 
-                state.images.push({ filename, blob, dataUrl, mimeType: contentType });
+        // Alle data-URLs einsammeln
+        while ((match = dataUrlRegex.exec(result.value)) !== null) {
+            counter++;
+            const fullDataUrl = match[1];
+            const mimeType    = match[2];
+            const b64data     = match[3];
+            const ext         = mimeType.split('/')[1]
+                                  .replace('jpeg','jpg')
+                                  .replace('svg+xml','svg');
+            const filename    = 'bild_' + String(counter).padStart(3,'0') + '.' + ext;
 
-                // Im HTML direkt die Data-URL einsetzen → sofort sichtbar, kein Pfad-Problem
-                return { src: dataUrl, class: 'book-image', alt: 'Bild ' + imgCounter };
-            })
-        });
+            // Blob für ZIP
+            const byteChars = atob(b64data);
+            const byteArr   = new Uint8Array(byteChars.length);
+            for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+            const blob = new Blob([byteArr], { type: mimeType });
 
-        setProgress(65, 'Seiten aufbauen…');
-        buildPages(result.value);
+            state.images.push({ filename, blob, dataUrl: fullDataUrl, mimeType });
+        }
+
+        setProgress(75, 'Seiten aufbauen…');
+        // HTML direkt übergeben — data-URLs bleiben drin → Bilder sofort sichtbar
+        buildPages(processedHtml);
         setProgress(100, 'Fertig!');
         await pause(300);
 
@@ -897,6 +904,7 @@ function showToast(msg) {
 document.addEventListener('DOMContentLoaded', () => {
     initUpload();
     initStylePanel();
+    initLibrary();
 
     $('btn-prev').addEventListener('click', prev);
     $('btn-next').addEventListener('click', next);
@@ -906,8 +914,12 @@ document.addEventListener('DOMContentLoaded', () => {
     $('btn-print').addEventListener('click', openPrint);
     $('btn-save').addEventListener('click', openSaveDialog);
     $('btn-pick-folder').addEventListener('click', saveToFolder);
+    $('btn-save-lib').addEventListener('click', saveToLibrary);
     $('btn-save-close').addEventListener('click', () => { $('save-dialog').hidden = true; });
     $('save-dialog').addEventListener('click', e => { if (e.target === $('save-dialog')) $('save-dialog').hidden = true; });
+
+    $('btn-open-library').addEventListener('click', openLibraryScreen);
+    $('btn-lib-back').addEventListener('click', closeLibraryScreen);
 
     $('btn-back').addEventListener('click', () => {
         stopSpeech();
@@ -952,6 +964,252 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) $('btn-fullscreen').classList.remove('active'); });
 });
+
+/* ════════════════════════════════
+   BIBLIOTHEK  (IndexedDB)
+   ════════════════════════════════ */
+
+const DB_NAME    = 'BuchKonverter';
+const DB_VERSION = 1;
+const STORE      = 'books';
+let   db         = null;
+
+function openDB() {
+    return new Promise((resolve, reject) => {
+        if (db) { resolve(db); return; }
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = e => {
+            const d = e.target.result;
+            if (!d.objectStoreNames.contains(STORE)) {
+                const os = d.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
+                os.createIndex('title', 'title', { unique: false });
+            }
+        };
+        req.onsuccess = e => { db = e.target.result; resolve(db); };
+        req.onerror   = e => reject(e.target.error);
+    });
+}
+
+function dbAll() {
+    return openDB().then(d => new Promise((res, rej) => {
+        const req = d.transaction(STORE, 'readonly').objectStore(STORE).getAll();
+        req.onsuccess = () => res(req.result);
+        req.onerror   = () => rej(req.error);
+    }));
+}
+
+function dbGet(id) {
+    return openDB().then(d => new Promise((res, rej) => {
+        const req = d.transaction(STORE, 'readonly').objectStore(STORE).get(id);
+        req.onsuccess = () => res(req.result);
+        req.onerror   = () => rej(req.error);
+    }));
+}
+
+function dbPut(book) {
+    return openDB().then(d => new Promise((res, rej) => {
+        const req = d.transaction(STORE, 'readwrite').objectStore(STORE).put(book);
+        req.onsuccess = () => res(req.result);
+        req.onerror   = () => rej(req.error);
+    }));
+}
+
+function dbDelete(id) {
+    return openDB().then(d => new Promise((res, rej) => {
+        const req = d.transaction(STORE, 'readwrite').objectStore(STORE).delete(id);
+        req.onsuccess = () => res();
+        req.onerror   = () => rej(req.error);
+    }));
+}
+
+/* ── In Bibliothek speichern ── */
+async function saveToLibrary() {
+    if (!state.pages.length) { showToast('Bitte zuerst eine Datei laden'); return; }
+
+    // Overlay anzeigen
+    let overlay = $('lib-save-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'lib-save-overlay';
+        overlay.innerHTML = '<div class="lib-save-box">'
+            + '<h3>In Bibliothek speichern</h3>'
+            + '<p id="lib-save-sub">' + escHtml(state.title) + '</p>'
+            + '<div class="lib-save-bar"><div class="lib-save-fill" id="lib-save-fill"></div></div>'
+            + '<div class="lib-save-status" id="lib-save-status">Vorbereite…</div>'
+            + '</div>';
+        document.body.appendChild(overlay);
+    }
+    overlay.hidden = false;
+
+    const setLP = (pct, msg) => {
+        $('lib-save-fill').style.width = pct + '%';
+        $('lib-save-status').textContent = msg;
+    };
+
+    try {
+        setLP(20, 'Seiten verarbeiten…');
+        await pause(30);
+
+        // Prüfen ob Buch mit diesem Titel schon existiert
+        const all      = await dbAll();
+        const existing = all.find(b => b.title === state.title);
+
+        setLP(50, 'Bilder speichern…');
+        await pause(30);
+
+        const bookRecord = {
+            title:     state.title,
+            pages:     state.pages,          // inkl. eingebetteter data-URLs
+            images:    state.images.map(img => ({
+                filename: img.filename,
+                mimeType: img.mimeType,
+                dataUrl:  img.dataUrl        // als String — IndexedDB kann das
+            })),
+            wordCount: state.wordCount,
+            pageCount: state.pages.length,
+            savedAt:   new Date().toISOString(),
+            layout:    state.layout
+        };
+
+        if (existing) bookRecord.id = existing.id;  // überschreiben
+
+        setLP(80, 'In Datenbank schreiben…');
+        await pause(30);
+
+        await dbPut(bookRecord);
+        setLP(100, 'Gespeichert!');
+        await pause(600);
+
+        overlay.hidden = true;
+        $('btn-save-lib').classList.add('active');
+        setTimeout(() => $('btn-save-lib').classList.remove('active'), 2000);
+        showToast('\uD83D\uDCDA "' + state.title + '" in Bibliothek gespeichert');
+
+    } catch(err) {
+        console.error(err);
+        overlay.hidden = true;
+        showToast('Fehler beim Speichern: ' + err.message);
+    }
+}
+
+/* ── Bibliotheks-Screen öffnen/schließen ── */
+function openLibraryScreen() {
+    $('upload-screen').hidden  = true;
+    $('reader-screen').hidden  = true;
+    $('library-screen').hidden = false;
+    renderLibrary();
+}
+
+function closeLibraryScreen() {
+    $('library-screen').hidden = true;
+    $('upload-screen').hidden  = false;
+}
+
+/* ── Bibliothek rendern ── */
+async function renderLibrary() {
+    const grid = $('lib-grid');
+    grid.innerHTML = '<div style="opacity:.4;font-size:.85rem;padding:20px">Lade…</div>';
+    $('lib-empty').hidden = true;
+
+    try {
+        const books = await dbAll();
+        // Neueste zuerst
+        books.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+
+        $('lib-count').textContent = books.length + ' Buch' + (books.length !== 1 ? '\u00f6cher' : '');
+
+        if (books.length === 0) {
+            grid.innerHTML = '';
+            $('lib-empty').hidden = false;
+            return;
+        }
+
+        grid.innerHTML = books.map(b => {
+            const date = new Date(b.savedAt).toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' });
+            const time = new Date(b.savedAt).toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' });
+            const imgs = b.images ? b.images.length : 0;
+            // Cover: erste ~80 Zeichen des Titels
+            const coverText = b.title.length > 40 ? b.title.slice(0, 38) + '\u2026' : b.title;
+            return '<div class="lib-card" data-id="' + b.id + '">'
+                + '<div class="lib-card-cover">'
+                + '<div class="lib-card-cover-deco"></div>'
+                + '<div class="lib-card-cover-text">' + escHtml(coverText) + '</div>'
+                + '</div>'
+                + '<div class="lib-card-body">'
+                + '<div class="lib-card-title" title="' + escHtml(b.title) + '">' + escHtml(b.title) + '</div>'
+                + '<div class="lib-card-meta">'
+                + '<span>\uD83D\uDCCB ' + b.pageCount + ' Seiten</span>'
+                + (imgs > 0 ? '<span>\uD83D\uDDBC ' + imgs + ' Bilder</span>' : '')
+                + '</div>'
+                + '<div class="lib-card-date">' + date + ' \u00b7 ' + time + '</div>'
+                + '</div>'
+                + '<div class="lib-card-actions">'
+                + '<button class="lib-card-btn lib-card-btn-open" data-id="' + b.id + '">\u25B6 \u00d6ffnen</button>'
+                + '<button class="lib-card-btn lib-card-btn-del"  data-id="' + b.id + '">\uD83D\uDDD1</button>'
+                + '</div></div>';
+        }).join('');
+
+        // Event-Listener auf Karten
+        grid.querySelectorAll('.lib-card-btn-open').forEach(btn => {
+            btn.addEventListener('click', e => { e.stopPropagation(); openBookFromLibrary(parseInt(btn.dataset.id)); });
+        });
+        grid.querySelectorAll('.lib-card-btn-del').forEach(btn => {
+            btn.addEventListener('click', e => {
+                e.stopPropagation();
+                if (confirm('Buch wirklich löschen?')) {
+                    dbDelete(parseInt(btn.dataset.id)).then(() => renderLibrary());
+                }
+            });
+        });
+        // Klick auf Karte = öffnen
+        grid.querySelectorAll('.lib-card').forEach(card => {
+            card.addEventListener('click', () => openBookFromLibrary(parseInt(card.dataset.id)));
+        });
+
+    } catch(err) {
+        grid.innerHTML = '<div style="color:rgba(255,80,80,.7);padding:20px">Fehler: ' + err.message + '</div>';
+    }
+}
+
+/* ── Buch aus Bibliothek öffnen ── */
+async function openBookFromLibrary(id) {
+    showToast('Lade Buch…');
+    try {
+        const book = await dbGet(id);
+        if (!book) { showToast('Buch nicht gefunden'); return; }
+
+        // State wiederherstellen
+        state.title     = book.title;
+        state.pages     = book.pages;
+        state.wordCount = book.wordCount || 0;
+        state.layout    = book.layout || 'double';
+        state.images    = (book.images || []).map(img => ({
+            filename: img.filename,
+            mimeType: img.mimeType,
+            dataUrl:  img.dataUrl,
+            blob:     null   // Blob nicht nötig für Reader
+        }));
+        state.currentSpread = 0;
+
+        $('book-title-display').textContent = book.title;
+        $('library-screen').hidden = true;
+        $('upload-screen').hidden  = true;
+        $('reader-screen').hidden  = false;
+
+        renderReader();
+        updateSaveInfo();
+        restoreBookmark();
+        showToast('\uD83D\uDCDA "' + book.title + '" geladen');
+
+    } catch(err) {
+        showToast('Fehler beim Laden: ' + err.message);
+    }
+}
+
+function initLibrary() {
+    // IndexedDB vorab öffnen (damit erster Zugriff schnell ist)
+    openDB().catch(err => console.warn('IndexedDB:', err));
+}
 
 /* ════════════════════════════════
    READER-ONLY SCRIPT (für gespeicherte ZIP-Version)

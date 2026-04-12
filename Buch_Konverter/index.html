@@ -43,6 +43,45 @@
                 <div id="progress-bar"><div id="progress-fill"></div></div>
                 <p id="progress-text">Verarbeite…</p>
             </div>
+            <button class="btn-library-open" id="btn-open-library">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                Bibliothek öffnen
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══ LIBRARY SCREEN ═══ -->
+    <div id="library-screen" hidden>
+        <div class="lib-bg-anim"></div>
+        <header class="lib-header">
+            <button class="lib-back-btn" id="btn-lib-back">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+            <div class="lib-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="22" height="22"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                Meine Bibliothek
+            </div>
+            <div class="lib-header-right">
+                <span id="lib-count" class="lib-count"></span>
+                <button class="lib-new-btn" onclick="document.getElementById('btn-lib-back').click()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>
+                    Neues Buch
+                </button>
+            </div>
+        </header>
+        <div class="lib-body">
+            <div id="lib-empty" class="lib-empty" hidden>
+                <svg viewBox="0 0 80 80" fill="none" width="72" height="72">
+                    <rect x="12" y="8" width="40" height="54" rx="4" stroke="currentColor" stroke-width="2" opacity=".3"/>
+                    <rect x="20" y="14" width="40" height="54" rx="4" stroke="currentColor" stroke-width="2" opacity=".5"/>
+                    <rect x="28" y="20" width="40" height="54" rx="4" stroke="currentColor" stroke-width="2"/>
+                    <line x1="38" y1="35" x2="58" y2="35" stroke="currentColor" stroke-width="2" opacity=".5" stroke-linecap="round"/>
+                    <line x1="38" y1="42" x2="54" y2="42" stroke="currentColor" stroke-width="2" opacity=".5" stroke-linecap="round"/>
+                </svg>
+                <p>Noch keine Bücher gespeichert.</p>
+                <p class="lib-empty-hint">Öffne ein Buch und klicke auf <strong>In Bibliothek speichern</strong>.</p>
+            </div>
+            <div id="lib-grid" class="lib-grid"></div>
         </div>
     </div>
 
@@ -80,6 +119,10 @@
                 <button class="bar-btn bar-btn--accent" id="btn-preview" title="HTML-Vorschau in neuem Tab">
                     <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     <span class="bar-label">Vorschau</span>
+                </button>
+                <button class="bar-btn bar-btn--lib" id="btn-save-lib" title="In Bibliothek speichern">
+                    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                    <span class="bar-label">Bibliothek</span>
                 </button>
                 <button class="bar-btn bar-btn--save" id="btn-save" title="Als ZIP speichern">
                     <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
