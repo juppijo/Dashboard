@@ -121,9 +121,15 @@ let layout = {};
 function loadLayout() {
   try {
     var saved = JSON.parse(localStorage.getItem(LAYOUT_KEY) || '{}');
-    // start from defaults, overlay saved values
+    // Builtin cards: defaults merged with saved values
     Object.keys(DEFAULT_LAYOUT).forEach(function (id) {
       layout[id] = Object.assign({}, DEFAULT_LAYOUT[id], saved[id] || {});
+    });
+    // Custom cards (cc_…): load any extra keys that aren't in DEFAULT_LAYOUT
+    Object.keys(saved).forEach(function (id) {
+      if (!DEFAULT_LAYOUT[id]) {
+        layout[id] = Object.assign({}, saved[id]);
+      }
     });
   } catch (e) {
     Object.keys(DEFAULT_LAYOUT).forEach(function (id) {
