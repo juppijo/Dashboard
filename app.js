@@ -790,6 +790,71 @@ overlay.addEventListener('click', function() {
 });
 
 /* ─────────────────────────────────────────
+   DASHBOARD EXPORT / IMPORT
+   Sichert alle localStorage-Keys des Dashboards
+   in eine JSON-Datei und stellt sie wieder her.
+───────────────────────────────────────── */
+var DB_KEYS = [
+  CFG_KEY,          // Einstellungen (theme, mode, interval, …)
+  LAYOUT_KEY,       // Kartenpositionen
+  CC_KEY,           // Custom Cards
+  'db_tasks',       // Aufgaben
+  'db_notes',       // Notizen
+  'db_slides',      // Diaschau-Bilder (base64 – kann groß werden)
+];
+
+function dashboardExport() {
+  var snapshot = { _version: 1, _date: new Date().toISOString() };
+  DB_KEYS.forEach(function(k) {
+    var v = localStorage.getItem(k);
+    if (v !== null) snapshot[k] = v; // raw JSON strings
+  });
+  var blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href   = url;
+  a.download = 'dashboard_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function dashboardImport(file) {
+  var status = document.getElementById('cfgImportStatus');
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var snap = JSON.parse(e.target.result);
+      if (!snap._version) throw new Error('Ungültige Datei');
+      var count = 0;
+      DB_KEYS.forEach(function(k) {
+        if (snap[k] !== undefined) {
+          localStorage.setItem(k, snap[k]);
+          count++;
+        }
+      });
+      status.style.color = 'var(--ac)';
+      status.textContent = '✔ ' + count + ' Bereiche wiederhergestellt – Seite wird neu geladen…';
+      setTimeout(function() { location.reload(); }, 1400);
+    } catch(err) {
+      status.style.color = '#e05050';
+      status.textContent = '✘ Fehler: ' + err.message;
+    }
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById('cfgExport').addEventListener('click', dashboardExport);
+
+document.getElementById('cfgImportBtn').addEventListener('click', function() {
+  document.getElementById('cfgImportFile').click();
+});
+
+document.getElementById('cfgImportFile').addEventListener('change', function(e) {
+  if (e.target.files[0]) dashboardImport(e.target.files[0]);
+  e.target.value = '';
+});
+
+/* ─────────────────────────────────────────
    HELPER
 ───────────────────────────────────────── */
 function esc(s) {

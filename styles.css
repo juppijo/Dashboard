@@ -409,6 +409,9 @@ body::before {
 }
 .cc-del-btn:hover { color: var(--ac); }
 
+.msep {
+  border: none; border-top: 1px solid var(--bd); margin: .2rem 0;
+}
 /* ── MODAL ── */
 #overlay {
   position: fixed; inset: 0; z-index: 200;
