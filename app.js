@@ -154,6 +154,20 @@ function applyLayout() {
   });
 }
 
+/* ── Expand grid canvas so scrollbars appear when cards exceed viewport ── */
+function updateGridSize() {
+  var pad = 40; // breathing room beyond the furthest card edge
+  var maxX = 0, maxY = 0;
+  Object.keys(layout).forEach(function(id) {
+    var p = layout[id];
+    maxX = Math.max(maxX, p.x + p.w);
+    maxY = Math.max(maxY, p.y + p.h);
+  });
+  var grid = document.getElementById('grid');
+  grid.style.width  = (maxX + pad) + 'px';
+  grid.style.height = (maxY + pad) + 'px';
+}
+
 /* ── Drag via card-label ── */
 function initDrag(card, id) {
   var label = card.querySelector('.card-label');
@@ -181,6 +195,7 @@ function initDrag(card, id) {
       card.style.zIndex = '';
       card.classList.remove('dragging');
       saveLayout();
+      updateGridSize();
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
     }
@@ -209,6 +224,7 @@ function initDrag(card, id) {
       card.style.zIndex = '';
       card.classList.remove('dragging');
       saveLayout();
+      updateGridSize();
       document.removeEventListener('touchmove', onMove);
       document.removeEventListener('touchend', onEnd);
     }
@@ -244,6 +260,7 @@ function initResize(card, id) {
       card.style.zIndex = '';
       card.style.transition = '';
       saveLayout();
+      updateGridSize();
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
     }
@@ -271,6 +288,7 @@ function initResize(card, id) {
       card.style.zIndex = '';
       card.style.transition = '';
       saveLayout();
+      updateGridSize();
       document.removeEventListener('touchmove', onMove);
       document.removeEventListener('touchend', onEnd);
     }
@@ -877,6 +895,7 @@ fetchSunTimes();
 loadLayout();
 applyLayout();
 initDragResize();
+updateGridSize();
 
 // Custom cards nach Layout init
 restoreCustomCards();

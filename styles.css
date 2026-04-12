@@ -41,6 +41,7 @@ html, body {
   font-family: 'Outfit', sans-serif;
   font-weight: 300;
   transition: background .5s, color .4s;
+  overflow: auto;
 }
 body {
   display: flex;
@@ -97,8 +98,8 @@ body::before {
   position: relative;
   z-index: 1;
   flex: 1;
-  min-height: calc(100vh - 50px);
-  /* No display:grid — cards are absolutely positioned */
+  min-height: 600px;
+  min-width: 600px;
 }
 
 /* ── CARD BASE ── */
