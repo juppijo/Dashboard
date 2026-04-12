@@ -4,6 +4,9 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Verhindert dass display:flex/grid das hidden-Attribut überschreibt */
+[hidden] { display: none !important; }
+
 /* ── Custom Properties ── */
 :root {
     --accent:     #c9a84c;
