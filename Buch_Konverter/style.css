@@ -189,37 +189,14 @@ body.theme-sepia .bar-btn, body.theme-mint .bar-btn { color:var(--text-muted); }
     content:''; position:absolute; inset:0; pointer-events:none;
     background: radial-gradient(ellipse 70% 50% at 50% 30%, rgba(201,168,76,.04) 0%, transparent 70%);
 }
-#book-container { width:var(--page-width); max-width:100%; height:100%; display:flex; flex-direction:column; transition:width .4s ease; }
+#book-container { width:var(--page-width); max-width:980px; height:100%; display:flex; flex-direction:column; transition:width .4s ease; }
 
 /* ── Spreads ── */
 .book-pages-wrapper { flex:1; overflow:hidden; position:relative; }
-.pages-track { height:100%; position:relative; overflow:hidden; }
-.page-spread { position:absolute; inset:0; display:none; gap:14px; padding:0 3px; }
-.page-spread.active  { display:grid; }
-.page-spread.double  { grid-template-columns:1fr 1fr; }
-.page-spread.single  { grid-template-columns:1fr; max-width:640px; margin:0 auto; width:100%; }
-
-/* ── Page flip animations ── */
-@keyframes pageFlipOutFwd {
-    0%   { transform:perspective(1800px) rotateY(0deg)   translateX(0)    scale(1);    opacity:1; }
-    100% { transform:perspective(1800px) rotateY(-14deg) translateX(-3%)  scale(0.97); opacity:0; }
-}
-@keyframes pageFlipInFwd {
-    0%   { transform:perspective(1800px) rotateY(14deg)  translateX(3%)   scale(0.97); opacity:0; }
-    100% { transform:perspective(1800px) rotateY(0deg)   translateX(0)    scale(1);    opacity:1; }
-}
-@keyframes pageFlipOutBwd {
-    0%   { transform:perspective(1800px) rotateY(0deg)   translateX(0)    scale(1);    opacity:1; }
-    100% { transform:perspective(1800px) rotateY(14deg)  translateX(3%)   scale(0.97); opacity:0; }
-}
-@keyframes pageFlipInBwd {
-    0%   { transform:perspective(1800px) rotateY(-14deg) translateX(-3%)  scale(0.97); opacity:0; }
-    100% { transform:perspective(1800px) rotateY(0deg)   translateX(0)    scale(1);    opacity:1; }
-}
-.page-spread.flip-out-fwd { display:grid !important; animation:pageFlipOutFwd .34s cubic-bezier(.4,0,.2,1) forwards; pointer-events:none; }
-.page-spread.flip-in-fwd  {                          animation:pageFlipInFwd  .34s cubic-bezier(.4,0,.2,1) forwards; }
-.page-spread.flip-out-bwd { display:grid !important; animation:pageFlipOutBwd .34s cubic-bezier(.4,0,.2,1) forwards; pointer-events:none; }
-.page-spread.flip-in-bwd  {                          animation:pageFlipInBwd  .34s cubic-bezier(.4,0,.2,1) forwards; }
+.pages-track { display:flex; height:100%; transition:transform .5s cubic-bezier(.4,0,.2,1); }
+.page-spread { min-width:100%; height:100%; display:grid; gap:14px; padding:0 3px; }
+.page-spread.double { grid-template-columns:1fr 1fr; }
+.page-spread.single { grid-template-columns:1fr; max-width:640px; margin:0 auto; width:100%; }
 
 .book-page {
     background:var(--paper); border-radius:3px;
@@ -227,18 +204,9 @@ body.theme-sepia .bar-btn, body.theme-mint .bar-btn { color:var(--text-muted); }
     overflow:hidden; display:flex; flex-direction:column; position:relative;
     transition:background .3s;
 }
-/* Paper grain texture overlay */
-.book-page::before {
-    content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
-    border-radius:inherit;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.09'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23grain)'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-    background-size: 256px 256px;
-    mix-blend-mode: multiply;
-}
 .book-page::after {
     content:''; position:absolute; top:0; right:0; bottom:0; width:4px;
-    background:linear-gradient(to right,transparent,rgba(0,0,0,.05)); pointer-events:none; z-index:1;
+    background:linear-gradient(to right,transparent,rgba(0,0,0,.05)); pointer-events:none;
 }
 .page-inner {
     flex:1; overflow-y:auto; padding:48px 46px 36px;
@@ -246,7 +214,6 @@ body.theme-sepia .bar-btn, body.theme-mint .bar-btn { color:var(--text-muted); }
     line-height:var(--line-height); color:var(--text);
     text-align:justify; hyphens:auto;
     scrollbar-width:thin; scrollbar-color:rgba(0,0,0,.12) transparent;
-    position:relative; z-index:2;
 }
 .page-inner::-webkit-scrollbar { width:4px; }
 .page-inner::-webkit-scrollbar-thumb { background:rgba(0,0,0,.12); border-radius:2px; }
@@ -254,7 +221,6 @@ body.theme-sepia .bar-btn, body.theme-mint .bar-btn { color:var(--text-muted); }
     text-align:center; font-size:.7rem; color:var(--text-muted);
     padding:7px 0 12px; letter-spacing:.09em;
     border-top:1px solid rgba(0,0,0,.06); opacity:.65;
-    position:relative; z-index:2;
 }
 
 /* ── Typography in pages ── */
@@ -516,35 +482,6 @@ body.theme-sepia .save-done-path, body.theme-mint .save-done-path { color:var(--
     #style-panel { width:100vw; }
     .page-inner { padding:28px 20px 24px; }
     :root { --page-width:95%; }
-}
-
-/* ── Smartphone-Modus ── */
-#book-stage.phone-mode {
-    background: radial-gradient(ellipse at center, #2a2a2e 0%, #111114 100%);
-    align-items: center;
-}
-#book-stage.phone-mode #book-container {
-    width: 393px !important;
-    max-width: 393px !important;
-    height: min(780px, calc(100vh - 124px));
-    border-radius: 48px;
-    box-shadow: 0 0 0 10px #1a1a1c, 0 0 0 12px #2a2a2e, 0 0 0 13px #111,
-                0 60px 140px rgba(0,0,0,.9), inset 0 0 0 1px rgba(255,255,255,.04);
-    overflow: hidden;
-    flex-shrink: 0;
-}
-/* Handy-Notch-Simulation oben */
-#book-stage.phone-mode #book-container::before {
-    content: '';
-    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-    width: 120px; height: 28px;
-    background: #1a1a1c;
-    border-radius: 0 0 18px 18px;
-    z-index: 999;
-    pointer-events: none;
-}
-#book-stage.phone-mode .book-pages-wrapper {
-    border-radius: 40px;
 }
 
 ::-webkit-scrollbar { width:5px; }
