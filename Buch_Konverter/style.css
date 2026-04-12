@@ -171,6 +171,12 @@ body.theme-sepia .bar-btn, body.theme-mint .bar-btn { color:var(--text-muted); }
 }
 .bar-btn--save:hover { background: var(--accent-dim); transform:translateY(-1px); box-shadow:0 4px 12px rgba(201,168,76,.35); }
 
+.bar-btn--print {
+    background: rgba(80,160,220,.18); color: #7ecfff !important;
+    border: 1px solid rgba(80,160,220,.3); padding: 0 10px;
+}
+.bar-btn--print:hover { background: rgba(80,160,220,.3); }
+
 .bar-btn#btn-speak.speaking { color:var(--accent); animation:pulse 1.5s infinite; }
 @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.4;} }
 

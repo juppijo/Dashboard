@@ -332,6 +332,206 @@ function restoreBookmark() {
 /* ════════════════════════════════
    VORSCHAU
    ════════════════════════════════ */
+
+/* ════════════════════════════════
+   DIN A4 DRUCKEN
+   ════════════════════════════════ */
+function openPrint() {
+    if (!state.pages.length) { showToast('Bitte zuerst eine Datei laden'); return; }
+
+    const cs     = getComputedStyle(document.documentElement);
+    const accent = cs.getPropertyValue('--accent').trim() || '#c9a84c';
+    const paper  = cs.getPropertyValue('--paper').trim()  || '#fdfaf3';
+    const text   = cs.getPropertyValue('--text').trim()   || '#2c3e50';
+    const font   = document.body.dataset.font || 'Lora';
+    const fsize  = cs.getPropertyValue('--font-size').trim() || '15px';
+    const lh     = cs.getPropertyValue('--line-height').trim() || '1.7';
+
+    // Bilder-Blob-URLs für das Print-Fenster aufbauen
+    let pagesHtml = '';
+    state.pages.forEach((p, i) => {
+        let html = p;
+        state.images.forEach(img => {
+            const blobUrl = URL.createObjectURL(img.blob);
+            html = html.split('images/' + img.filename).join(blobUrl);
+        });
+        pagesHtml += '<div class="a4-page">' + html + '</div>\n';
+    });
+
+    const doc = `<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>${escHtml(state.title)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=${encodeURIComponent(font)}:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ── Bildschirm-Vorschau ── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --accent: ${accent}; --paper: ${paper}; --text: ${text}; }
+html { background: #888; }
+body {
+    font-family: '${font}', serif;
+    font-size: ${fsize};
+    line-height: ${lh};
+    color: var(--text);
+    padding: 20px;
+}
+
+/* Druckoptionen-Leiste (nur Bildschirm) */
+.print-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 20px;
+    background: #222; color: #fff;
+    font-family: sans-serif; font-size: 13px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.4);
+}
+.print-bar label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.print-bar select, .print-bar input[type=range] { background: #444; color: #fff; border: 1px solid #666; border-radius: 4px; padding: 3px 6px; cursor: pointer; }
+.print-bar button {
+    background: ${accent}; color: #fff; border: none;
+    padding: 7px 18px; border-radius: 6px; font-size: 13px;
+    font-weight: 700; cursor: pointer; margin-left: auto;
+}
+.print-bar button:hover { opacity: .85; }
+.bar-sep { width: 1px; height: 20px; background: #555; }
+#font-size-disp { min-width: 26px; }
+
+/* DIN A4 Seiten */
+.pages-wrap { padding-top: 58px; }
+.a4-page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto 12px;
+    padding: var(--pg-padding, 20mm 18mm 22mm);
+    background: var(--paper);
+    box-shadow: 0 4px 20px rgba(0,0,0,.35);
+    position: relative;
+    page-break-after: always;
+    page-break-inside: avoid;
+}
+.a4-page h1 {
+    font-family: 'Playfair Display', serif; font-size: 1.65em; font-weight: 700;
+    border-bottom: 2px solid var(--accent); padding-bottom: .28em; margin-bottom: .55em;
+    line-height: 1.2;
+}
+.a4-page h2 { font-family: 'Playfair Display', serif; font-size: 1.28em; font-weight: 700; margin: 1em 0 .4em; }
+.a4-page h3, .a4-page h4 { font-size: 1.08em; font-weight: 600; margin: .9em 0 .35em; }
+.a4-page p  { margin-bottom: .82em; text-align: justify; hyphens: auto; }
+.a4-page p:first-of-type::first-letter {
+    float: left; font-family: 'Playfair Display', serif;
+    font-size: 3em; line-height: .82; margin: .05em .08em 0 0;
+    color: var(--accent); font-weight: 700;
+}
+.a4-page blockquote { border-left: 3px solid var(--accent); padding: 6px 14px; margin: 1em 0; font-style: italic; opacity: .8; }
+.a4-page img { max-width: 100%; max-height: 160mm; display: block; margin: 14px auto; }
+.a4-page ul, .a4-page ol { padding-left: 1.4em; margin-bottom: .82em; }
+.a4-page li { margin-bottom: .26em; }
+.a4-page table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: .9em; }
+.a4-page th { padding: 5px 8px; border-bottom: 2px solid var(--accent); font-weight: 600; text-align: left; }
+.a4-page td { padding: 4px 8px; border-bottom: 1px solid rgba(0,0,0,.1); }
+/* TOC Seite */
+.a4-page .toc-page-title { font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700; margin-bottom: 1.2em; padding-bottom: .3em; border-bottom: 2px solid var(--accent); }
+.a4-page .toc-page-list  { list-style: none; }
+.a4-page .toc-page-list li { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dotted rgba(0,0,0,.12); }
+.a4-page .toc-num  { font-family: monospace; font-size: .8em; opacity: .55; }
+.a4-page .toc-h2   { padding-left: 14px; font-size: .92em; }
+.a4-page .toc-h3   { padding-left: 28px; font-size: .85em; opacity: .78; }
+
+/* Seitenzahl unten rechts */
+.a4-page::after {
+    content: attr(data-page);
+    position: absolute; bottom: 10mm; right: 14mm;
+    font-size: 9pt; color: rgba(0,0,0,.35); font-family: serif;
+}
+
+/* ── Druckmedium ── */
+@media print {
+    html { background: none; }
+    body { padding: 0; margin: 0; }
+    .print-bar { display: none; }
+    .pages-wrap { padding-top: 0; }
+    .a4-page {
+        width: 100%;
+        min-height: 0;
+        margin: 0;
+        box-shadow: none;
+        padding: var(--pg-padding, 20mm 18mm 22mm);
+        page-break-after: always;
+    }
+    .a4-page:last-child { page-break-after: avoid; }
+    @page { size: A4; margin: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="print-bar" id="printBar">
+    <span style="font-weight:700;color:${accent};margin-right:4px">&#9113;</span>
+    <span style="font-weight:700">${escHtml(state.title)}</span>
+    <div class="bar-sep"></div>
+    <label>
+        Schrift:
+        <input type="range" id="fsize" min="8" max="16" value="${parseInt(fsize)||11}" step=".5"
+               oninput="document.getElementById('font-size-disp').textContent=this.value+'pt';
+                        document.querySelectorAll('.a4-page').forEach(p=>p.style.fontSize=this.value+'pt')">
+        <span id="font-size-disp">${parseInt(fsize)||11}pt</span>
+    </label>
+    <div class="bar-sep"></div>
+    <label>
+        Rand:
+        <select id="margin-sel" onchange="
+            const v=this.value;
+            document.documentElement.style.setProperty('--pg-padding',v);
+            document.querySelectorAll('.a4-page').forEach(p=>p.style.padding=v)">
+            <option value="15mm 14mm 18mm">Schmal (15mm)</option>
+            <option value="20mm 18mm 22mm" selected>Normal (20mm)</option>
+            <option value="25mm 22mm 28mm">Breit (25mm)</option>
+        </select>
+    </label>
+    <div class="bar-sep"></div>
+    <label>
+        <input type="checkbox" id="chk-dropcap" checked
+               onchange="document.getElementById('drop-style').disabled=!this.checked">
+        Initiale
+    </label>
+    <label>
+        <input type="checkbox" id="chk-pagenr" checked
+               onchange="document.querySelectorAll('.a4-page').forEach(p=>p.style.setProperty('--show-num',this.checked?'':'none'))">
+        Seitenzahl
+    </label>
+    <button onclick="window.print()">&#128438; DIN A4 drucken / PDF</button>
+</div>
+
+<style id="drop-style">
+/* Initiale ein/ausblenden */
+</style>
+
+<div class="pages-wrap">
+${pagesHtml}
+</div>
+
+<script>
+// Seitenzahlen setzen
+document.querySelectorAll('.a4-page').forEach((p,i) => p.setAttribute('data-page', i+1));
+// Initiale-Toggle
+document.getElementById('drop-style').textContent =
+    '.a4-page p:first-of-type::first-letter{float:left;font-family:\\'Playfair Display\\',serif;font-size:3em;line-height:.82;margin:.05em .08em 0 0;color:var(--accent);font-weight:700}';
+document.getElementById('chk-dropcap').addEventListener('change', function() {
+    document.getElementById('drop-style').textContent = this.checked
+        ? '.a4-page p:first-of-type::first-letter{float:left;font-family:\\'Playfair Display\\',serif;font-size:3em;line-height:.82;margin:.05em .08em 0 0;color:var(--accent);font-weight:700}'
+        : '.a4-page p:first-of-type::first-letter{}';
+});
+<\/script>
+</body>
+</html>`;
+
+    const blob = new Blob([doc], { type: 'text/html;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    showToast('Druckansicht ge\u00f6ffnet \u2014 DIN A4');
+}
+
 function openPreview() {
     if (!state.pages.length) { showToast('Kein Inhalt'); return; }
 
@@ -687,6 +887,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('btn-speak').addEventListener('click', toggleSpeech);
     $('btn-bookmark').addEventListener('click', saveBookmark);
     $('btn-preview').addEventListener('click', openPreview);
+    $('btn-print').addEventListener('click', openPrint);
     $('btn-save').addEventListener('click', openSaveDialog);
     $('btn-pick-folder').addEventListener('click', saveToFolder);
     $('btn-save-close').addEventListener('click', () => { $('save-dialog').hidden = true; });
