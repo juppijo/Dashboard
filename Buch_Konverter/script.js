@@ -185,7 +185,7 @@ function renderReader() {
 
     let html = '<div class="book-pages-wrapper"><div class="pages-track">';
     for (let s = 0; s < state.totalSpreads; s++) {
-        html += '<div class="page-spread ' + state.layout + '">';
+    html += '<div class="page-spread ' + state.layout + (s === state.currentSpread ? ' active' : '') + '">';
         const start = s * pps;
         for (let p = start; p < start + pps && p < state.pages.length; p++) {
             html += '<div class="book-page"><div class="page-inner">' + state.pages[p] + '</div><div class="page-num">&#8212; ' + (p+1) + ' &#8212;</div></div>';
@@ -210,13 +210,24 @@ function renderReader() {
 }
 
 function goToSpread(idx) {
+    const dir = idx >= state.currentSpread ? 'forward' : 'backward';
     state.currentSpread = Math.max(0, Math.min(idx, state.totalSpreads - 1));
-    updateView();
+    updateView(dir);
 }
 
-function updateView() {
+function updateView(direction) {
     const track = $('book-container').querySelector('.pages-track');
-    if (track) track.style.transform = 'translateX(-' + (state.currentSpread * 100) + '%)';
+    if (!track) return;
+
+    const allSpreads = Array.from(track.querySelectorAll('.page-spread'));
+    // Find currently visible (active but NOT being animated out)
+    const currentActive = allSpreads.find(s =>
+        s.classList.contains('active') &&
+        !s.classList.contains('flip-out-fwd') &&
+        !s.classList.contains('flip-out-bwd')
+    );
+    const target = allSpreads[state.currentSpread];
+    if (!target) return;
 
     const pps   = state.layout === 'double' ? 2 : 1;
     const first = state.currentSpread * pps + 1;
@@ -227,6 +238,25 @@ function updateView() {
 
     $('btn-prev').style.opacity = state.currentSpread === 0 ? '.3' : '1';
     $('btn-next').style.opacity = state.currentSpread >= state.totalSpreads - 1 ? '.3' : '1';
+
+    if (currentActive && currentActive !== target) {
+        const isFwd = direction !== 'backward';
+        const outCls = isFwd ? 'flip-out-fwd' : 'flip-out-bwd';
+        const inCls  = isFwd ? 'flip-in-fwd'  : 'flip-in-bwd';
+
+        target.classList.add('active', inCls);
+        currentActive.classList.add(outCls);
+
+        currentActive.addEventListener('animationend', () => {
+            currentActive.classList.remove('active', outCls);
+        }, { once: true });
+        target.addEventListener('animationend', () => {
+            target.classList.remove(inCls);
+        }, { once: true });
+    } else if (!currentActive) {
+        target.classList.add('active');
+    }
+
     buildDots();
 }
 
@@ -287,6 +317,12 @@ function updateSaveInfo() {
 /* ════════════════════════════════
    NAVIGATION
    ════════════════════════════════ */
+function setLayout(layout) {
+    state.layout = layout;
+    document.querySelectorAll('.layout-btn').forEach(b => b.classList.toggle('active', b.dataset.layout === layout));
+    if (state.pages.length > 0) renderReader();
+}
+
 function prev() { stopSpeech(); if (state.currentSpread > 0) goToSpread(state.currentSpread - 1); }
 function next() { stopSpeech(); if (state.currentSpread < state.totalSpreads - 1) goToSpread(state.currentSpread + 1); }
 
@@ -720,7 +756,7 @@ function buildOutputHtml() {
     const spreads = Math.ceil(state.pages.length / pps);
     let spreadHtml = '';
     for (let s = 0; s < spreads; s++) {
-        spreadHtml += '<div class="page-spread double">';
+        spreadHtml += '<div class="page-spread double' + (s === 0 ? ' active' : '') + '">';
         for (let p = s*pps; p < s*pps+pps && p < state.pages.length; p++) {
             // Data-URLs → relative images/-Pfade zurückkonvertieren für gespeicherte Version
             const pageHtml = dataUrlsToRelative(state.pages[p]);
@@ -790,7 +826,7 @@ function buildStylePanelHtml(accent, paper, text) {
         + '</div></div>\n'
         + '    <div class="sp-section"><label class="sp-label">Schriftgr\u00f6\u00dfe: <span id="font-size-val">15</span>px</label><input type="range" id="font-size-slider" min="11" max="24" value="15" class="sp-slider"></div>\n'
         + '    <div class="sp-section"><label class="sp-label">Zeilenabstand: <span id="line-height-val">1.7</span></label><input type="range" id="line-height-slider" min="1.2" max="2.4" step="0.1" value="1.7" class="sp-slider"></div>\n'
-        + '    <div class="sp-section"><label class="sp-label">Seitenbreite: <span id="page-width-val">75</span>%</label><input type="range" id="page-width-slider" min="40" max="96" value="75" class="sp-slider"></div>\n'
+        + '    <div class="sp-section"><label class="sp-label">Seitenbreite: <span id="page-width-val">75</span>%</label><input type="range" id="page-width-slider" min="40" max="100" value="75" class="sp-slider"></div>\n'
         + '    <div class="sp-section"><label class="sp-label">Akzentfarbe</label><div class="color-row"><input type="color" id="accent-color-picker" value="' + accent + '" class="sp-color-input"><span class="color-hint">Schaltfl\u00e4chen &amp; Hervorhebungen</span></div></div>\n'
         + '    <div class="sp-section"><label class="sp-label">Papierfarbe</label><div class="color-row"><input type="color" id="paper-color-picker" value="' + paper + '" class="sp-color-input"><span class="color-hint">Seitenhintergrund</span></div></div>\n'
         + '    <div class="sp-section"><label class="sp-label">Textfarbe</label><div class="color-row"><input type="color" id="text-color-picker" value="' + text + '" class="sp-color-input"><span class="color-hint">Flie\u00dftext</span></div></div>\n'
@@ -963,6 +999,18 @@ document.addEventListener('DOMContentLoaded', () => {
         else { document.exitFullscreen?.(); $('btn-fullscreen').classList.remove('active'); }
     });
     document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) $('btn-fullscreen').classList.remove('active'); });
+
+    $('btn-phone-mode').addEventListener('click', () => {
+        const stage  = $('book-stage');
+        const active = stage.classList.toggle('phone-mode');
+        $('btn-phone-mode').classList.toggle('active', active);
+        if (active) {
+            if (state.layout !== 'single') setLayout('single');
+            showToast('📱 Smartphone-Ansicht');
+        } else {
+            showToast('🖥 Normale Ansicht');
+        }
+    });
 });
 
 /* ════════════════════════════════
@@ -1249,8 +1297,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('touchend', e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>48) dx<0?next():prev();});
 });
 
-function prev() { stopSpeech(); if(RS.currentSpread>0){RS.currentSpread--;updateView();} }
-function next() { stopSpeech(); if(RS.currentSpread<RS.totalSpreads-1){RS.currentSpread++;updateView();} }
+function prev() { stopSpeech(); if(RS.currentSpread>0){const p=RS.currentSpread;RS.currentSpread--;updateView('backward');} }
+function next() { stopSpeech(); if(RS.currentSpread<RS.totalSpreads-1){RS.currentSpread++;updateView('forward');} }
 
 function setLayout(l) {
     RS.layout=l;
@@ -1259,12 +1307,18 @@ function setLayout(l) {
     RS.totalSpreads=Math.ceil(document.querySelectorAll('.book-page').length/pps);
     RS.currentSpread=Math.min(RS.currentSpread,RS.totalSpreads-1);
     localStorage.setItem('reader_layout',l);
-    updateView();
+    // Re-activate correct spread
+    const all=Array.from(document.querySelectorAll('.page-spread'));
+    all.forEach(s=>s.classList.remove('active'));
+    if(all[RS.currentSpread])all[RS.currentSpread].classList.add('active');
+    buildDots();
 }
 
-function updateView() {
-    const track=document.querySelector('.pages-track');
-    if(track)track.style.transform='translateX(-'+(RS.currentSpread*100)+'%)';
+function updateView(direction) {
+    const all=Array.from(document.querySelectorAll('.page-spread'));
+    const cur=all.find(s=>s.classList.contains('active')&&!s.classList.contains('flip-out-fwd')&&!s.classList.contains('flip-out-bwd'));
+    const target=all[RS.currentSpread];
+    if(!target)return;
     const pps=RS.layout==='double'?2:1;
     const total=document.querySelectorAll('.book-page').length;
     const first=RS.currentSpread*pps+1;
@@ -1272,6 +1326,15 @@ function updateView() {
     $('page-info').textContent=first===last?first+' / '+total:first+'-'+last+' / '+total;
     $('btn-prev').style.opacity=RS.currentSpread===0?'.3':'1';
     $('btn-next').style.opacity=RS.currentSpread>=RS.totalSpreads-1?'.3':'1';
+    if(cur&&cur!==target){
+        const fwd=direction!=='backward';
+        const oc=fwd?'flip-out-fwd':'flip-out-bwd';
+        const ic=fwd?'flip-in-fwd':'flip-in-bwd';
+        target.classList.add('active',ic);
+        cur.classList.add(oc);
+        cur.addEventListener('animationend',()=>{cur.classList.remove('active',oc);},{once:true});
+        target.addEventListener('animationend',()=>{target.classList.remove(ic);},{once:true});
+    } else if(!cur){target.classList.add('active');}
     buildDots();
 }
 
@@ -1358,11 +1421,20 @@ body.theme-sepia .bar-btn,body.theme-mint .bar-btn{color:var(--text-muted)}
 .bar-btn#btn-speak.speaking{color:var(--accent);animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 #book-stage{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;padding:14px}
-#book-container{width:var(--page-width);max-width:980px;height:100%;display:flex;flex-direction:column;transition:width .4s}
+#book-container{width:var(--page-width);max-width:100%;height:100%;display:flex;flex-direction:column;transition:width .4s}
 .book-pages-wrapper{flex:1;overflow:hidden;position:relative}
-.pages-track{display:flex;height:100%;transition:transform .5s cubic-bezier(.4,0,.2,1)}
-.page-spread{min-width:100%;height:100%;display:grid;gap:14px;padding:0 3px}
+.pages-track{height:100%;position:relative;overflow:hidden}
+.page-spread{position:absolute;inset:0;display:none;gap:14px;padding:0 3px}
+.page-spread.active{display:grid}
 .page-spread.double{grid-template-columns:1fr 1fr}.page-spread.single{grid-template-columns:1fr;max-width:640px;margin:0 auto;width:100%}
+@keyframes pageFlipOutFwd{0%{transform:perspective(1800px) rotateY(0deg) translateX(0) scale(1);opacity:1}100%{transform:perspective(1800px) rotateY(-14deg) translateX(-3%) scale(.97);opacity:0}}
+@keyframes pageFlipInFwd{0%{transform:perspective(1800px) rotateY(14deg) translateX(3%) scale(.97);opacity:0}100%{transform:perspective(1800px) rotateY(0deg) translateX(0) scale(1);opacity:1}}
+@keyframes pageFlipOutBwd{0%{transform:perspective(1800px) rotateY(0deg) translateX(0) scale(1);opacity:1}100%{transform:perspective(1800px) rotateY(14deg) translateX(3%) scale(.97);opacity:0}}
+@keyframes pageFlipInBwd{0%{transform:perspective(1800px) rotateY(-14deg) translateX(-3%) scale(.97);opacity:0}100%{transform:perspective(1800px) rotateY(0deg) translateX(0) scale(1);opacity:1}}
+.page-spread.flip-out-fwd{display:grid!important;animation:pageFlipOutFwd .34s cubic-bezier(.4,0,.2,1) forwards;pointer-events:none}
+.page-spread.flip-in-fwd{animation:pageFlipInFwd .34s cubic-bezier(.4,0,.2,1) forwards}
+.page-spread.flip-out-bwd{display:grid!important;animation:pageFlipOutBwd .34s cubic-bezier(.4,0,.2,1) forwards;pointer-events:none}
+.page-spread.flip-in-bwd{animation:pageFlipInBwd .34s cubic-bezier(.4,0,.2,1) forwards}
 .book-page{background:var(--paper);border-radius:3px;box-shadow:0 28px 80px rgba(0,0,0,.68),0 0 0 1px rgba(0,0,0,.25);overflow:hidden;display:flex;flex-direction:column}
 .page-inner{flex:1;overflow-y:auto;padding:48px 46px 36px;font-family:var(--font-body);font-size:var(--font-size);line-height:var(--line-height);color:var(--text);text-align:justify;hyphens:auto}
 .page-num{text-align:center;font-size:.7rem;color:var(--text-muted);padding:7px 0 12px;letter-spacing:.09em;border-top:1px solid rgba(0,0,0,.06);opacity:.65}
