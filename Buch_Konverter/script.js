@@ -1345,9 +1345,12 @@ function buildDots() {
     let h='';
     for(let i=0;i<cnt;i++){
         const idx=RS.totalSpreads>max?Math.round(i*(RS.totalSpreads-1)/(max-1)):i;
-        h+='<div class="page-dot'+(idx===RS.currentSpread?' active':'')+'" onclick="(function(){RS.currentSpread='+idx+';updateView();})()"></div>';
+        h+='<div class="page-dot'+(idx===RS.currentSpread?' active':'')+'" data-idx="'+idx+'"></div>';
     }
     el.innerHTML=h;
+    el.querySelectorAll('.page-dot').forEach(d=>{
+        d.addEventListener('click',()=>{RS.currentSpread=parseInt(d.dataset.idx);updateView('forward');});
+    });
 }
 
 function buildToc() {
@@ -1360,10 +1363,19 @@ function buildToc() {
             const lvl=parseInt(hd.tagName[1]);
             const si=Math.floor(i/pps);
             const ind=(lvl-1)*16;
-            h+='<div style="padding:7px 0 7px '+ind+'px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;display:flex;justify-content:space-between;font-size:'+(lvl===1?'1em':'.88em')+';color:rgba(255,255,255,.72)" onclick="RS.currentSpread='+si+';updateView();$(\\'toc-overlay\\').hidden=true"><span>'+hd.innerText+'</span><span style="font-size:.74em;opacity:.4;font-family:monospace">'+(i+1)+'</span></div>';
+            h+='<div data-spread="'+si+'" style="padding:7px 0 7px '+ind+'px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;display:flex;justify-content:space-between;font-size:'+(lvl===1?'1em':'.88em')+';color:rgba(255,255,255,.72);transition:color .18s" onmouseover="this.style.color=\'var(--accent)\'" onmouseout="this.style.color=\'rgba(255,255,255,.72)\'">'
+                +'<span>'+hd.innerText+'</span>'
+                +'<span style="font-size:.74em;opacity:.4;font-family:monospace">'+(i+1)+'</span></div>';
         }
     });
-    $('toc-list').innerHTML=h||'<p style="opacity:.38;font-size:.85rem">Keine Ueberschriften</p>';
+    $('toc-list').innerHTML=h||'<p style="opacity:.38;font-size:.85rem">Keine Überschriften</p>';
+    $('toc-list').querySelectorAll('[data-spread]').forEach(el=>{
+        el.addEventListener('click',()=>{
+            RS.currentSpread=parseInt(el.dataset.spread);
+            updateView('forward');
+            $('toc-overlay').hidden=true;
+        });
+    });
 }
 
 function restoreBookmark(){const s=localStorage.getItem('bm_r');if(s&&parseInt(s)>0)setTimeout(()=>{if(confirm('Lesezeichen laden?')){RS.currentSpread=parseInt(s);updateView();}},500);}
