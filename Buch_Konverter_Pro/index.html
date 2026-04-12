@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOCX → Buch Konverter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=Source+Serif+4:ital,wght@0,300;0,600;1,300&family=Bitter:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-cosmos" data-font="Lora">
+
+    <!-- ═══ UPLOAD SCREEN ═══ -->
+    <div id="upload-screen">
+        <div class="upload-bg-anim"></div>
+        <div class="upload-card">
+            <div class="upload-logo">
+                <svg viewBox="0 0 60 60" fill="none">
+                    <rect x="8"  y="4" width="34" height="44" rx="3" fill="currentColor" opacity="0.12"/>
+                    <rect x="12" y="4" width="34" height="44" rx="3" fill="currentColor" opacity="0.22"/>
+                    <rect x="16" y="4" width="34" height="44" rx="3" fill="currentColor" opacity="0.4" stroke="currentColor" stroke-width="1.5"/>
+                    <line x1="24" y1="16" x2="42" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="24" y1="22" x2="42" y2="22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="24" y1="28" x2="36" y2="28" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <h1 class="upload-title">DOCX<span class="arrow">→</span>BUCH</h1>
+            <p class="upload-sub">Word-Dokument in ein elegantes Web-Buch verwandeln.<br>Bilder werden als separate Dateien im <code>images/</code>-Ordner gespeichert.</p>
+            <div id="drop-zone">
+                <input type="file" id="file-input" accept=".docx" hidden>
+                <div class="drop-icon">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <path d="M24 4v28M14 22l10 10 10-10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 36v4a2 2 0 002 2h28a2 2 0 002-2v-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <p class="drop-text">Datei hierher ziehen</p>
+                <p class="drop-or">oder</p>
+                <button class="btn-upload-choose" onclick="document.getElementById('file-input').click()">Datei auswählen</button>
+                <p class="drop-hint">Unterstützt: <strong>.docx</strong> — Seitenumbruch mit <code>###</code></p>
+            </div>
+            <div id="progress-wrap" hidden>
+                <div id="progress-bar"><div id="progress-fill"></div></div>
+                <p id="progress-text">Verarbeite…</p>
+            </div>
+            <button class="btn-library-open" id="btn-open-library">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                Bibliothek öffnen
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══ LIBRARY SCREEN ═══ -->
+    <div id="library-screen" hidden>
+        <div class="lib-bg-anim"></div>
+        <header class="lib-header">
+            <button class="lib-back-btn" id="btn-lib-back">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+            <div class="lib-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="22" height="22"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                Meine Bibliothek
+            </div>
+            <div class="lib-header-right">
+                <span id="lib-count" class="lib-count"></span>
+                <button class="lib-new-btn" onclick="document.getElementById('btn-lib-back').click()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>
+                    Neues Buch
+                </button>
+            </div>
+        </header>
+        <div class="lib-body">
+            <div id="lib-empty" class="lib-empty" hidden>
+                <svg viewBox="0 0 80 80" fill="none" width="72" height="72">
+                    <rect x="12" y="8" width="40" height="54" rx="4" stroke="currentColor" stroke-width="2" opacity=".3"/>
+                    <rect x="20" y="14" width="40" height="54" rx="4" stroke="currentColor" stroke-width="2" opacity=".5"/>
+                    <rect x="28" y="20" width="40" height="54" rx="4" stroke="currentColor" stroke-width="2"/>
+                    <line x1="38" y1="35" x2="58" y2="35" stroke="currentColor" stroke-width="2" opacity=".5" stroke-linecap="round"/>
+                    <line x1="38" y1="42" x2="54" y2="42" stroke="currentColor" stroke-width="2" opacity=".5" stroke-linecap="round"/>
+                </svg>
+                <p>Noch keine Bücher gespeichert.</p>
+                <p class="lib-empty-hint">Öffne ein Buch und klicke auf <strong>In Bibliothek speichern</strong>.</p>
+            </div>
+            <div id="lib-grid" class="lib-grid"></div>
+        </div>
+    </div>
+
+    <!-- ═══ READER SCREEN ═══ -->
+    <div id="reader-screen" hidden>
+
+        <header id="topbar">
+            <div class="bar-left">
+                <button class="bar-btn" id="btn-back" title="Zurück zur Auswahl">
+                    <svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                </button>
+                <span id="book-title-display" class="book-title-display"></span>
+            </div>
+
+            <div class="bar-center">
+                <button class="bar-btn" id="btn-toc" title="Inhaltsverzeichnis">
+                    <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h10"/></svg>
+                </button>
+                <button class="bar-btn" id="btn-prev" title="Zurück">
+                    <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <span id="page-info">1 / 1</span>
+                <button class="bar-btn" id="btn-next" title="Vorwärts">
+                    <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+                <button class="bar-btn" id="btn-bookmark" title="Lesezeichen">
+                    <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+                </button>
+                <button class="bar-btn" id="btn-speak" title="Vorlesen">
+                    <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+                </button>
+            </div>
+
+            <div class="bar-right">
+                <button class="bar-btn bar-btn--accent" id="btn-preview" title="HTML-Vorschau in neuem Tab">
+                    <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span class="bar-label">Vorschau</span>
+                </button>
+                <button class="bar-btn bar-btn--lib" id="btn-save-lib" title="In Bibliothek speichern">
+                    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                    <span class="bar-label">Bibliothek</span>
+                </button>
+                <button class="bar-btn bar-btn--save" id="btn-save" title="Als ZIP speichern">
+                    <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <span class="bar-label">Speichern</span>
+                </button>
+                <button class="bar-btn" id="btn-phone-mode" title="Smartphone-Ansicht">
+                    <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg>
+                    <span class="bar-label">Handy</span>
+                </button>
+                <button class="bar-btn bar-btn--print" id="btn-print" title="DIN A4 drucken">
+                    <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    <span class="bar-label">Drucken</span>
+                </button>
+                <button class="bar-btn" id="btn-style-panel" title="Stil-Einstellungen">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 004.93 19.07M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+                </button>
+                <button class="bar-btn" id="btn-dark" title="Hell / Dunkel">
+                    <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+                </button>
+                <button class="bar-btn" id="btn-zen" title="Zen-Modus (ESC beendet)">
+                    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </button>
+                <button class="bar-btn" id="btn-fullscreen" title="Vollbild">
+                    <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- STYLE PANEL -->
+        <div id="style-panel" hidden>
+            <div class="sp-header">
+                <span>Stil-Einstellungen</span>
+                <button class="sp-close" id="btn-style-close">✕</button>
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Thema</label>
+                <div class="theme-grid">
+                    <button class="theme-btn active" data-theme="cosmos"  style="--tc:#1a1035;--ta:#c9a84c">Cosmos</button>
+                    <button class="theme-btn"        data-theme="forest"  style="--tc:#0d1f12;--ta:#6ab04c">Wald</button>
+                    <button class="theme-btn"        data-theme="ocean"   style="--tc:#071428;--ta:#4fc3f7">Ozean</button>
+                    <button class="theme-btn"        data-theme="crimson" style="--tc:#1a0a0a;--ta:#e57373">Rubin</button>
+                    <button class="theme-btn"        data-theme="sepia"   style="--tc:#f5f0e8;--ta:#8b6914">Sepia</button>
+                    <button class="theme-btn"        data-theme="mint"    style="--tc:#e8f5f0;--ta:#00897b">Mint</button>
+                </div>
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Schriftart</label>
+                <div class="font-grid">
+                    <button class="font-btn active" data-font="Lora">Lora</button>
+                    <button class="font-btn" data-font="Playfair Display">Playfair</button>
+                    <button class="font-btn" data-font="Crimson Text">Crimson</button>
+                    <button class="font-btn" data-font="EB Garamond">Garamond</button>
+                    <button class="font-btn" data-font="Libre Baskerville">Baskerville</button>
+                    <button class="font-btn" data-font="Cormorant Garamond">Cormorant</button>
+                    <button class="font-btn" data-font="Source Serif 4">Source Serif</button>
+                    <button class="font-btn" data-font="Bitter">Bitter</button>
+                </div>
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Schriftgröße: <span id="font-size-val">15</span>px</label>
+                <input type="range" id="font-size-slider" min="11" max="24" value="15" class="sp-slider">
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Zeilenabstand: <span id="line-height-val">1.7</span></label>
+                <input type="range" id="line-height-slider" min="1.2" max="2.4" step="0.1" value="1.7" class="sp-slider">
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Seitenbreite: <span id="page-width-val">75</span>%</label>
+                <input type="range" id="page-width-slider" min="40" max="100" value="75" class="sp-slider">
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Akzentfarbe</label>
+                <div class="color-row">
+                    <input type="color" id="accent-color-picker" value="#c9a84c" class="sp-color-input">
+                    <span class="color-hint">Schaltflächen & Hervorhebungen</span>
+                </div>
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Papierfarbe</label>
+                <div class="color-row">
+                    <input type="color" id="paper-color-picker" value="#fdfaf3" class="sp-color-input">
+                    <span class="color-hint">Seitenhintergrund</span>
+                </div>
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Textfarbe</label>
+                <div class="color-row">
+                    <input type="color" id="text-color-picker" value="#2c3e50" class="sp-color-input">
+                    <span class="color-hint">Fließtext</span>
+                </div>
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Seitenlayout</label>
+                <div class="layout-row">
+                    <button class="layout-btn active" data-layout="double">
+                        <svg viewBox="0 0 40 28"><rect x="1" y="1" width="17" height="26" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor"/><rect x="22" y="1" width="17" height="26" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor"/></svg>
+                        Doppelseite
+                    </button>
+                    <button class="layout-btn" data-layout="single">
+                        <svg viewBox="0 0 40 28"><rect x="10" y="1" width="20" height="26" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor"/></svg>
+                        Einzelseite
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOC OVERLAY -->
+        <div id="toc-overlay" hidden>
+            <div class="toc-inner">
+                <div class="toc-header">
+                    <span>Inhaltsverzeichnis</span>
+                    <button id="btn-toc-close">✕</button>
+                </div>
+                <div id="toc-list"></div>
+            </div>
+        </div>
+
+        <!-- SAVE DIALOG -->
+        <div id="save-dialog" hidden>
+            <div class="save-inner">
+                <div class="save-dlg-header">
+                    <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <span>Buch-Ordner speichern</span>
+                    <button class="sp-close" id="btn-save-close">✕</button>
+                </div>
+                <div class="save-dlg-body">
+                    <!-- Dateibaum Vorschau -->
+                    <div class="file-tree">
+                        <div class="ft-title">📁 <span id="ft-folder-name">Buch_Ordner</span>/</div>
+                        <div class="ft-row"><span class="ft-icon">📄</span> index.html</div>
+                        <div class="ft-row"><span class="ft-icon">🎨</span> style.css</div>
+                        <div class="ft-row"><span class="ft-icon">⚙️</span> script.js</div>
+                        <div class="ft-row ft-folder">
+                            <span class="ft-icon">🖼️</span> images/
+                            <span class="ft-badge" id="ft-img-count"></span>
+                        </div>
+                    </div>
+                    <p class="save-hint">Wähle einen Zielordner auf deinem Computer.<br>Alle Dateien werden dort direkt abgelegt.</p>
+                    <div class="save-actions">
+                        <button class="btn-pick" id="btn-pick-folder">
+                            <svg viewBox="0 0 24 24" width="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+                            Ordner wählen & speichern
+                        </button>
+                    </div>
+                    <div id="save-prog" hidden>
+                        <div class="sp2-track"><div class="sp2-fill" id="sp2-fill"></div></div>
+                        <span id="sp2-text">Schreibe Dateien…</span>
+                    </div>
+                    <div id="save-done" hidden>
+                        <div class="save-ok">
+                            <svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Erfolgreich gespeichert!
+                        </div>
+                        <p class="save-done-path" id="save-done-path"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOOK STAGE -->
+        <main id="book-stage">
+            <div id="book-container"></div>
+        </main>
+
+        <!-- STATUS BAR -->
+        <div id="statusbar">
+            <div class="sb-left"><span id="word-count"></span></div>
+            <div class="sb-center"><div id="page-dots"></div></div>
+            <div class="sb-right">
+                <span id="img-count-display"></span>
+                <span id="reading-time"></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
