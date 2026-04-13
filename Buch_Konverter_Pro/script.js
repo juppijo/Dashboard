@@ -942,15 +942,15 @@ function initStylePanel() {
     if (isS) isS.addEventListener('input', () => {
         isV.textContent = isS.value;
         document.documentElement.style.setProperty('--img-size', isS.value + '%');
-        document.querySelectorAll('.img-preset').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.pw-preset').forEach(b => b.classList.remove('active'));
     });
-    document.querySelectorAll('.img-preset[data-img]').forEach(btn => {
+    document.querySelectorAll('.pw-preset[data-img]').forEach(btn => {
         btn.addEventListener('click', () => {
             const v = btn.dataset.img;
             if (isS) isS.value = v;
             if (isV) isV.textContent = v;
             document.documentElement.style.setProperty('--img-size', v + '%');
-            document.querySelectorAll('.img-preset').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.pw-preset').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         });
     });
