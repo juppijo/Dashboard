@@ -755,6 +755,21 @@ body.theme-sepia .pw-preset,
 body.theme-mint  .pw-preset { color: var(--text-muted); border-color: rgba(0,0,0,.1); background: rgba(0,0,0,.04); }
 .pw-preset:hover, .pw-preset.active { border-color: var(--accent); color: var(--accent); }
 
+/* Bild-Breiten-Presets */
+.img-presets {
+    display: flex; gap: 5px; margin-top: 9px;
+}
+.img-preset {
+    flex: 1; padding: 5px 4px; border-radius: 5px;
+    border: 1px solid rgba(255,255,255,.1);
+    background: rgba(155,155,255,.04);
+    color: rgba(255,255,255,.55); font-size: .72rem; font-weight: 600;
+    cursor: pointer; transition: all var(--tr);
+}
+body.theme-sepia .img-preset,
+body.theme-mint  .img-preset { color: var(--text-muted); border-color: rgba(0,0,0,.1); background: rgba(0,0,0,.04); }
+.img-preset:hover, .img-preset.active { border-color: var(--accent); color: var(--accent); }
+
 /* Hintergrundfarbe Presets */
 .bg-presets {
     display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;
