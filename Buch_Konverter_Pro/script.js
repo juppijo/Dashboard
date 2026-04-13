@@ -936,15 +936,15 @@ function initStylePanel() {
     if (isS) isS.addEventListener('input', () => {
         isV.textContent = isS.value;
         document.documentElement.style.setProperty('--img-size', isS.value + '%');
-        document.querySelectorAll('[data-img]').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.img-preset').forEach(b => b.classList.remove('active'));
     });
-    document.querySelectorAll('[data-img]').forEach(btn => {
+    document.querySelectorAll('.img-preset[data-img]').forEach(btn => {
         btn.addEventListener('click', () => {
             const v = btn.dataset.img;
             if (isS) isS.value = v;
             if (isV) isV.textContent = v;
             document.documentElement.style.setProperty('--img-size', v + '%');
-            document.querySelectorAll('[data-img]').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.img-preset').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         });
     });
@@ -963,16 +963,15 @@ function initStylePanel() {
         });
     });
 
-    // Breiten-Presets
-    document.querySelectorAll('.pw-preset').forEach(btn => {
+    // Breiten-Presets (nur Buttons MIT data-val, nicht die Bildgröße-Presets)
+    document.querySelectorAll('.pw-preset[data-val]').forEach(btn => {
         btn.addEventListener('click', () => {
             const v = btn.dataset.val;
             $('page-width-slider').value = v;
             $('page-width-val').textContent = v;
             document.documentElement.style.setProperty('--page-width', v + '%');
-            document.querySelectorAll('.pw-preset').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.pw-preset[data-val]').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            // Bei 100% kein Padding, sonst normales Padding
             const pad = parseInt(v) >= 99 ? '0px' : '14px';
             document.documentElement.style.setProperty('--stage-padding', pad);
         });
