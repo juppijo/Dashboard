@@ -931,7 +931,23 @@ function initStylePanel() {
     wirePicker('paper-color-picker',  '--paper');
     wirePicker('text-color-picker',   '--text');
 
-    // Hintergrundfarbe
+    // Bildgröße
+    const isS = $('img-size-slider'), isV = $('img-size-val');
+    if (isS) isS.addEventListener('input', () => {
+        isV.textContent = isS.value;
+        document.documentElement.style.setProperty('--img-size', isS.value + '%');
+        document.querySelectorAll('[data-img]').forEach(b => b.classList.remove('active'));
+    });
+    document.querySelectorAll('[data-img]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const v = btn.dataset.img;
+            if (isS) isS.value = v;
+            if (isV) isV.textContent = v;
+            document.documentElement.style.setProperty('--img-size', v + '%');
+            document.querySelectorAll('[data-img]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
     $('bg-color-picker').addEventListener('input', e => {
         document.documentElement.style.setProperty('--bg', e.target.value);
         document.body.style.background = e.target.value;

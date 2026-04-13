@@ -222,7 +222,15 @@
                 </div>
             </div>
             <div class="sp-section">
-                <label class="sp-label">Akzentfarbe</label>
+                <label class="sp-label">Bildgröße: <span id="img-size-val">50</span>%</label>
+                <input type="range" id="img-size-slider" min="10" max="100" value="50" class="sp-slider">
+                <div class="pw-presets">
+                    <button class="pw-preset" data-img="20">Klein</button>
+                    <button class="pw-preset" data-img="50">Mittel</button>
+                    <button class="pw-preset" data-img="80">Groß</button>
+                    <button class="pw-preset" data-img="100">Voll</button>
+                </div>
+            </div>
                 <div class="color-row">
                     <input type="color" id="accent-color-picker" value="#c9a84c" class="sp-color-input">
                     <span class="color-hint">Schaltflächen & Hervorhebungen</span>

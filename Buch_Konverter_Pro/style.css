@@ -25,6 +25,8 @@
     --font-size:  15px;
     --line-height:1.7;
     --page-width: 75%;
+    --stage-padding: 14px;
+    --img-size: 50%;
     --tr: 0.22s cubic-bezier(0.4,0,0.2,1);
 }
 
@@ -244,7 +246,7 @@ body.theme-sepia .bar-btn, body.theme-mint .bar-btn { color:var(--text-muted); }
 .page-inner ul, .page-inner ol { padding-left:1.4em; margin-bottom:.85em; }
 .page-inner li { margin-bottom:.28em; }
 .page-inner img {
-    max-width:100%; max-height:48vh; display:block; margin:18px auto;
+    max-width:var(--img-size); max-height:48vh; display:block; margin:18px auto;
     border-radius:4px; box-shadow:0 4px 16px rgba(0,0,0,.18);
 }
 .page-inner table { width:100%; border-collapse:collapse; margin:1em 0; font-size:.9em; }
