@@ -915,7 +915,18 @@ function initStylePanel() {
     });
     wireSlider('font-size-slider',   'font-size-val',   v => v + 'px',    '--font-size');
     wireSlider('line-height-slider', 'line-height-val', v => parseFloat(v).toFixed(1), '--line-height');
-    wireSlider('page-width-slider',  'page-width-val',  v => v + '%',     '--page-width');
+
+    // Seitenbreite mit Padding-Logik
+    const pwS = $('page-width-slider'), pwV = $('page-width-val');
+    if (pwS) pwS.addEventListener('input', () => {
+        const v = pwS.value;
+        pwV.textContent = v;
+        document.documentElement.style.setProperty('--page-width', v + '%');
+        const pad = parseInt(v) >= 99 ? '0px' : '14px';
+        document.documentElement.style.setProperty('--stage-padding', pad);
+        // Preset-Button aktiv markieren
+        document.querySelectorAll('.pw-preset').forEach(b => b.classList.remove('active'));
+    });
     wirePicker('accent-color-picker', '--accent');
     wirePicker('paper-color-picker',  '--paper');
     wirePicker('text-color-picker',   '--text');
@@ -945,8 +956,9 @@ function initStylePanel() {
             document.documentElement.style.setProperty('--page-width', v + '%');
             document.querySelectorAll('.pw-preset').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            // Vollbild = kein Padding auf book-stage
-            $('book-stage').style.padding = v >= 98 ? '0' : '14px';
+            // Bei 100% kein Padding, sonst normales Padding
+            const pad = parseInt(v) >= 99 ? '0px' : '14px';
+            document.documentElement.style.setProperty('--stage-padding', pad);
         });
     });
 
