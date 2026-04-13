@@ -63,7 +63,16 @@
             </div>
             <div class="lib-header-right">
                 <span id="lib-count" class="lib-count"></span>
-                <button class="lib-new-btn" onclick="document.getElementById('btn-lib-back').click()">
+                <button class="lib-icon-btn" id="btn-lib-import" title="Bibliothek importieren (.json)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Importieren
+                </button>
+                <input type="file" id="lib-import-input" accept=".json" hidden>
+                <button class="lib-icon-btn" id="btn-lib-export" title="Bibliothek exportieren (.json)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Exportieren
+                </button>
+                <button class="lib-new-btn" id="btn-lib-new">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>
                     Neues Buch
                 </button>
@@ -128,10 +137,6 @@
                     <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                     <span class="bar-label">Speichern</span>
                 </button>
-                <button class="bar-btn" id="btn-phone-mode" title="Smartphone-Ansicht">
-                    <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg>
-                    <span class="bar-label">Handy</span>
-                </button>
                 <button class="bar-btn bar-btn--print" id="btn-print" title="DIN A4 drucken">
                     <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                     <span class="bar-label">Drucken</span>
@@ -192,6 +197,29 @@
             <div class="sp-section">
                 <label class="sp-label">Seitenbreite: <span id="page-width-val">75</span>%</label>
                 <input type="range" id="page-width-slider" min="40" max="100" value="75" class="sp-slider">
+                <div class="pw-presets">
+                    <button class="pw-preset" data-val="55">Schmal</button>
+                    <button class="pw-preset" data-val="75">Normal</button>
+                    <button class="pw-preset" data-val="92">Breit</button>
+                    <button class="pw-preset" data-val="100">Voll</button>
+                </div>
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Hintergrundfarbe</label>
+                <div class="color-row">
+                    <input type="color" id="bg-color-picker" value="#0d0920" class="sp-color-input">
+                    <span class="color-hint">Bühnen-Hintergrund</span>
+                </div>
+                <div class="bg-presets">
+                    <button class="bg-preset" data-color="#0d0920" style="background:#0d0920" title="Cosmos"></button>
+                    <button class="bg-preset" data-color="#0a1a0d" style="background:#0a1a0d" title="Wald"></button>
+                    <button class="bg-preset" data-color="#060e1e" style="background:#060e1e" title="Ozean"></button>
+                    <button class="bg-preset" data-color="#1a0808" style="background:#1a0808" title="Rubin"></button>
+                    <button class="bg-preset" data-color="#ede8df" style="background:#ede8df" title="Sepia"></button>
+                    <button class="bg-preset" data-color="#111111" style="background:#111111" title="Schwarz"></button>
+                    <button class="bg-preset" data-color="#1a1a2e" style="background:#1a1a2e" title="Nacht"></button>
+                    <button class="bg-preset" data-color="#2d1b4e" style="background:#2d1b4e" title="Lila"></button>
+                </div>
             </div>
             <div class="sp-section">
                 <label class="sp-label">Akzentfarbe</label>
@@ -224,6 +252,31 @@
                     <button class="layout-btn" data-layout="single">
                         <svg viewBox="0 0 40 28"><rect x="10" y="1" width="20" height="26" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor"/></svg>
                         Einzelseite
+                    </button>
+                    <button class="layout-btn" data-layout="mobile">
+                        <svg viewBox="0 0 40 28"><rect x="14" y="1" width="12" height="26" rx="3" fill="currentColor" opacity="0.3" stroke="currentColor"/><rect x="16" y="23" width="8" height="2" rx="1" fill="currentColor" opacity="0.5"/></svg>
+                        Smartphone
+                    </button>
+                </div>
+            </div>
+            <div class="sp-section">
+                <label class="sp-label">Blätter-Animation</label>
+                <div class="anim-grid">
+                    <button class="anim-btn active" data-anim="slide">
+                        <svg viewBox="0 0 32 20"><rect x="1" y="1" width="13" height="18" rx="2" fill="currentColor" opacity=".3" stroke="currentColor" stroke-width="1.2"/><rect x="18" y="1" width="13" height="18" rx="2" fill="currentColor" opacity=".6" stroke="currentColor" stroke-width="1.2"/><path d="M14 10h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        Gleiten
+                    </button>
+                    <button class="anim-btn" data-anim="flip">
+                        <svg viewBox="0 0 32 20"><rect x="1" y="1" width="13" height="18" rx="2" fill="currentColor" opacity=".3" stroke="currentColor" stroke-width="1.2"/><path d="M16 2 Q22 10 16 18" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/><rect x="19" y="1" width="12" height="18" rx="2" fill="currentColor" opacity=".6" stroke="currentColor" stroke-width="1.2"/></svg>
+                        Blättern
+                    </button>
+                    <button class="anim-btn" data-anim="fade">
+                        <svg viewBox="0 0 32 20"><rect x="1" y="1" width="30" height="18" rx="2" fill="currentColor" opacity=".15" stroke="currentColor" stroke-width="1.2"/><rect x="5" y="4" width="22" height="12" rx="2" fill="currentColor" opacity=".5"/></svg>
+                        Blenden
+                    </button>
+                    <button class="anim-btn" data-anim="none">
+                        <svg viewBox="0 0 32 20"><rect x="1" y="1" width="30" height="18" rx="2" fill="currentColor" opacity=".5" stroke="currentColor" stroke-width="1.2"/><line x1="10" y1="7" x2="22" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="10" y1="10" x2="22" y2="10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="10" y1="13" x2="18" y2="13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                        Sofort
                     </button>
                 </div>
             </div>
