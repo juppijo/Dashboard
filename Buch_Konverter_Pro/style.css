@@ -893,3 +893,130 @@ body[data-anim="flip"] .page-spread { perspective: 1800px; }
     animation: flipShadow .5s ease forwards;
 }
 @keyframes flipShadow { 0%{opacity:0} 50%{opacity:1} 100%{opacity:0} }
+
+/* ════════════════════════════════
+   SUCHFUNKTION
+   ════════════════════════════════ */
+#search-overlay {
+    position: fixed; top: 54px; left: 50%; transform: translateX(-50%);
+    z-index: 400; width: min(680px, 96vw);
+    animation: searchDrop .22s cubic-bezier(.4,0,.2,1);
+}
+@keyframes searchDrop {
+    from { opacity:0; transform: translateX(-50%) translateY(-12px); }
+    to   { opacity:1; transform: translateX(-50%) translateY(0); }
+}
+
+.search-box {
+    background: var(--sp-bg);
+    border: 1px solid var(--sp-border);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    overflow: hidden;
+}
+
+.search-input-row {
+    display: flex; align-items: center; gap: 6px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--sp-border);
+}
+
+.search-icon {
+    width: 17px; height: 17px; flex-shrink: 0;
+    fill: none; stroke: rgba(255,255,255,.35);
+    stroke-width: 2; stroke-linecap: round;
+}
+body.theme-sepia .search-icon,
+body.theme-mint  .search-icon { stroke: var(--text-muted); }
+
+#search-input {
+    flex: 1; background: none; border: none; outline: none;
+    color: rgba(255,255,255,.88); font-size: .95rem;
+    font-family: var(--font-body);
+    caret-color: var(--accent);
+}
+body.theme-sepia #search-input,
+body.theme-mint  #search-input { color: var(--text); }
+#search-input::placeholder { color: rgba(255,255,255,.25); }
+body.theme-sepia #search-input::placeholder,
+body.theme-mint  #search-input::placeholder { color: var(--text-muted); opacity: .5; }
+
+.search-count {
+    font-size: .75rem; color: rgba(255,255,255,.35);
+    font-family: monospace; min-width: 48px; text-align: right;
+    white-space: nowrap;
+}
+body.theme-sepia .search-count,
+body.theme-mint  .search-count { color: var(--text-muted); }
+.search-count.has-results { color: var(--accent); }
+
+.search-nav-btn {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: rgba(255,255,255,.06); border: none;
+    cursor: pointer; color: rgba(255,255,255,.5);
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--tr); flex-shrink: 0;
+}
+.search-nav-btn:hover { background: rgba(255,255,255,.12); color: var(--accent); }
+.search-nav-btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.search-nav-btn:disabled { opacity: .25; cursor: default; }
+
+.search-close-btn {
+    background: none; border: none; cursor: pointer;
+    color: rgba(255,255,255,.35); font-size: .95rem;
+    padding: 4px 6px; border-radius: 4px;
+    transition: all var(--tr); flex-shrink: 0;
+}
+.search-close-btn:hover { color: var(--accent); }
+
+.search-results {
+    max-height: 320px; overflow-y: auto;
+    scrollbar-width: thin;
+}
+.search-results:empty { display: none; }
+
+.search-result-item {
+    padding: 10px 16px; cursor: pointer;
+    border-bottom: 1px solid var(--sp-border);
+    transition: background var(--tr);
+    display: flex; flex-direction: column; gap: 3px;
+}
+.search-result-item:last-child { border-bottom: none; }
+.search-result-item:hover { background: rgba(255,255,255,.05); }
+.search-result-item.active { background: rgba(201,168,76,.1); border-left: 3px solid var(--accent); }
+body.theme-sepia .search-result-item:hover,
+body.theme-mint  .search-result-item:hover { background: rgba(0,0,0,.04); }
+
+.sri-page {
+    font-size: .7rem; font-family: monospace;
+    color: rgba(255,255,255,.3);
+    text-transform: uppercase; letter-spacing: .06em;
+}
+body.theme-sepia .sri-page,
+body.theme-mint  .sri-page { color: var(--text-muted); }
+
+.sri-context {
+    font-size: .84rem; color: rgba(255,255,255,.65);
+    line-height: 1.45;
+}
+body.theme-sepia .sri-context,
+body.theme-mint  .sri-context { color: var(--text); }
+
+.sri-context mark {
+    background: rgba(201,168,76,.35);
+    color: var(--accent);
+    border-radius: 2px; padding: 0 1px;
+    font-weight: 700;
+}
+
+/* Treffer-Highlight im Buch selbst */
+.search-highlight {
+    background: rgba(201,168,76,.3);
+    border-radius: 2px; padding: 0 1px;
+}
+.search-highlight.current {
+    background: var(--accent);
+    color: #fff;
+    border-radius: 3px;
+}

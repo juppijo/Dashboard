@@ -359,6 +359,12 @@ function doFlip(idx, direction) {
 
 document.addEventListener('keydown', e => {
     if ($('reader-screen').hidden) return;
+    // Strg+F / Cmd+F → Suche
+    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        $('search-overlay').hidden ? openSearch() : closeSearch();
+        return;
+    }
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
     if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prev();
     if (e.key === 'Escape') {
@@ -1035,6 +1041,243 @@ function setTheme(theme) {
 }
 
 /* ════════════════════════════════
+   SUCHFUNKTION
+   ════════════════════════════════ */
+const search = {
+    query:      '',
+    results:    [],   // [{pageIdx, matchIdx, context, offset}]
+    current:    -1,
+    active:     false
+};
+
+function openSearch() {
+    $('search-overlay').hidden = false;
+    search.active = true;
+    $('btn-search').classList.add('active');
+    setTimeout(() => $('search-input').focus(), 50);
+}
+
+function closeSearch() {
+    $('search-overlay').hidden = true;
+    search.active = false;
+    $('btn-search').classList.remove('active');
+    clearSearchHighlights();
+    search.results = [];
+    search.current = -1;
+    $('search-input').value = '';
+    $('search-count').textContent = '';
+    $('search-results').innerHTML = '';
+}
+
+function runSearch(query) {
+    search.query   = query.trim();
+    search.results = [];
+    search.current = -1;
+    clearSearchHighlights();
+    $('search-results').innerHTML = '';
+
+    if (search.query.length < 2) {
+        $('search-count').textContent = '';
+        $('search-count').classList.remove('has-results');
+        updateSearchNav();
+        return;
+    }
+
+    const q      = search.query.toLowerCase();
+    const qRe    = new RegExp(escapeRegex(search.query), 'gi');
+    const CTX    = 60; // Zeichen Kontext links/rechts
+
+    state.pages.forEach((pageHtml, pageIdx) => {
+        // Reinen Text aus HTML extrahieren
+        const tmp = document.createElement('div');
+        tmp.innerHTML = pageHtml;
+        const text = tmp.innerText || tmp.textContent || '';
+
+        let m;
+        qRe.lastIndex = 0;
+        while ((m = qRe.exec(text)) !== null) {
+            const offset  = m.index;
+            const before  = text.slice(Math.max(0, offset - CTX), offset);
+            const matched = m[0];
+            const after   = text.slice(offset + matched.length, offset + matched.length + CTX);
+            search.results.push({ pageIdx, offset, matched, before, after });
+        }
+    });
+
+    const n = search.results.length;
+    $('search-count').textContent = n > 0 ? `1 / ${n}` : 'Nichts gefunden';
+    $('search-count').classList.toggle('has-results', n > 0);
+
+    // Ergebnis-Liste aufbauen
+    const list = $('search-results');
+    if (n === 0) {
+        list.innerHTML = '<div style="padding:14px 16px;font-size:.83rem;opacity:.4">Keine Treffer gefunden</div>';
+        updateSearchNav();
+        return;
+    }
+
+    list.innerHTML = search.results.map((r, i) => {
+        const pps    = state.layout === 'double' ? 2 : 1;
+        const pageNr = r.pageIdx + 1;
+        const ctx    = escHtml(r.before.replace(/\s+/g,' ').slice(-CTX))
+                     + '<mark>' + escHtml(r.matched) + '</mark>'
+                     + escHtml(r.after.replace(/\s+/g,' ').slice(0, CTX));
+        return `<div class="search-result-item${i===0?' active':''}" data-idx="${i}">
+                    <div class="sri-page">Seite ${pageNr}</div>
+                    <div class="sri-context">…${ctx}…</div>
+                </div>`;
+    }).join('');
+
+    list.querySelectorAll('.search-result-item').forEach(el => {
+        el.addEventListener('click', () => jumpToResult(parseInt(el.dataset.idx)));
+    });
+
+    // Ersten Treffer anspringen
+    search.current = 0;
+    jumpToResult(0, false); // false = kein erneutes renderReader
+    updateSearchNav();
+}
+
+function jumpToResult(idx, doScroll = true) {
+    if (idx < 0 || idx >= search.results.length) return;
+    search.current = idx;
+
+    const r      = search.results[idx];
+    const pps    = state.layout === 'double' ? 2 : 1;
+    const spread = Math.floor(r.pageIdx / pps);
+
+    // Zur richtigen Seite navigieren
+    if (spread !== state.currentSpread) {
+        state.currentSpread = spread;
+        updateView();
+    }
+
+    // Highlights im Buch setzen
+    highlightInBook(r.pageIdx, idx);
+
+    // Ergebnisliste aktualisieren
+    document.querySelectorAll('.search-result-item').forEach((el, i) => {
+        el.classList.toggle('active', i === idx);
+    });
+    if (doScroll) {
+        const active = $('search-results').querySelector('.search-result-item.active');
+        if (active) active.scrollIntoView({ block:'nearest', behavior:'smooth' });
+    }
+
+    // Zähler aktualisieren
+    $('search-count').textContent = `${idx+1} / ${search.results.length}`;
+    updateSearchNav();
+}
+
+function highlightInBook(pageIdx, resultIdx) {
+    clearSearchHighlights();
+    if (!search.query) return;
+
+    const pageInners = $('book-container').querySelectorAll('.page-inner');
+    const pps        = state.layout === 'double' ? 2 : 1;
+    const spreadStart = state.currentSpread * pps;
+
+    // Nur die sichtbaren Seiten highlighten
+    for (let p = spreadStart; p < spreadStart + pps && p < state.pages.length; p++) {
+        const el = pageInners[p - spreadStart];
+        if (!el) continue;
+
+        const qRe = new RegExp('(' + escapeRegex(search.query) + ')', 'gi');
+        // Nur Textknoten ersetzen (kein innerHTML-Hack der Tags zerstört)
+        highlightTextNodes(el, qRe, p, resultIdx);
+    }
+
+    // Aktuellen Treffer ins Sichtfeld scrollen
+    const cur = $('book-container').querySelector('.search-highlight.current');
+    if (cur) cur.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}
+
+function highlightTextNodes(node, qRe, pageIdx, currentResultIdx) {
+    if (node.nodeType === Node.TEXT_NODE) {
+        if (!qRe.test(node.textContent)) return;
+        qRe.lastIndex = 0;
+
+        const frag = document.createDocumentFragment();
+        let last = 0, m;
+        const txt = node.textContent;
+
+        while ((m = qRe.exec(txt)) !== null) {
+            if (m.index > last) frag.appendChild(document.createTextNode(txt.slice(last, m.index)));
+
+            // Prüfen ob das der aktuelle Treffer ist
+            const mark = document.createElement('mark');
+            mark.className = 'search-highlight';
+            mark.textContent = m[0];
+
+            // Zähle globalen Treffer-Index für diese Seite
+            const globalMatches = search.results.filter(r => r.pageIdx === pageIdx);
+            // Vereinfacht: erstes match auf dieser Seite = globalMatches[0]
+            const localIdx = search.results.findIndex(
+                r => r.pageIdx === pageIdx && r.offset === m.index
+            );
+            if (localIdx === currentResultIdx) mark.classList.add('current');
+
+            frag.appendChild(mark);
+            last = m.index + m[0].length;
+        }
+        if (last < txt.length) frag.appendChild(document.createTextNode(txt.slice(last)));
+        node.parentNode.replaceChild(frag, node);
+
+    } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'SCRIPT' && node.tagName !== 'STYLE') {
+        Array.from(node.childNodes).forEach(child => highlightTextNodes(child, qRe, pageIdx, currentResultIdx));
+    }
+}
+
+function clearSearchHighlights() {
+    $('book-container').querySelectorAll('mark.search-highlight').forEach(mark => {
+        mark.replaceWith(document.createTextNode(mark.textContent));
+    });
+    // Normalisieren um getrennte Textknoten zusammenzuführen
+    $('book-container').normalize();
+}
+
+function updateSearchNav() {
+    const n   = search.results.length;
+    const cur = search.current;
+    $('search-prev-btn').disabled = n === 0 || cur <= 0;
+    $('search-next-btn').disabled = n === 0 || cur >= n - 1;
+}
+
+function escapeRegex(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function initSearch() {
+    $('btn-search').addEventListener('click', () => {
+        $('search-overlay').hidden ? openSearch() : closeSearch();
+    });
+    $('search-close-btn').addEventListener('click', closeSearch);
+    $('search-overlay').addEventListener('click', e => {
+        if (e.target === $('search-overlay')) closeSearch();
+    });
+
+    let debounce;
+    $('search-input').addEventListener('input', e => {
+        clearTimeout(debounce);
+        debounce = setTimeout(() => runSearch(e.target.value), 220);
+    });
+    $('search-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter')  { e.shiftKey ? prevResult() : nextResult(); }
+        if (e.key === 'Escape') closeSearch();
+    });
+
+    $('search-next-btn').addEventListener('click', nextResult);
+    $('search-prev-btn').addEventListener('click', prevResult);
+}
+
+function nextResult() {
+    if (search.current < search.results.length - 1) jumpToResult(search.current + 1);
+}
+function prevResult() {
+    if (search.current > 0) jumpToResult(search.current - 1);
+}
+
+/* ════════════════════════════════
    TOAST
    ════════════════════════════════ */
 let toastTimer;
@@ -1053,6 +1296,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initUpload();
     initStylePanel();
     initLibrary();
+    initSearch();
 
     $('btn-prev').addEventListener('click', prev);
     $('btn-next').addEventListener('click', next);

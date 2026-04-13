@@ -109,6 +109,9 @@
                 <button class="bar-btn" id="btn-toc" title="Inhaltsverzeichnis">
                     <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h10"/></svg>
                 </button>
+                <button class="bar-btn" id="btn-search" title="Im Buch suchen (Strg+F)">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </button>
                 <button class="bar-btn" id="btn-prev" title="Zurück">
                     <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
                 </button>
@@ -303,6 +306,25 @@
                 </div>
             </div>
 
+        </div>
+
+        <!-- SEARCH OVERLAY -->
+        <div id="search-overlay" hidden>
+            <div class="search-box">
+                <div class="search-input-row">
+                    <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <input type="text" id="search-input" placeholder="Im Buch suchen…" autocomplete="off" spellcheck="false">
+                    <span id="search-count" class="search-count"></span>
+                    <button id="search-prev-btn" class="search-nav-btn" title="Vorheriger Treffer">
+                        <svg viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg>
+                    </button>
+                    <button id="search-next-btn" class="search-nav-btn" title="Nächster Treffer">
+                        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                    <button id="search-close-btn" class="search-close-btn">✕</button>
+                </div>
+                <div id="search-results" class="search-results"></div>
+            </div>
         </div>
 
         <!-- TOC OVERLAY -->
