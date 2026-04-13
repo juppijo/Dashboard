@@ -162,6 +162,7 @@
                 <span>Stil-Einstellungen</span>
                 <button class="sp-close" id="btn-style-close">✕</button>
             </div>
+
             <div class="sp-section">
                 <label class="sp-label">Thema</label>
                 <div class="theme-grid">
@@ -173,6 +174,7 @@
                     <button class="theme-btn"        data-theme="mint"    style="--tc:#e8f5f0;--ta:#00897b">Mint</button>
                 </div>
             </div>
+
             <div class="sp-section">
                 <label class="sp-label">Schriftart</label>
                 <div class="font-grid">
@@ -186,14 +188,17 @@
                     <button class="font-btn" data-font="Bitter">Bitter</button>
                 </div>
             </div>
+
             <div class="sp-section">
                 <label class="sp-label">Schriftgröße: <span id="font-size-val">15</span>px</label>
                 <input type="range" id="font-size-slider" min="11" max="24" value="15" class="sp-slider">
             </div>
+
             <div class="sp-section">
                 <label class="sp-label">Zeilenabstand: <span id="line-height-val">1.7</span></label>
                 <input type="range" id="line-height-slider" min="1.2" max="2.4" step="0.1" value="1.7" class="sp-slider">
             </div>
+
             <div class="sp-section">
                 <label class="sp-label">Seitenbreite: <span id="page-width-val">75</span>%</label>
                 <input type="range" id="page-width-slider" min="40" max="100" value="75" class="sp-slider">
@@ -204,6 +209,42 @@
                     <button class="pw-preset" data-val="100">Voll</button>
                 </div>
             </div>
+
+            <div class="sp-section">
+                <label class="sp-label">Bildgröße: <span id="img-size-val">50</span>%</label>
+                <input type="range" id="img-size-slider" min="10" max="100" value="50" class="sp-slider">
+                <div class="pw-presets">
+                    <button class="img-preset" data-img="20">Klein</button>
+                    <button class="img-preset" data-img="50">Mittel</button>
+                    <button class="img-preset" data-img="80">Groß</button>
+                    <button class="img-preset" data-img="100">Voll</button>
+                </div>
+            </div>
+
+            <div class="sp-section">
+                <label class="sp-label">Akzentfarbe</label>
+                <div class="color-row">
+                    <input type="color" id="accent-color-picker" value="#c9a84c" class="sp-color-input">
+                    <span class="color-hint">Schaltflächen &amp; Hervorhebungen</span>
+                </div>
+            </div>
+
+            <div class="sp-section">
+                <label class="sp-label">Papierfarbe</label>
+                <div class="color-row">
+                    <input type="color" id="paper-color-picker" value="#fdfaf3" class="sp-color-input">
+                    <span class="color-hint">Seitenhintergrund</span>
+                </div>
+            </div>
+
+            <div class="sp-section">
+                <label class="sp-label">Textfarbe</label>
+                <div class="color-row">
+                    <input type="color" id="text-color-picker" value="#2c3e50" class="sp-color-input">
+                    <span class="color-hint">Fließtext</span>
+                </div>
+            </div>
+
             <div class="sp-section">
                 <label class="sp-label">Hintergrundfarbe</label>
                 <div class="color-row">
@@ -221,44 +262,25 @@
                     <button class="bg-preset" data-color="#2d1b4e" style="background:#2d1b4e" title="Lila"></button>
                 </div>
             </div>
-            <div class="sp-section">
-                <label class="sp-label">Akzentfarbe</label>
-                <div class="color-row">
-                    <input type="color" id="accent-color-picker" value="#c9a84c" class="sp-color-input">
-                    <span class="color-hint">Schaltflächen & Hervorhebungen</span>
-                </div>
-            </div>
-            <div class="sp-section">
-                <label class="sp-label">Papierfarbe</label>
-                <div class="color-row">
-                    <input type="color" id="paper-color-picker" value="#fdfaf3" class="sp-color-input">
-                    <span class="color-hint">Seitenhintergrund</span>
-                </div>
-            </div>
-            <div class="sp-section">
-                <label class="sp-label">Textfarbe</label>
-                <div class="color-row">
-                    <input type="color" id="text-color-picker" value="#2c3e50" class="sp-color-input">
-                    <span class="color-hint">Fließtext</span>
-                </div>
-            </div>
+
             <div class="sp-section">
                 <label class="sp-label">Seitenlayout</label>
                 <div class="layout-row">
                     <button class="layout-btn active" data-layout="double">
                         <svg viewBox="0 0 40 28"><rect x="1" y="1" width="17" height="26" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor"/><rect x="22" y="1" width="17" height="26" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor"/></svg>
-                        Doppelseite
+                        Doppel
                     </button>
                     <button class="layout-btn" data-layout="single">
                         <svg viewBox="0 0 40 28"><rect x="10" y="1" width="20" height="26" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor"/></svg>
-                        Einzelseite
+                        Einzel
                     </button>
                     <button class="layout-btn" data-layout="mobile">
                         <svg viewBox="0 0 40 28"><rect x="14" y="1" width="12" height="26" rx="3" fill="currentColor" opacity="0.3" stroke="currentColor"/><rect x="16" y="23" width="8" height="2" rx="1" fill="currentColor" opacity="0.5"/></svg>
-                        Smartphone
+                        Handy
                     </button>
                 </div>
             </div>
+
             <div class="sp-section">
                 <label class="sp-label">Blätter-Animation</label>
                 <div class="anim-grid">
@@ -280,6 +302,7 @@
                     </button>
                 </div>
             </div>
+
         </div>
 
         <!-- TOC OVERLAY -->
