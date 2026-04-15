@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zaminia's CSS Studio Pro</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --panel-bg: #ffffff;
+            --text-color: #1a1a1b;
+            --accent-color: #e63946; 
+            --border-radius: 12px;
+            --secondary-color: #457b9d;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent-color: #ff4d4d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            transition: background-color 0.3s;
+        }
+
+        header {
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel-bg);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        /* Editor Bereich */
+        .editor-panel {
+            flex: 1;
+            background: var(--panel-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            overflow-y: auto;
+            max-width: 420px;
+        }
+
+        /* Vorschau Bereich */
+        .preview-panel {
+            flex: 2;
+            background: var(--panel-bg);
+            border-radius: var(--border-radius);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            /* Ein feines Punkt-Gitter für den Hintergrund */
+            background-image: radial-gradient(var(--text-color) 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            background-color: var(--panel-bg);
+        }
+
+        .control-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        input[type="range"], input[type="color"], select {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 14px;
+            border: none;
+            border-radius: 6px;
+            background: var(--secondary-color);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        button.main-btn {
+            background: var(--accent-color);
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        #preview-card {
+            width: 320px;
+            height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 25px;
+            transition: all 0.15s ease-out;
+            font-weight: 500;
+        }
+
+        .code-output {
+            margin-top: 15px;
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        /* Versteckter Input für File-Upload */
+        #fileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.5rem;">🎨</span>
+        <h2 style="margin:0; font-weight: 800; letter-spacing: -0.5px;">CSS Creator Pro</h2>
+    </div>
+    <div class="button-row" style="margin-bottom: 0;">
+        <button onclick="toggleTheme()">🌓 Theme</button>
+        <button onclick="toggleFullscreen()">📺 Vollbild</button>
+    </div>
+</header>
+
+<div class="main-container">
+    <div class="editor-panel">
+        
+        <div class="button-row">
+            <button class="main-btn" onclick="saveCSS()">💾 Datei Speichern</button>
+            <button onclick="document.getElementById('fileInput').click()">📂 Datei Laden</button>
+            <input type="file" id="fileInput" accept=".css" onchange="loadCSS(event)">
+        </div>
+
+        <hr style="opacity: 0.1; margin: 20px 0;">
+
+        <div class="control-group">
+            <label>Hintergrundfarbe</label>
+            <input type="color" id="bgColor" value="#e63946" oninput="updateCSS()">
+        </div>
+
+        <div class="control-group">
+            <label>Textfarbe</label>
+            <input type="color" id="textColor" value="#ffffff" oninput="updateCSS()">
+        </div>
+
+        <div class="control-group">
+            <label>Eckenabrundung: <span id="radiusVal">12</span>px</label>
+            <input type="range" id="borderRadius" min="0" max="150" value="12" oninput="updateCSS()">
+        </div>
+
+        <div class="control-group">
+            <label>Schatten-Stärke: <span id="shadowVal">20</span>px</label>
+            <input type="range" id="shadowSize" min="0" max="80" value="20" oninput="updateCSS()">
+        </div>
+
+        <div class="control-group">
+            <label>Schriftgröße: <span id="fontVal">20</span>px</label>
+            <input type="range" id="fontSize" min="12" max="60" value="20" oninput="updateCSS()">
+        </div>
+
+        <label>Live CSS Code:</label>
+        <div class="code-output" id="cssCode"></div>
+    </div>
+
+    <div class="preview-panel">
+        <div id="preview-card">
+            <span>Vorschau-Box</span>
+            <small style="display:block; margin-top:10px; opacity:0.7; font-size: 0.7rem;">(Werte ändern sich live)</small>
+        </div>
+    </div>
+</div>
+
+<script>
+    const card = document.getElementById('preview-card');
+    const cssDisplay = document.getElementById('cssCode');
+
+    function updateCSS() {
+        const settings = {
+            bg: document.getElementById('bgColor').value,
+            text: document.getElementById('textColor').value,
+            radius: document.getElementById('borderRadius').value,
+            shadow: document.getElementById('shadowSize').value,
+            font: document.getElementById('fontSize').value
+        };
+
+        // Labels aktualisieren
+        document.getElementById('radiusVal').innerText = settings.radius;
+        document.getElementById('shadowVal').innerText = settings.shadow;
+        document.getElementById('fontVal').innerText = settings.font;
+
+        // Element stylen
+        card.style.backgroundColor = settings.bg;
+        card.style.color = settings.text;
+        card.style.borderRadius = settings.radius + "px";
+        card.style.boxShadow = `0px ${settings.shadow/4}px ${settings.shadow}px rgba(0,0,0,0.25)`;
+        card.style.fontSize = settings.font + "px";
+
+        // CSS Text erzeugen
+        const codeText = `.mein-style {\n  background-color: ${settings.bg};\n  color: ${settings.text};\n  border-radius: ${settings.radius}px;\n  box-shadow: 0px ${settings.shadow/4}px ${settings.shadow}px rgba(0,0,0,0.25);\n  font-size: ${settings.font}px;\n}`;
+        cssDisplay.innerText = codeText;
+    }
+
+    // SPEICHER-FUNKTION
+    function saveCSS() {
+        const text = cssDisplay.innerText;
+        const blob = new Blob([text], { type: 'text/css' });
+        const anchor = document.createElement('a');
+        anchor.download = "mein-style.css";
+        anchor.href = window.URL.createObjectURL(blob);
+        anchor.click();
+    }
+
+    // LADE-FUNKTION
+    function loadCSS(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const content = e.target.result;
+            
+            // Einfaches Regex-Parsing der Werte aus der Datei
+            const extract = (regex) => {
+                const match = content.match(regex);
+                return match ? match[1] : null;
+            };
+
+            const bg = extract(/background-color:\s*(#[a-fA-F0-9]{6})/);
+            const txt = extract(/color:\s*(#[a-fA-F0-9]{6})/);
+            const rad = extract(/border-radius:\s*(\d+)px/);
+            const shd = extract(/box-shadow:.*?(\d+)px/); // nimmt den letzten Wert als Schatten-Maß
+            const fnt = extract(/font-size:\s*(\d+)px/);
+
+            // Inputs setzen, falls Werte gefunden wurden
+            if (bg) document.getElementById('bgColor').value = bg;
+            if (txt) document.getElementById('textColor').value = txt;
+            if (rad) document.getElementById('borderRadius').value = rad;
+            if (shd) document.getElementById('shadowSize').value = shd;
+            if (fnt) document.getElementById('fontSize').value = fnt;
+
+            updateCSS();
+            alert("CSS erfolgreich geladen!");
+        };
+        reader.readAsText(file);
+    }
+
+    function toggleTheme() {
+        document.body.toggleAttribute('data-theme');
+    }
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    // Start-Setup
+    updateCSS();
+</script>
+
+</body>
+</html>
