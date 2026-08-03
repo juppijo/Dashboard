@@ -27,11 +27,18 @@
   const bgCustom      = document.getElementById('bgCustom');
   const fontSelect    = document.getElementById('fontSelect');
   const btnResetSettings = document.getElementById('btnResetSettings');
+  const colorH1 = document.getElementById('colorH1');
+  const colorH2 = document.getElementById('colorH2');
+  const colorH3 = document.getElementById('colorH3');
+  const colorP  = document.getElementById('colorP');
 
   const STORAGE_KEY = 'mdEditor.doc';
   const STORAGE_TITLE_KEY = 'mdEditor.title';
   const STORAGE_BG_KEY = 'mdEditor.bg';
   const STORAGE_FONT_KEY = 'mdEditor.font';
+  const STORAGE_COLORS_KEY = 'mdEditor.textColors';
+
+  const DEFAULT_COLORS = { h1: '#e0bc4a', h2: '#c9a227', h3: '#c9a227', p: '#e8e4da' };
 
   const FONT_STACKS = {
     barlow:   "'Barlow', sans-serif",
@@ -105,6 +112,60 @@
     applyFont(font, false);
   }
 
+  function applyTextColors(colors, save) {
+    const c = Object.assign({}, DEFAULT_COLORS, colors || {});
+    app.style.setProperty('--h1-color', c.h1);
+    app.style.setProperty('--h2-color', c.h2);
+    app.style.setProperty('--h3-color', c.h3);
+
+    // Absatzfarbe: nur überschreiben, wenn abweichend vom automatischen Text-Ton,
+    // damit sie bei Hintergrundwechsel weiterhin lesbar bleibt, solange nicht angepasst
+    if (colors && colors.pCustom) {
+      app.style.setProperty('--p-color', c.p);
+    } else {
+      app.style.removeProperty('--p-color');
+    }
+
+    colorH1.value = c.h1;
+    colorH2.value = c.h2;
+    colorH3.value = c.h3;
+    colorP.value = c.p;
+
+    if (save !== false) {
+      try {
+        localStorage.setItem(STORAGE_COLORS_KEY, JSON.stringify({
+          h1: c.h1, h2: c.h2, h3: c.h3, p: c.p, pCustom: !!(colors && colors.pCustom)
+        }));
+      } catch (e) { /* ignore */ }
+    }
+  }
+
+  function loadTextColors() {
+    let stored = null;
+    try {
+      const raw = localStorage.getItem(STORAGE_COLORS_KEY);
+      if (raw) stored = JSON.parse(raw);
+    } catch (e) { /* ignore */ }
+    applyTextColors(stored || DEFAULT_COLORS, false);
+    if (!stored) colorP.value = getComputedStyle(app).getPropertyValue('--text').trim() || DEFAULT_COLORS.p;
+  }
+
+  [ [colorH1, 'h1'], [colorH2, 'h2'], [colorH3, 'h3'] ].forEach(([input, key]) => {
+    input.addEventListener('input', () => {
+      applyTextColors({
+        h1: colorH1.value, h2: colorH2.value, h3: colorH3.value, p: colorP.value,
+        pCustom: app.style.getPropertyValue('--p-color') !== ''
+      });
+    });
+  });
+
+  colorP.addEventListener('input', () => {
+    applyTextColors({
+      h1: colorH1.value, h2: colorH2.value, h3: colorH3.value, p: colorP.value,
+      pCustom: true
+    });
+  });
+
   btnSettings.addEventListener('click', (e) => {
     e.stopPropagation();
     settingsPanel.hidden = !settingsPanel.hidden;
@@ -128,6 +189,10 @@
   btnResetSettings.addEventListener('click', () => {
     applyBackground(DEFAULT_BG);
     applyFont(DEFAULT_FONT);
+    applyTextColors(DEFAULT_COLORS);
+    app.style.removeProperty('--p-color');
+    try { localStorage.removeItem(STORAGE_COLORS_KEY); } catch (e) { /* ignore */ }
+    colorP.value = getComputedStyle(app).getPropertyValue('--text').trim() || DEFAULT_COLORS.p;
   });
 
   // -------- Markdown Rendering --------
@@ -434,7 +499,11 @@ console.log("Viel Spaß beim Schreiben!");
       gold: cs.getPropertyValue('--gold').trim() || '#c9a227',
       goldBright: cs.getPropertyValue('--gold-bright').trim() || '#e0bc4a',
       goldDim: cs.getPropertyValue('--gold-dim').trim() || '#7a6420',
-      fontContent: cs.getPropertyValue('--font-content').trim() || "'Barlow', sans-serif"
+      fontContent: cs.getPropertyValue('--font-content').trim() || "'Barlow', sans-serif",
+      h1Color: cs.getPropertyValue('--h1-color').trim() || '#e0bc4a',
+      h2Color: cs.getPropertyValue('--h2-color').trim() || '#c9a227',
+      h3Color: cs.getPropertyValue('--h3-color').trim() || '#c9a227',
+      pColor: cs.getPropertyValue('--p-color').trim() || cs.getPropertyValue('--text').trim()
     };
   }
 
@@ -443,14 +512,14 @@ console.log("Viel Spaß beim Schreiben!");
       body{ margin:0; background:${t.bg}; color:${t.text}; font-family:${t.fontContent}; }
       .markdown-body{ max-width:760px; margin:0 auto; padding:48px 32px 80px; font-size:16px; line-height:1.75; }
       .markdown-body h1,.markdown-body h2,.markdown-body h3,.markdown-body h4{
-        font-family:'Bebas Neue',sans-serif; font-weight:400; letter-spacing:0.3px; color:${t.goldBright}; line-height:1.2; margin:1.4em 0 0.5em;
+        font-family:'Bebas Neue',sans-serif; font-weight:400; letter-spacing:0.3px; line-height:1.2; margin:1.4em 0 0.5em;
       }
-      .markdown-body h1{ font-size:2.3em; border-bottom:1px solid ${t.border}; padding-bottom:0.25em; }
-      .markdown-body h2{ font-size:1.7em; border-bottom:1px solid ${t.borderSoft}; padding-bottom:0.2em; }
-      .markdown-body h3{ font-size:1.3em; color:${t.gold}; }
-      .markdown-body h4{ font-size:1.05em; text-transform:uppercase; letter-spacing:0.6px; }
+      .markdown-body h1{ font-size:2.3em; color:${t.h1Color}; border-bottom:1px solid ${t.border}; padding-bottom:0.25em; }
+      .markdown-body h2{ font-size:1.7em; color:${t.h2Color}; border-bottom:1px solid ${t.borderSoft}; padding-bottom:0.2em; }
+      .markdown-body h3{ font-size:1.3em; color:${t.h3Color}; }
+      .markdown-body h4{ font-size:1.05em; color:${t.text}; text-transform:uppercase; letter-spacing:0.6px; }
       .markdown-body h1:first-child,.markdown-body h2:first-child{ margin-top:0; }
-      .markdown-body p{ margin:0.9em 0; }
+      .markdown-body p{ margin:0.9em 0; color:${t.pColor}; }
       .markdown-body a{ color:${t.goldBright}; text-decoration:none; border-bottom:1px solid ${t.goldDim}; }
       .markdown-body strong{ font-weight:700; }
       .markdown-body ul,.markdown-body ol{ padding-left:1.5em; margin:0.8em 0; }
@@ -543,7 +612,8 @@ ${clean}
     const printTheme = {
       bg: '#ffffff', bgInset: '#f4f2ec', border: '#ddd7c8', borderSoft: '#e8e3d6',
       text: '#221e17', textDim: '#5c5548', gold: '#a3801f', goldBright: '#8a6a17',
-      goldDim: '#c9a227', fontContent: "'Barlow', sans-serif"
+      goldDim: '#c9a227', fontContent: "'Barlow', sans-serif",
+      h1Color: '#8a6a17', h2Color: '#a3801f', h3Color: '#a3801f', pColor: '#221e17'
     };
     const html = buildStandaloneHtml(printTheme);
     const win = window.open('', '_blank');
@@ -622,6 +692,7 @@ ${clean}
 
   // -------- Initialisierung --------
   loadAppearance();
+  loadTextColors();
   loadPersisted();
   renderPreview();
   updateStats();

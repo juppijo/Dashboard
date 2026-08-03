@@ -39,10 +39,10 @@
             <span class="settings-label">Hintergrundfarbe</span>
             <div class="swatch-row" id="bgSwatches">
               <button class="swatch" data-bg="#121212" style="--sw:#121212" title="Anthrazit (Standard)"></button>
-              <button class="swatch" data-bg="#0d1117" style="--sw:#0d1117" title="Mitternachtsblau"></button>
-              <button class="swatch" data-bg="#16130d" style="--sw:#16130d" title="Espresso"></button>
-              <button class="swatch" data-bg="#10140f" style="--sw:#10140f" title="Waldgrün"></button>
-              <button class="swatch" data-bg="#1a1a1a" style="--sw:#1a1a1a" title="Kohle"></button>
+              <button class="swatch" data-bg="#0d1130" style="--sw:#0d1130" title="Mitternachtsblau"></button>
+              <button class="swatch" data-bg="#30130d" style="--sw:#30120d" title="Espresso"></button>
+              <button class="swatch" data-bg="#10300f" style="--sw:#10300f" title="Waldgrün"></button>
+              <button class="swatch" data-bg="#222222" style="--sw:#222222" title="Kohle"></button>
               <button class="swatch" data-bg="#f4f1ea" style="--sw:#f4f1ea" title="Papier (hell)"></button>
               <label class="swatch swatch-custom" title="Eigene Farbe">
                 <input type="color" id="bgCustom" value="#121212">
@@ -60,6 +60,26 @@
               <option value="system">Systemschrift</option>
               <option value="atkinson">Atkinson Hyperlegible</option>
             </select>
+          </div>
+
+          <div class="settings-section">
+            <span class="settings-label">Textfarben (Vorschau)</span>
+            <div class="color-field">
+              <label for="colorH1">H1</label>
+              <input type="color" id="colorH1" value="#e0bc4a">
+            </div>
+            <div class="color-field">
+              <label for="colorH2">H2</label>
+              <input type="color" id="colorH2" value="#c9a227">
+            </div>
+            <div class="color-field">
+              <label for="colorH3">H3</label>
+              <input type="color" id="colorH3" value="#c9a227">
+            </div>
+            <div class="color-field">
+              <label for="colorP">Absatz</label>
+              <input type="color" id="colorP" value="#e8e4da">
+            </div>
           </div>
 
           <button class="settings-reset" id="btnResetSettings">Zurücksetzen</button>
