@@ -20,6 +20,7 @@
   --h1-color: #e0bc4a;
   --h2-color: #c9a227;
   --h3-color: #c9a227;
+  --h4-color: var(--text);
   --p-color: var(--text);
 }
 

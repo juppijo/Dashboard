@@ -30,6 +30,7 @@
   const colorH1 = document.getElementById('colorH1');
   const colorH2 = document.getElementById('colorH2');
   const colorH3 = document.getElementById('colorH3');
+  const colorH4 = document.getElementById('colorH4');
   const colorP  = document.getElementById('colorP');
 
   const STORAGE_KEY = 'mdEditor.doc';
@@ -117,6 +118,7 @@
     app.style.setProperty('--h1-color', c.h1);
     app.style.setProperty('--h2-color', c.h2);
     app.style.setProperty('--h3-color', c.h3);
+    app.style.setProperty('--h4-color', c.h4);
 
     // Absatzfarbe: nur überschreiben, wenn abweichend vom automatischen Text-Ton,
     // damit sie bei Hintergrundwechsel weiterhin lesbar bleibt, solange nicht angepasst
@@ -129,12 +131,13 @@
     colorH1.value = c.h1;
     colorH2.value = c.h2;
     colorH3.value = c.h3;
+    colorH4.value = c.h4;
     colorP.value = c.p;
 
     if (save !== false) {
       try {
         localStorage.setItem(STORAGE_COLORS_KEY, JSON.stringify({
-          h1: c.h1, h2: c.h2, h3: c.h3, p: c.p, pCustom: !!(colors && colors.pCustom)
+          h1: c.h1, h2: c.h2, h3: c.h3, h4: c.h4, p: c.p, pCustom: !!(colors && colors.pCustom)
         }));
       } catch (e) { /* ignore */ }
     }
@@ -150,10 +153,10 @@
     if (!stored) colorP.value = getComputedStyle(app).getPropertyValue('--text').trim() || DEFAULT_COLORS.p;
   }
 
-  [ [colorH1, 'h1'], [colorH2, 'h2'], [colorH3, 'h3'] ].forEach(([input, key]) => {
+  [ [colorH1, 'h1'], [colorH2, 'h2'], [colorH3, 'h3'], [colorH4, 'h4'] ].forEach(([input, key]) => {
     input.addEventListener('input', () => {
       applyTextColors({
-        h1: colorH1.value, h2: colorH2.value, h3: colorH3.value, p: colorP.value,
+        h1: colorH1.value, h2: colorH2.value, h3: colorH3.value, h4: colorH4.value, p: colorP.value,
         pCustom: app.style.getPropertyValue('--p-color') !== ''
       });
     });
@@ -161,7 +164,7 @@
 
   colorP.addEventListener('input', () => {
     applyTextColors({
-      h1: colorH1.value, h2: colorH2.value, h3: colorH3.value, p: colorP.value,
+      h1: colorH1.value, h2: colorH2.value, h3: colorH3.value, h4: colorH4.value, p: colorP.value,
       pCustom: true
     });
   });
@@ -517,7 +520,7 @@ console.log("Viel Spaß beim Schreiben!");
       .markdown-body h1{ font-size:2.3em; color:${t.h1Color}; border-bottom:1px solid ${t.border}; padding-bottom:0.25em; }
       .markdown-body h2{ font-size:1.7em; color:${t.h2Color}; border-bottom:1px solid ${t.borderSoft}; padding-bottom:0.2em; }
       .markdown-body h3{ font-size:1.3em; color:${t.h3Color}; }
-      .markdown-body h4{ font-size:1.05em; color:${t.text}; text-transform:uppercase; letter-spacing:0.6px; }
+      .markdown-body h4{ font-size:1.05em; color:${t.h4Color}; text-transform:uppercase; letter-spacing:0.6px; }
       .markdown-body h1:first-child,.markdown-body h2:first-child{ margin-top:0; }
       .markdown-body p{ margin:0.9em 0; color:${t.pColor}; }
       .markdown-body a{ color:${t.goldBright}; text-decoration:none; border-bottom:1px solid ${t.goldDim}; }
