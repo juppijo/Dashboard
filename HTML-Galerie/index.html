@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML Miniatur-Galerie</title>
+  <style>
+    /* Theme Definitions */
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-color: #06b6d4;
+      --accent-hover: #0891b2;
+      --modal-bg: rgba(15, 23, 42, 0.85);
+      --radius: 12px;
+      --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body.theme-light {
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --card-border: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent-color: #2563eb;
+      --accent-hover: #1d4ed8;
+      --modal-bg: rgba(15, 23, 42, 0.7);
+    }
+
+    body.theme-cyberpunk {
+      --bg-color: #0d0221;
+      --card-bg: #190a38;
+      --card-border: #ff007f;
+      --text-main: #00f6ff;
+      --text-muted: #bd00ff;
+      --accent-color: #ff007f;
+      --accent-hover: #d6006b;
+      --modal-bg: rgba(13, 2, 33, 0.9);
+      --font-family: 'Courier New', Courier, monospace;
+    }
+
+    body.theme-emerald {
+      --bg-color: #064e3b;
+      --card-bg: #047857;
+      --card-border: #10b981;
+      --text-main: #ecfdf5;
+      --text-muted: #a7f3d0;
+      --accent-color: #34d399;
+      --accent-hover: #059669;
+      --modal-bg: rgba(6, 78, 59, 0.85);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    header {
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--card-border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo-group h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-group p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      background-color: var(--bg-color);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.6rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-color);
+    }
+
+    .btn {
+      background-color: var(--accent-color);
+      color: #fff;
+      font-weight: 600;
+      padding: 0.6rem 1rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+      border: none;
+      font-size: 0.9rem;
+      font-family: inherit;
+    }
+
+    body.theme-light .btn {
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--card-border);
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 50vh;
+      text-align: center;
+      color: var(--text-muted);
+      border: 2px dashed var(--card-border);
+      border-radius: var(--radius);
+      margin-top: 1rem;
+      padding: 2rem;
+    }
+
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 1rem;
+      stroke: var(--text-muted);
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+      border-color: var(--accent-color);
+    }
+
+    .thumbnail-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 66.66%; /* 3:2 Seitenverhältnis */
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .thumbnail-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 300%;
+      height: 300%;
+      border: none;
+      transform: scale(0.333333);
+      transform-origin: 0 0;
+      pointer-events: none;
+    }
+
+    .card-footer {
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--card-bg);
+      border-top: 1px solid var(--card-border);
+    }
+
+    .file-info {
+      overflow: hidden;
+      margin-right: 0.5rem;
+    }
+
+    .file-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-path {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 0.4rem;
+      flex-shrink: 0;
+    }
+
+    .action-btn {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s ease, color 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-btn:hover {
+      background-color: var(--card-border);
+      color: var(--accent-color);
+    }
+
+    /* Modal Overlay für Vorschau */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--modal-bg);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-header {
+      padding: 0.8rem 1.5rem;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text-main);
+    }
+
+    .modal-body {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+    }
+
+    .modal-body iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .close-btn:hover {
+      background: var(--card-border);
+    }
+  </style>
+</head>
+<body class="theme-dark">
+
+  <header>
+    <div class="logo-group">
+      <h1>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2 A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"></path></svg>
+        HTML Miniatur-Viewer
+      </h1>
+      <p id="status-text">Kein Verzeichnis geladen</p>
+    </div>
+
+    <div class="controls-group">
+      <input type="text" id="search-input" class="search-input" placeholder="Suchen..." style="display:none;">
+      
+      <button class="btn btn-secondary" id="fullscreen-app-btn" title="Anwendung in echten Vollbildmodus versetzen">
+        ⛶ Vollbild Modus
+      </button>
+
+      <button class="btn btn-secondary" id="theme-toggle" title="Design wechseln">
+        🎨 Theme: Dark
+      </button>
+
+      <label class="btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        Ordner laden
+        <input type="file" id="folder-input" webkitdirectory directory multiple>
+      </label>
+    </div>
+  </header>
+
+  <main>
+    <div id="empty-state" class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
+      <h2>Wähle einen Ordner aus</h2>
+      <p>Klicke oben auf "Ordner laden", um alle enthaltenen HTML-Dateien anzuzeigen.</p>
+    </div>
+
+    <div id="gallery" class="gallery-grid" style="display: none;"></div>
+  </main>
+
+  <!-- Modal / Lightbox für Vorschau -->
+  <div id="modal" class="modal-overlay">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Vorschau</span>
+      <button class="close-btn" id="modal-close" title="Schließen (Esc)">&times;</button>
+    </div>
+    <div class="modal-body">
+      <iframe id="modal-iframe" src=""></iframe>
+    </div>
+  </div>
+
+  <script>
+    const folderInput = document.getElementById('folder-input');
+    const gallery = document.getElementById('gallery');
+    const emptyState = document.getElementById('empty-state');
+    const statusText = document.getElementById('status-text');
+    const searchInput = document.getElementById('search-input');
+    const themeToggle = document.getElementById('theme-toggle');
+    const fullscreenAppBtn = document.getElementById('fullscreen-app-btn');
+
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalIframe = document.getElementById('modal-iframe');
+    const modalClose = document.getElementById('modal-close');
+
+    let htmlFilesData = [];
+
+    // Echter Browser-Vollbildmodus für die gesamte Anwendung
+    fullscreenAppBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          alert(`Fehler beim Aktivieren des Vollbildmodus: ${err.message}`);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement) {
+        fullscreenAppBtn.textContent = '❌ Vollbild Beenden';
+      } else {
+        fullscreenAppBtn.textContent = '⛶ Vollbild Modus';
+      }
+    });
+
+    // Themes Wechsel
+    const themes = [
+      { id: 'theme-dark', label: '🎨 Theme: Dark' },
+      { id: 'theme-light', label: '☀️ Theme: Light' },
+      { id: 'theme-cyberpunk', label: '👾 Theme: Cyberpunk' },
+      { id: 'theme-emerald', label: '🌿 Theme: Emerald' }
+    ];
+    let currentThemeIndex = 0;
+
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.remove(themes[currentThemeIndex].id);
+      currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+      document.body.classList.add(themes[currentThemeIndex].id);
+      themeToggle.textContent = themes[currentThemeIndex].label;
+    });
+
+    // Dateiauswahl
+    folderInput.addEventListener('change', (event) => {
+      const files = Array.from(event.target.files);
+      
+      const filtered = files.filter(file => 
+        file.name.toLowerCase().endsWith('.html') || 
+        file.name.toLowerCase().endsWith('.htm')
+      );
+
+      htmlFilesData = filtered.map(file => ({
+        file,
+        name: file.name,
+        path: file.webkitRelativePath,
+        url: URL.createObjectURL(file)
+      }));
+
+      if (htmlFilesData.length === 0) {
+        emptyState.style.display = 'flex';
+        gallery.style.display = 'none';
+        searchInput.style.display = 'none';
+        statusText.textContent = 'Keine HTML-Dateien im Ordner gefunden.';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      gallery.style.display = 'grid';
+      searchInput.style.display = 'inline-block';
+      searchInput.value = '';
+      
+      renderGallery(htmlFilesData);
+    });
+
+    // Suche/Filter
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const filtered = htmlFilesData.filter(item => 
+        item.name.toLowerCase().includes(query) || 
+        item.path.toLowerCase().includes(query)
+      );
+      renderGallery(filtered);
+    });
+
+    // Rendern der Karten
+    function renderGallery(items) {
+      gallery.innerHTML = '';
+      statusText.textContent = `${items.length} von ${htmlFilesData.length} Datei(en) angezeigt`;
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        card.innerHTML = `
+          <div class="thumbnail-wrapper">
+            <iframe src="${item.url}" loading="lazy" title="${item.name}"></iframe>
+          </div>
+          <div class="card-footer">
+            <div class="file-info">
+              <div class="file-name" title="${item.name}">${item.name}</div>
+              <div class="file-path" title="${item.path}">${item.path}</div>
+            </div>
+            <div class="card-actions">
+              <button class="action-btn" onclick="openFullscreen('${item.url}', '${escapeHtml(item.name)}')" title="Vorschau im Overlay">🔍 Vorschau</button>
+              <a href="${item.url}" target="_blank" class="action-btn" title="In neuem Tab öffnen">↗️</a>
+            </div>
+          </div>
+        `;
+
+        gallery.appendChild(card);
+      });
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    // Modal / Vorschau Steuerung
+    window.openFullscreen = function(url, name) {
+      modalIframe.src = url;
+      modalTitle.textContent = name;
+      modal.classList.add('active');
+    };
+
+    function closeModal() {
+      modal.classList.remove('active');
+      modalIframe.src = '';
+    }
+
+    modalClose.addEventListener('click', closeModal);
+
+    // Modal schliessen bei Klick ausserhalb oder Esc
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
