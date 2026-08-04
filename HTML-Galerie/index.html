@@ -17,6 +17,7 @@
       --modal-bg: rgba(15, 23, 42, 0.85);
       --radius: 12px;
       --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --card-min-width: 320px;
     }
 
     body.theme-light {
@@ -51,6 +52,19 @@
       --accent-color: #34d399;
       --accent-hover: #059669;
       --modal-bg: rgba(6, 78, 59, 0.85);
+    }
+
+    /* Kartengrößen-Klassen für das Grid */
+    .gallery-grid.size-sm {
+      --card-min-width: 220px;
+    }
+
+    .gallery-grid.size-md {
+      --card-min-width: 320px;
+    }
+
+    .gallery-grid.size-lg {
+      --card-min-width: 480px;
     }
 
     * {
@@ -163,7 +177,7 @@
     main {
       flex: 1;
       padding: 2rem;
-      max-width: 1600px;
+      max-width: 1800px;
       margin: 0 auto;
       width: 100%;
     }
@@ -191,8 +205,9 @@
 
     .gallery-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(var(--card-min-width), 1fr));
       gap: 1.5rem;
+      transition: all 0.3s ease;
     }
 
     .card {
@@ -233,7 +248,7 @@
     }
 
     .card-footer {
-      padding: 1rem;
+      padding: 0.8rem 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -368,6 +383,10 @@
     <div class="controls-group">
       <input type="text" id="search-input" class="search-input" placeholder="Suchen..." style="display:none;">
       
+      <button class="btn btn-secondary" id="card-size-toggle" title="Kartengröße ändern">
+        📐 Größe: Mittel
+      </button>
+
       <button class="btn btn-secondary" id="fullscreen-app-btn" title="Anwendung in echten Vollbildmodus versetzen">
         ⛶ Vollbild Modus
       </button>
@@ -391,7 +410,7 @@
       <p>Klicke oben auf "Ordner laden", um alle enthaltenen HTML-Dateien anzuzeigen.</p>
     </div>
 
-    <div id="gallery" class="gallery-grid" style="display: none;"></div>
+    <div id="gallery" class="gallery-grid size-md" style="display: none;"></div>
   </main>
 
   <!-- Modal / Lightbox für Vorschau -->
@@ -413,6 +432,7 @@
     const searchInput = document.getElementById('search-input');
     const themeToggle = document.getElementById('theme-toggle');
     const fullscreenAppBtn = document.getElementById('fullscreen-app-btn');
+    const cardSizeToggle = document.getElementById('card-size-toggle');
 
     const modal = document.getElementById('modal');
     const modalTitle = document.getElementById('modal-title');
@@ -420,6 +440,21 @@
     const modalClose = document.getElementById('modal-close');
 
     let htmlFilesData = [];
+
+    // Kartengröße umschalten (Klein / Mittel / Groß)
+    const cardSizes = [
+      { class: 'size-sm', label: '📐 Größe: Klein' },
+      { class: 'size-md', label: '📐 Größe: Mittel' },
+      { class: 'size-lg', label: '📐 Größe: Groß' }
+    ];
+    let currentSizeIndex = 1; // Default Mittel
+
+    cardSizeToggle.addEventListener('click', () => {
+      gallery.classList.remove(cardSizes[currentSizeIndex].class);
+      currentSizeIndex = (currentSizeIndex + 1) % cardSizes.length;
+      gallery.classList.add(cardSizes[currentSizeIndex].class);
+      cardSizeToggle.textContent = cardSizes[currentSizeIndex].label;
+    });
 
     // Echter Browser-Vollbildmodus für die gesamte Anwendung
     fullscreenAppBtn.addEventListener('click', () => {
@@ -530,7 +565,7 @@
     }
 
     function escapeHtml(text) {
-      return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      return text.replace(/'/g, "\'").replace(/"/g, '&quot;');
     }
 
     // Modal / Vorschau Steuerung
