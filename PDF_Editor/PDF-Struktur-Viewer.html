@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Struktur Viewer &amp; Editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{
+  --bg-0:#0b0a08;
+  --bg-1:#141210;
+  --bg-2:#1c1916;
+  --bg-3:#26221d;
+  --bg-4:#332c24;
+  --line:#3a332a;
+  --line-soft:#2a251f;
+  --gold:#d4af37;
+  --gold-bright:#f2cd5c;
+  --gold-dim:#8a7228;
+  --gold-glow:rgba(212,175,55,.18);
+  --text:#eee6d6;
+  --text-dim:#a89e8c;
+  --text-faint:#6f6656;
+  --red:#e0664f;
+  --green:#7cb87c;
+  --blue:#7aa8c7;
+  --purple:#b590d9;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0; background:var(--bg-0); color:var(--text);
+  font-family:'Barlow',sans-serif;
+  display:flex; flex-direction:column; height:100vh; overflow:hidden;
+}
+h1,h2,h3,.display{font-family:'Bebas Neue',sans-serif; letter-spacing:.04em; font-weight:400;}
+::-webkit-scrollbar{width:10px; height:10px;}
+::-webkit-scrollbar-track{background:var(--bg-1);}
+::-webkit-scrollbar-thumb{background:var(--bg-4); border-radius:5px;}
+::-webkit-scrollbar-thumb:hover{background:var(--gold-dim);}
+button{font-family:'Barlow',sans-serif; cursor:pointer;}
+input,textarea,select{font-family:'Barlow',sans-serif;}
+
+/* ---------- Top bar ---------- */
+#topbar{
+  display:flex; align-items:center; gap:18px;
+  padding:10px 20px; background:linear-gradient(180deg,var(--bg-2),var(--bg-1));
+  border-bottom:1px solid var(--line); flex:0 0 auto; z-index:20;
+  box-shadow:0 2px 10px rgba(0,0,0,.35);
+}
+#logo{display:flex; align-items:center; gap:10px;}
+#logo .mark{
+  width:32px; height:32px; border-radius:6px;
+  background:linear-gradient(135deg,var(--gold-bright),var(--gold-dim));
+  display:flex; align-items:center; justify-content:center;
+  color:#1a1610; font-family:'Bebas Neue',sans-serif; font-size:17px; box-shadow:0 0 14px var(--gold-glow);
+  flex:0 0 auto;
+}
+#logo h1{font-size:22px; margin:0; color:var(--gold-bright); line-height:1;}
+#logo .sub{font-size:10.5px; color:var(--text-faint); letter-spacing:.14em; text-transform:uppercase; margin-top:2px;}
+.btn{
+  background:var(--bg-3); border:1px solid var(--line); color:var(--text);
+  padding:8px 16px; border-radius:6px; font-size:13.5px; font-weight:600;
+  letter-spacing:.02em; transition:.15s; display:inline-flex; align-items:center; gap:7px;
+}
+.btn:hover{background:var(--bg-4); border-color:var(--gold-dim); color:var(--gold-bright);}
+.btn:active{transform:translateY(1px);}
+.btn:disabled{opacity:.35; cursor:not-allowed; pointer-events:none;}
+.btn.primary{background:linear-gradient(180deg,var(--gold-bright),var(--gold)); color:#221c0f; border-color:var(--gold);}
+.btn.primary:hover{filter:brightness(1.08); color:#221c0f;}
+.btn.danger:hover{border-color:var(--red); color:var(--red);}
+.btn.small{padding:5px 11px; font-size:12px;}
+#filemeta{display:flex; gap:16px; margin-left:auto; align-items:center;}
+.meta-chip{
+  font-family:var(--mono); font-size:11.5px; color:var(--text-dim);
+  background:var(--bg-1); border:1px solid var(--line-soft); padding:5px 10px; border-radius:5px;
+  display:flex; gap:6px; align-items:center; white-space:nowrap;
+}
+.meta-chip b{color:var(--gold-bright); font-weight:600;}
+.meta-chip.warn{border-color:#6b4a2a; color:#e0a55f;}
+.meta-chip.warn b{color:#e0a55f;}
+
+/* ---------- Layout ---------- */
+#main{flex:1 1 auto; display:flex; min-height:0;}
+#sidebar{
+  width:340px; min-width:230px; max-width:60vw; flex:0 0 auto;
+  background:var(--bg-1); border-right:1px solid var(--line);
+  display:flex; flex-direction:column; min-height:0;
+}
+#resizer{width:5px; cursor:col-resize; background:var(--bg-1); flex:0 0 auto;}
+#resizer:hover, #resizer.active{background:var(--gold-dim);}
+#content{flex:1 1 auto; display:flex; flex-direction:column; min-width:0; min-height:0;}
+
+.tabs{display:flex; border-bottom:1px solid var(--line); flex:0 0 auto; background:var(--bg-2);}
+.tab{
+  flex:1; padding:9px 6px; text-align:center; font-size:11.5px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--text-faint);
+  border-bottom:2px solid transparent; transition:.15s; user-select:none;
+}
+.tab:hover{color:var(--text-dim);}
+.tab.active{color:var(--gold-bright); border-bottom-color:var(--gold);}
+
+#searchwrap{padding:9px 10px; border-bottom:1px solid var(--line-soft); flex:0 0 auto; display:flex; gap:6px;}
+#searchbox{
+  flex:1; background:var(--bg-2); border:1px solid var(--line); color:var(--text);
+  padding:6px 9px; border-radius:5px; font-size:12.5px; font-family:var(--mono);
+}
+#searchbox:focus{outline:none; border-color:var(--gold-dim);}
+
+#treepane, #flatpane{flex:1 1 auto; overflow:auto; padding:6px 4px;}
+#flatpane{display:none;}
+
+.node{user-select:none;}
+.node-row{
+  display:flex; align-items:center; gap:5px; padding:3.5px 6px 3.5px 4px;
+  border-radius:4px; cursor:pointer; font-size:12.5px; white-space:nowrap;
+}
+.node-row:hover{background:var(--bg-2);}
+.node-row.selected{background:var(--gold-glow); box-shadow:inset 2px 0 0 var(--gold);}
+.node-toggle{
+  width:14px; height:14px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+  color:var(--text-faint); font-size:9px; transition:transform .12s;
+}
+.node-toggle.open{transform:rotate(90deg);}
+.node-toggle.leaf{visibility:hidden;}
+.node-label{color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; font-weight:500;}
+.node-label b{color:var(--text); font-weight:600;}
+.node-tag{
+  font-family:var(--mono); font-size:9.5px; padding:1px 5px; border-radius:3px; flex:0 0 auto;
+  letter-spacing:.02em; font-weight:600; text-transform:uppercase;
+}
+.tag-dict{background:#2a3a2f; color:var(--green);}
+.tag-stream{background:#2a3040; color:var(--blue);}
+.tag-array{background:#3a2f40; color:var(--purple);}
+.tag-page{background:#40331a; color:var(--gold-bright);}
+.tag-ref{background:#332e26; color:var(--text-faint);}
+.tag-bad{background:#402420; color:var(--red);}
+.children{margin-left:15px; border-left:1px solid var(--line-soft); padding-left:3px; display:none;}
+.children.open{display:block;}
+
+.flat-row{
+  display:flex; gap:8px; align-items:center; padding:5px 10px; font-size:12px;
+  font-family:var(--mono); cursor:pointer; border-radius:4px; color:var(--text-dim);
+}
+.flat-row:hover{background:var(--bg-2);}
+.flat-row.selected{background:var(--gold-glow); box-shadow:inset 2px 0 0 var(--gold);}
+.flat-row .num{color:var(--gold-bright); font-weight:600; min-width:64px;}
+.flat-row .src{margin-left:auto; font-size:9.5px; color:var(--text-faint); text-transform:uppercase;}
+
+#dropzone{
+  flex:1; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px;
+  color:var(--text-faint); text-align:center; padding:40px;
+}
+#dropzone.hidden{display:none;}
+#dropzone .dz-box{
+  border:2px dashed var(--line); border-radius:14px; padding:60px 80px;
+  display:flex; flex-direction:column; align-items:center; gap:14px; transition:.15s;
+}
+#dropzone.drag .dz-box{border-color:var(--gold); background:var(--gold-glow);}
+#dropzone .dz-icon{font-size:44px; opacity:.5;}
+#dropzone h2{color:var(--text-dim); font-size:26px; margin:0;}
+#dropzone p{font-size:13px; max-width:380px; line-height:1.5; margin:0;}
+
+/* ---------- Inspector ---------- */
+#workspace{flex:1 1 auto; display:none; flex-direction:column; min-height:0;}
+#workspace.active{display:flex;}
+#insp-header{
+  padding:11px 18px; border-bottom:1px solid var(--line); background:var(--bg-1);
+  display:flex; align-items:center; gap:12px; flex:0 0 auto; flex-wrap:wrap;
+}
+#insp-title{font-size:15px; font-weight:700; color:var(--gold-bright); font-family:var(--mono);}
+#insp-typebadge{font-size:10px; padding:2px 8px; border-radius:4px; font-weight:700; letter-spacing:.05em;}
+#insp-offset{font-size:11px; color:var(--text-faint); font-family:var(--mono);}
+#insp-actions{margin-left:auto; display:flex; gap:8px;}
+
+#insp-body{flex:1 1 auto; display:flex; min-height:0;}
+#panel-dict{flex:1 1 55%; display:flex; flex-direction:column; min-height:0; border-right:1px solid var(--line);}
+#panel-stream{flex:1 1 45%; display:flex; flex-direction:column; min-height:0;}
+.panel-hd{
+  padding:7px 14px; font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--text-faint); background:var(--bg-2); border-bottom:1px solid var(--line-soft);
+  display:flex; align-items:center; gap:10px; flex:0 0 auto;
+}
+.panel-hd .fill{flex:1;}
+#dicttable-wrap{flex:1; overflow:auto;}
+table.dicttable{width:100%; border-collapse:collapse; font-family:var(--mono); font-size:12px;}
+table.dicttable td{padding:6px 12px; border-bottom:1px solid var(--line-soft); vertical-align:top;}
+table.dicttable tr:hover{background:var(--bg-2);}
+td.dkey{color:var(--gold); white-space:nowrap; width:1%; font-weight:600;}
+td.dval{color:var(--text-dim); word-break:break-all;}
+.val-ref{color:var(--blue); cursor:pointer; text-decoration:underline dotted; text-underline-offset:2px;}
+.val-ref:hover{color:var(--gold-bright);}
+.val-str{color:var(--green);}
+.val-name{color:var(--purple);}
+.val-num{color:var(--text);}
+.val-bool{color:#e0a55f;}
+.val-null{color:var(--text-faint); font-style:italic;}
+.val-bad{color:var(--red);}
+
+#raweditor-wrap{display:none; flex:1; min-height:0; flex-direction:column;}
+#raweditor{
+  flex:1; resize:none; background:var(--bg-1); color:var(--text); border:none; outline:none;
+  padding:14px; font-family:var(--mono); font-size:12.5px; line-height:1.6; tab-size:2;
+}
+#raweditor-actions{padding:8px 14px; border-top:1px solid var(--line-soft); display:flex; gap:8px; align-items:center; background:var(--bg-2);}
+#raweditor-error{color:var(--red); font-size:11.5px; font-family:var(--mono); flex:1;}
+
+.subtabs{display:flex; gap:2px; padding:0 8px;}
+.subtab{
+  padding:5px 11px; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--text-faint); border-radius:5px 5px 0 0; cursor:pointer;
+}
+.subtab:hover{color:var(--text-dim);}
+.subtab.active{color:var(--gold-bright); background:var(--bg-0);}
+
+.streamview{flex:1; overflow:auto; display:none; min-height:0;}
+.streamview.active{display:block;}
+#stream-text-wrap{display:flex; flex-direction:column; min-height:0;}
+#stream-text{
+  flex:1; resize:none; background:var(--bg-0); color:var(--text); border:none; outline:none;
+  padding:14px; font-family:var(--mono); font-size:12px; line-height:1.6; white-space:pre; overflow:auto;
+}
+#stream-text[readonly]{color:var(--text-dim);}
+#stream-hex{padding:12px 14px; font-family:var(--mono); font-size:11.5px; line-height:1.65; white-space:pre; color:var(--text-dim);}
+#stream-hex .off{color:var(--text-faint);}
+#stream-hex .hx{color:var(--text-dim);}
+#stream-hex .as{color:var(--gold-dim);}
+#stream-hex .as b{color:var(--gold-bright); font-weight:400;}
+#stream-info{padding:12px 14px; font-size:12.5px; color:var(--text-dim); line-height:1.9;}
+#stream-info b{color:var(--gold-bright);}
+#stream-info .filterchip{
+  display:inline-block; background:var(--bg-3); border:1px solid var(--line); border-radius:4px;
+  padding:2px 8px; margin:2px 4px 2px 0; font-family:var(--mono); font-size:11px; color:var(--text-dim);
+}
+#stream-preview{display:flex; align-items:center; justify-content:center; height:100%; flex-direction:column; gap:10px;}
+#stream-preview canvas{max-width:100%; max-height:100%; box-shadow:0 4px 24px rgba(0,0,0,.5); border:1px solid var(--line);}
+#stream-preview img{max-width:100%; max-height:90%; box-shadow:0 4px 24px rgba(0,0,0,.5);}
+#streamedit-actions{padding:8px 14px; border-top:1px solid var(--line-soft); background:var(--bg-2); display:none; gap:8px; align-items:center;}
+#streamedit-actions.active{display:flex;}
+
+#page-preview-pane{flex:1; display:none; flex-direction:column; min-height:0;}
+#page-preview-pane.active{display:flex;}
+#page-preview-toolbar{padding:8px 14px; display:flex; gap:10px; align-items:center; border-bottom:1px solid var(--line-soft); background:var(--bg-2);}
+#page-preview-body{flex:1; overflow:auto; display:flex; align-items:flex-start; justify-content:center; padding:22px; background:repeating-conic-gradient(#151310 0% 25%, #191612 0% 50%) 50%/22px 22px;}
+#page-preview-body canvas{box-shadow:0 8px 34px rgba(0,0,0,.6); background:#fff;}
+
+#warnbar{
+  flex:0 0 auto; background:#2a2114; border-top:1px solid #6b4a2a; color:#e0a55f;
+  font-size:12px; padding:8px 18px; display:none; gap:10px; align-items:flex-start; font-family:var(--mono);
+  max-height:110px; overflow:auto;
+}
+#warnbar.active{display:flex;}
+#warnbar .wicon{flex:0 0 auto;}
+#warnbar ul{margin:0; padding-left:16px;}
+
+.badge-count{
+  background:var(--bg-4); color:var(--text-dim); font-size:10px; padding:1px 6px; border-radius:8px; font-family:var(--mono);
+}
+
+/* generic empty state */
+.empty-msg{padding:30px; color:var(--text-faint); font-size:12.5px; text-align:center;}
+
+#toast{
+  position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px); opacity:0;
+  background:var(--bg-3); border:1px solid var(--gold-dim); color:var(--gold-bright);
+  padding:10px 20px; border-radius:8px; font-size:13px; z-index:100; transition:.25s; pointer-events:none;
+  box-shadow:0 6px 24px rgba(0,0,0,.5);
+}
+#toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+input[type=file]{display:none;}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div id="logo">
+    <div class="mark">P</div>
+    <div>
+      <h1>PDF STRUKTUR VIEWER</h1>
+      <div class="sub">Objekt-Inspektor &amp; Editor</div>
+    </div>
+  </div>
+  <button class="btn primary" id="btn-open">&#128193; PDF &ouml;ffnen</button>
+  <button class="btn" id="btn-export" disabled>&#128190; Als PDF exportieren</button>
+  <button class="btn" id="btn-newobj" disabled>&#10133; Neues Objekt</button>
+  <input type="file" id="fileinput" accept="application/pdf,.pdf">
+  <div id="filemeta"></div>
+</div>
+
+<div id="main">
+  <div id="sidebar">
+    <div class="tabs">
+      <div class="tab active" data-tab="tree">Struktur-Baum</div>
+      <div class="tab" data-tab="flat">Alle Objekte</div>
+    </div>
+    <div id="searchwrap">
+      <input id="searchbox" placeholder="Objekt-Nr. springen, z.B. 12 0" />
+      <button class="btn small" id="btn-search">&#8594;</button>
+    </div>
+    <div id="treepane"><div class="empty-msg">Kein Dokument geladen.</div></div>
+    <div id="flatpane"></div>
+  </div>
+  <div id="resizer"></div>
+  <div id="content">
+    <div id="dropzone">
+      <div class="dz-box" id="dz-box">
+        <div class="dz-icon">&#128196;</div>
+        <h2>PDF hierher ziehen</h2>
+        <p>oder oben auf „PDF &ouml;ffnen" klicken. Die Datei wird vollst&auml;ndig lokal im Browser analysiert &mdash; Xref-Tabellen, Xref-Streams, Object-Streams, Filter und Seiteninhalte werden byteweise ausgelesen.</p>
+        <button class="btn primary" id="dz-btn">Datei ausw&auml;hlen</button>
+      </div>
+    </div>
+
+    <div id="workspace">
+      <div id="insp-header">
+        <span id="insp-title">&mdash;</span>
+        <span id="insp-typebadge"></span>
+        <span id="insp-offset"></span>
+        <div id="insp-actions">
+          <button class="btn small" id="btn-toggle-raw">Rohtext bearbeiten</button>
+        </div>
+      </div>
+      <div id="insp-body">
+        <div id="panel-dict">
+          <div class="panel-hd"><span>Dictionary</span><span class="fill"></span><span class="badge-count" id="dict-count"></span></div>
+          <div id="dicttable-wrap">
+            <table class="dicttable" id="dicttable"><tbody></tbody></table>
+          </div>
+          <div id="raweditor-wrap">
+            <textarea id="raweditor" spellcheck="false"></textarea>
+            <div id="raweditor-actions">
+              <button class="btn small primary" id="btn-apply-raw">Anwenden</button>
+              <button class="btn small" id="btn-cancel-raw">Abbrechen</button>
+              <span id="raweditor-error"></span>
+            </div>
+          </div>
+        </div>
+        <div id="panel-stream">
+          <div class="panel-hd">
+            <span>Inhalt</span>
+            <div class="subtabs" id="stream-subtabs">
+              <div class="subtab active" data-sv="info">Info</div>
+              <div class="subtab" data-sv="text">Dekodiert</div>
+              <div class="subtab" data-sv="hex">Hex</div>
+              <div class="subtab" data-sv="preview">Vorschau</div>
+            </div>
+            <span class="fill"></span>
+          </div>
+          <div class="streamview active" id="sv-info"><div id="stream-info" class="empty-msg">Kein Stream-Objekt ausgew&auml;hlt.</div></div>
+          <div class="streamview" id="sv-text">
+            <div id="stream-text-wrap" style="height:100%;">
+              <textarea id="stream-text" readonly spellcheck="false"></textarea>
+            </div>
+          </div>
+          <div class="streamview" id="sv-hex"><div id="stream-hex"></div></div>
+          <div class="streamview" id="sv-preview"><div id="stream-preview"></div></div>
+          <div id="streamedit-actions">
+            <button class="btn small" id="btn-edit-stream">Text bearbeiten</button>
+            <button class="btn small primary" id="btn-apply-stream" style="display:none;">Anwenden (als FlateDecode neu kodieren)</button>
+            <button class="btn small" id="btn-cancel-stream" style="display:none;">Abbrechen</button>
+          </div>
+        </div>
+      </div>
+      <div id="warnbar"><span class="wicon">&#9888;&#65039;</span><ul id="warnlist"></ul></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>window.pako_ok = typeof pako !== 'undefined';</script>
+<script id="pdfcore-script">
+// pdfcore.js — Low-level PDF structure parser (RUPS-Stil)
+// Arbeitet byte-genau auf Uint8Array. Keine Abhaengigkeit ausser pako (Inflate).
+
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    module.exports = factory(require('pako'));
+  } else {
+    root.PDFCore = factory(root.pako);
+  }
+}(typeof self !== 'undefined' ? self : this, function (pako) {
+
+  const WHITESPACE = new Set([0, 9, 10, 12, 13, 32]);
+  const DELIM = new Set([0x28, 0x29, 0x3c, 0x3e, 0x5b, 0x5d, 0x7b, 0x7d, 0x2f, 0x25]); // ( ) < > [ ] { } / %
+
+  function isWhite(b) { return WHITESPACE.has(b); }
+  function isDelim(b) { return DELIM.has(b); }
+  function isRegular(b) { return b !== undefined && !isWhite(b) && !isDelim(b); }
+
+  // ---------- PDF object model wrappers ----------
+  class PRef { constructor(num, gen) { this.num = num; this.gen = gen; } toString() { return `${this.num} ${this.gen} R`; } }
+  class PName { constructor(name) { this.name = name; } toString() { return '/' + this.name; } }
+  class PString { constructor(bytes, hex) { this.bytes = bytes; this.hex = !!hex; }
+    toString() {
+      if (this.hex) {
+        let hexStr = '';
+        for (const b of this.bytes) hexStr += b.toString(16).padStart(2, '0');
+        return '<' + hexStr + '>';
+      }
+      let s = '';
+      for (const b of this.bytes) {
+        if (b === 0x28 || b === 0x29 || b === 0x5c) s += '\\' + String.fromCharCode(b); // ( ) \
+        else if (b === 10) s += '\\n';
+        else if (b === 13) s += '\\r';
+        else if (b === 9) s += '\\t';
+        else if (b >= 32 && b < 127) s += String.fromCharCode(b);
+        else s += '\\' + b.toString(8).padStart(3, '0');
+      }
+      return '(' + s + ')';
+    }
+  }
+  class PStream {
+    constructor(dict, rawBytes) { this.dict = dict; this.rawBytes = rawBytes; }
+  }
+  class PNull { toString() { return 'null'; } }
+  const PDF_NULL = new PNull();
+
+  // ---------- Lexer/Parser over a byte buffer ----------
+  class Lexer {
+    constructor(buf, pos = 0) { this.buf = buf; this.pos = pos; }
+    peek(o = 0) { return this.buf[this.pos + o]; }
+    eof() { return this.pos >= this.buf.length; }
+
+    skipWhite() {
+      while (!this.eof()) {
+        const b = this.peek();
+        if (b === 0x25) { // '%' comment
+          while (!this.eof() && this.peek() !== 10 && this.peek() !== 13) this.pos++;
+        } else if (isWhite(b)) {
+          this.pos++;
+        } else break;
+      }
+    }
+
+    matchKeyword(kw) {
+      const save = this.pos;
+      this.skipWhite();
+      for (let i = 0; i < kw.length; i++) {
+        if (this.buf[this.pos + i] !== kw.charCodeAt(i)) { this.pos = save; return false; }
+      }
+      const after = this.buf[this.pos + kw.length];
+      if (after !== undefined && isRegular(after)) { this.pos = save; return false; }
+      this.pos += kw.length;
+      return true;
+    }
+
+    readToken() {
+      // reads a bare token (numbers, keywords like obj/endobj/R/stream/true/false/null)
+      const start = this.pos;
+      while (!this.eof() && isRegular(this.peek())) this.pos++;
+      return String.fromCharCode(...this.buf.slice(start, this.pos));
+    }
+
+    // Parses one PDF object at current position. `resolveLen` optional callback(num,gen)->int for /Length indirect refs during stream parse
+    parseObject(getLen) {
+      this.skipWhite();
+      if (this.eof()) return PDF_NULL;
+      const b = this.peek();
+
+      if (b === 0x2f) return this.parseName();
+      if (b === 0x28) return this.parseLiteralString();
+      if (b === 0x3c) {
+        if (this.peek(1) === 0x3c) return this.parseDictOrStream(getLen);
+        return this.parseHexString();
+      }
+      if (b === 0x5b) return this.parseArray(getLen);
+      if (b === 0x2d || b === 0x2b || b === 0x2e || (b >= 0x30 && b <= 0x39)) {
+        return this.parseNumberOrRef();
+      }
+      // keyword
+      const save = this.pos;
+      const tok = this.readToken();
+      if (tok === 'true') return true;
+      if (tok === 'false') return false;
+      if (tok === 'null') return PDF_NULL;
+      if (tok === '') { this.pos = save + 1; return PDF_NULL; } // avoid infinite loop on stray byte
+      return { keyword: tok };
+    }
+
+    parseName() {
+      this.pos++; // skip '/'
+      let out = [];
+      while (!this.eof() && isRegular(this.peek())) {
+        let b = this.peek();
+        if (b === 0x23 && this.pos + 2 < this.buf.length) { // '#' hex escape
+          const h = String.fromCharCode(this.buf[this.pos + 1], this.buf[this.pos + 2]);
+          if (/^[0-9A-Fa-f]{2}$/.test(h)) { out.push(parseInt(h, 16)); this.pos += 3; continue; }
+        }
+        out.push(b); this.pos++;
+      }
+      let s = '';
+      for (const c of out) s += String.fromCharCode(c);
+      try { s = decodeURIComponent(escape(s)); } catch (e) { /* keep raw */ }
+      return new PName(s);
+    }
+
+    parseLiteralString() {
+      this.pos++; // (
+      let depth = 1; const bytes = [];
+      while (!this.eof() && depth > 0) {
+        let b = this.buf[this.pos++];
+        if (b === 0x5c) { // backslash
+          const n = this.buf[this.pos++];
+          switch (n) {
+            case 0x6e: bytes.push(10); break; // n
+            case 0x72: bytes.push(13); break; // r
+            case 0x74: bytes.push(9); break; // t
+            case 0x62: bytes.push(8); break; // b
+            case 0x66: bytes.push(12); break; // f
+            case 0x28: bytes.push(40); break;
+            case 0x29: bytes.push(41); break;
+            case 0x5c: bytes.push(92); break;
+            case 10: break; // line continuation
+            case 13: if (this.buf[this.pos] === 10) this.pos++; break;
+            default:
+              if (n >= 0x30 && n <= 0x37) {
+                let oct = String.fromCharCode(n); let cnt = 1;
+                while (cnt < 3 && this.buf[this.pos] >= 0x30 && this.buf[this.pos] <= 0x37) { oct += String.fromCharCode(this.buf[this.pos++]); cnt++; }
+                bytes.push(parseInt(oct, 8) & 0xff);
+              } else if (n !== undefined) bytes.push(n);
+          }
+        } else if (b === 0x28) { depth++; bytes.push(b); }
+        else if (b === 0x29) { depth--; if (depth > 0) bytes.push(b); }
+        else bytes.push(b);
+      }
+      return new PString(new Uint8Array(bytes), false);
+    }
+
+    parseHexString() {
+      this.pos++; // <
+      let hex = '';
+      while (!this.eof() && this.peek() !== 0x3e) {
+        const b = this.peek();
+        if (!isWhite(b)) hex += String.fromCharCode(b);
+        this.pos++;
+      }
+      this.pos++; // >
+      if (hex.length % 2) hex += '0';
+      const bytes = new Uint8Array(hex.length / 2);
+      for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(hex.substr(i * 2, 2), 16) || 0;
+      return new PString(bytes, true);
+    }
+
+    parseArray(getLen) {
+      this.pos++; // [
+      const arr = [];
+      while (true) {
+        this.skipWhite();
+        if (this.eof() || this.peek() === 0x5d) { this.pos++; break; }
+        const before = this.pos;
+        const val = this.parseObject(getLen);
+        arr.push(val);
+        if (this.pos === before) { this.pos++; } // safety
+      }
+      return arr;
+    }
+
+    parseDictOrStream(getLen) {
+      this.pos += 2; // <<
+      const dict = new Map();
+      while (true) {
+        this.skipWhite();
+        if (this.eof()) break;
+        if (this.peek() === 0x3e && this.peek(1) === 0x3e) { this.pos += 2; break; }
+        if (this.peek() !== 0x2f) { // malformed; bail to avoid infinite loop
+          const before = this.pos;
+          this.parseObject(getLen);
+          if (this.pos === before) { this.pos++; }
+          continue;
+        }
+        const key = this.parseName();
+        const val = this.parseObject(getLen);
+        dict.set(key.name, val);
+      }
+      // check for stream
+      const save = this.pos;
+      this.skipWhite();
+      if (this.matchKeyword('stream')) {
+        if (this.buf[this.pos] === 13) this.pos++;
+        if (this.buf[this.pos] === 10) this.pos++;
+        const dataStart = this.pos;
+        let len = getLen ? getLen(dict) : null;
+        if (typeof len !== 'number' || len < 0 || dataStart + len > this.buf.length) {
+          // fallback: search for 'endstream'
+          len = this.findEndstream(dataStart) - dataStart;
+        }
+        const raw = this.buf.slice(dataStart, dataStart + Math.max(0, len));
+        this.pos = dataStart + Math.max(0, len);
+        this.skipWhite();
+        this.matchKeyword('endstream');
+        return new PStream(dict, raw);
+      } else {
+        this.pos = save;
+      }
+      return dict;
+    }
+
+    findEndstream(from) {
+      const needle = 'endstream';
+      for (let i = from; i <= this.buf.length - needle.length; i++) {
+        let ok = true;
+        for (let j = 0; j < needle.length; j++) if (this.buf[i + j] !== needle.charCodeAt(j)) { ok = false; break; }
+        if (ok) {
+          let end = i;
+          if (this.buf[end - 1] === 10) end--;
+          if (this.buf[end - 1] === 13) end--;
+          return end;
+        }
+      }
+      return this.buf.length;
+    }
+
+    parseNumberOrRef() {
+      const savePos = this.pos;
+      const numTok = this.readNumberToken();
+      if (/^\d+$/.test(numTok)) {
+        const save2 = this.pos;
+        this.skipWhite();
+        const genStart = this.pos;
+        if (!this.eof() && this.peek() >= 0x30 && this.peek() <= 0x39) {
+          const genTok = this.readNumberToken();
+          if (/^\d+$/.test(genTok)) {
+            const save3 = this.pos;
+            this.skipWhite();
+            if (this.matchKeyword('R')) {
+              return new PRef(parseInt(numTok, 10), parseInt(genTok, 10));
+            }
+            if (this.matchKeyword('obj')) {
+              // shouldn't normally hit here in parseObject context; rewind
+              this.pos = save3;
+              this.pos = genStart;
+              return parseFloat(numTok);
+            }
+            this.pos = save3;
+          }
+        }
+        this.pos = save2;
+      }
+      return parseFloat(numTok);
+    }
+
+    readNumberToken() {
+      const start = this.pos;
+      if (this.peek() === 0x2b || this.peek() === 0x2d) this.pos++;
+      while (!this.eof() && ((this.peek() >= 0x30 && this.peek() <= 0x39) || this.peek() === 0x2e)) this.pos++;
+      return String.fromCharCode(...this.buf.slice(start, this.pos));
+    }
+  }
+
+  // ---------- Filters ----------
+  function applyPredictor(data, predictor, columns, colors, bpc) {
+    if (!predictor || predictor <= 1) return data;
+    colors = colors || 1; bpc = bpc || 8; columns = columns || 1;
+    const bpp = Math.ceil(colors * bpc / 8);
+    const rowBytes = Math.ceil(colors * bpc * columns / 8);
+    if (predictor === 2) {
+      // TIFF predictor (only handle 8-bit case robustly)
+      if (bpc === 8) {
+        const out = new Uint8Array(data);
+        const rows = out.length / rowBytes;
+        for (let r = 0; r < rows; r++) {
+          const off = r * rowBytes;
+          for (let i = bpp; i < rowBytes; i++) out[off + i] = (out[off + i] + out[off + i - bpp]) & 0xff;
+        }
+        return out;
+      }
+      return data;
+    }
+    // PNG predictors (10-15): each row prefixed with filter-type byte
+    const stride = rowBytes + 1;
+    const rows = Math.floor(data.length / stride);
+    const out = new Uint8Array(rows * rowBytes);
+    let prevRow = new Uint8Array(rowBytes);
+    for (let r = 0; r < rows; r++) {
+      const rowStart = r * stride;
+      const ft = data[rowStart];
+      const src = data.slice(rowStart + 1, rowStart + 1 + rowBytes);
+      const cur = new Uint8Array(rowBytes);
+      for (let i = 0; i < rowBytes; i++) {
+        const a = i >= bpp ? cur[i - bpp] : 0;
+        const bb = prevRow[i];
+        const c = i >= bpp ? prevRow[i - bpp] : 0;
+        let val = src[i];
+        switch (ft) {
+          case 0: break;
+          case 1: val = (val + a) & 0xff; break;
+          case 2: val = (val + bb) & 0xff; break;
+          case 3: val = (val + Math.floor((a + bb) / 2)) & 0xff; break;
+          case 4: {
+            const p = a + bb - c;
+            const pa = Math.abs(p - a), pb = Math.abs(p - bb), pc = Math.abs(p - c);
+            const pr = (pa <= pb && pa <= pc) ? a : (pb <= pc ? bb : c);
+            val = (val + pr) & 0xff; break;
+          }
+        }
+        cur[i] = val;
+      }
+      out.set(cur, r * rowBytes);
+      prevRow = cur;
+    }
+    return out;
+  }
+
+  function ascii85Decode(bytes) {
+    let s = '';
+    for (const b of bytes) s += String.fromCharCode(b);
+    s = s.replace(/^<~/, '').replace(/~>$/, '').replace(/\s/g, '');
+    const out = [];
+    let group = [];
+    for (let i = 0; i < s.length; i++) {
+      const c = s[i];
+      if (c === 'z' && group.length === 0) { out.push(0, 0, 0, 0); continue; }
+      group.push(c.charCodeAt(0) - 33);
+      if (group.length === 5) {
+        let val = 0; for (const g of group) val = val * 85 + g;
+        out.push((val >>> 24) & 0xff, (val >>> 16) & 0xff, (val >>> 8) & 0xff, val & 0xff);
+        group = [];
+      }
+    }
+    if (group.length > 0) {
+      const n = group.length; const pad = 5 - n;
+      for (let i = 0; i < pad; i++) group.push(84);
+      let val = 0; for (const g of group) val = val * 85 + g;
+      const full = [(val >>> 24) & 0xff, (val >>> 16) & 0xff, (val >>> 8) & 0xff, val & 0xff];
+      out.push(...full.slice(0, n - 1));
+    }
+    return new Uint8Array(out);
+  }
+
+  function asciiHexDecode(bytes) {
+    let s = '';
+    for (const b of bytes) s += String.fromCharCode(b);
+    s = s.replace(/>.*$/s, '').replace(/[^0-9A-Fa-f]/g, '');
+    if (s.length % 2) s += '0';
+    const out = new Uint8Array(s.length / 2);
+    for (let i = 0; i < out.length; i++) out[i] = parseInt(s.substr(i * 2, 2), 16);
+    return out;
+  }
+
+  function runLengthDecode(bytes) {
+    const out = [];
+    let i = 0;
+    while (i < bytes.length) {
+      const len = bytes[i++];
+      if (len === 128) break;
+      if (len < 128) { for (let k = 0; k <= len; k++) out.push(bytes[i++]); }
+      else { const b = bytes[i++]; for (let k = 0; k < 257 - len; k++) out.push(b); }
+    }
+    return new Uint8Array(out);
+  }
+
+  function decodeStreamBytes(dict, raw) {
+    let filters = dict.get('Filter');
+    let parmsRaw = dict.get('DecodeParms') || dict.get('DP');
+    if (!filters) return { data: raw, applied: [], error: null };
+    if (!Array.isArray(filters)) filters = [filters];
+    let parms = Array.isArray(parmsRaw) ? parmsRaw : [parmsRaw];
+    let data = raw;
+    const applied = [];
+    try {
+      for (let i = 0; i < filters.length; i++) {
+        const f = filters[i] instanceof PName ? filters[i].name : String(filters[i]);
+        const dp = parms[i] instanceof Map ? parms[i] : null;
+        if (f === 'FlateDecode' || f === 'Fl') {
+          data = pako.inflate(data);
+        } else if (f === 'ASCII85Decode' || f === 'A85') {
+          data = ascii85Decode(data);
+        } else if (f === 'ASCIIHexDecode' || f === 'AHx') {
+          data = asciiHexDecode(data);
+        } else if (f === 'RunLengthDecode' || f === 'RL') {
+          data = runLengthDecode(data);
+        } else if (f === 'DCTDecode' || f === 'JPXDecode' || f === 'CCITTFaxDecode' || f === 'JBIG2Decode') {
+          applied.push(f + ' (Bilddaten, nicht dekodiert)');
+          break;
+        } else if (f === 'LZWDecode') {
+          applied.push('LZWDecode (nicht unterstuetzt)');
+          break;
+        } else {
+          applied.push(f + ' (unbekannt)');
+          continue;
+        }
+        applied.push(f);
+        if (dp) {
+          const pred = dp.get('Predictor');
+          if (pred && pred > 1) {
+            data = applyPredictor(data, pred, dp.get('Columns'), dp.get('Colors'), dp.get('BitsPerComponent'));
+          }
+        }
+      }
+      return { data, applied, error: null };
+    } catch (e) {
+      return { data: raw, applied, error: e.message };
+    }
+  }
+
+  // ---------- Document parsing ----------
+  class PDFDocument {
+    constructor(buf) {
+      this.buf = buf;
+      this.objects = new Map(); // "num_gen" -> {num, gen, value, offset, inObjStm, source}
+      this.trailer = new Map();
+      this.xrefSections = [];
+      this.warnings = [];
+      this.brokenXref = false;
+    }
+
+    key(num, gen) { return num + '_' + (gen || 0); }
+
+    getLenResolver() {
+      // resolve /Length that might be an indirect ref (only works for already-scanned objects,
+      // so we do a lazy lookup that also brute-scans if needed)
+      return (dict) => {
+        const lenVal = dict.get('Length');
+        if (typeof lenVal === 'number') return lenVal;
+        if (lenVal instanceof PRef) {
+          const found = this.quickFindObject(lenVal.num, lenVal.gen);
+          if (found && typeof found === 'number') return found;
+        }
+        return null;
+      };
+    }
+
+    quickFindObject(num, gen) {
+      // brute force scan for "num gen obj" then parse a number
+      const pattern = `${num} ${gen} obj`;
+      const idx = indexOfStr(this.buf, pattern, 0);
+      if (idx < 0) return null;
+      const lex = new Lexer(this.buf, idx + pattern.length);
+      const val = lex.parseObject(null);
+      return typeof val === 'number' ? val : null;
+    }
+
+    parse() {
+      this.parseHeader();
+      let ok = this.parseXrefChain();
+      if (ok) this.finalizeDirectObjects();
+      if (!ok || this.objects.size === 0) {
+        this.brokenXref = true;
+        this.warnings.push('Kein gueltiger Xref gefunden – Fallback auf vollstaendigen Scan des Dateiinhalts.');
+        this.bruteForceScan();
+      }
+      this.expandObjectStreams();
+      if (!this.trailer.get('Root')) {
+        // try to find /Type /Catalog
+        for (const [k, o] of this.objects) {
+          const v = o.value;
+          if (v instanceof Map && v.get('Type') instanceof PName && v.get('Type').name === 'Catalog') {
+            this.trailer.set('Root', new PRef(o.num, o.gen));
+            this.warnings.push('Trailer /Root fehlte – Catalog automatisch gefunden (Objekt ' + o.num + ').');
+            break;
+          }
+        }
+      }
+      return this;
+    }
+
+    parseHeader() {
+      const s = bytesToLatin1(this.buf.slice(0, 1024));
+      const m = s.match(/%PDF-(\d\.\d)/);
+      this.version = m ? m[1] : '?';
+    }
+
+    findAllStartxref() {
+      const s = bytesToLatin1(this.buf.slice(Math.max(0, this.buf.length - 2048)));
+      const offsetBase = Math.max(0, this.buf.length - 2048);
+      const matches = [...s.matchAll(/startxref\s+(\d+)/g)];
+      if (matches.length === 0) return null;
+      const last = matches[matches.length - 1];
+      return parseInt(last[1], 10);
+    }
+
+    parseXrefChain() {
+      let startOffset = this.findAllStartxref();
+      if (startOffset === null || startOffset >= this.buf.length) return false;
+      const seen = new Set();
+      let offset = startOffset;
+      let count = 0;
+      let hadEntries = () => (this.pendingXrefEntries && this.pendingXrefEntries.length > 0) ||
+                              (this.pendingCompressedEntries && this.pendingCompressedEntries.length > 0) ||
+                              this.objects.size > 0;
+      while (offset !== undefined && offset !== null && !seen.has(offset) && count < 50) {
+        seen.add(offset); count++;
+        if (offset < 0 || offset >= this.buf.length) break;
+        const next = this.parseXrefAt(offset);
+        if (next === false) return hadEntries();
+        offset = next;
+      }
+      return hadEntries();
+    }
+
+    // returns offset of /Prev, or null if none, or false on hard failure
+    parseXrefAt(offset) {
+      const lex = new Lexer(this.buf, offset);
+      lex.skipWhite();
+      if (lex.matchKeyword('xref')) {
+        return this.parseClassicXrefTable(lex);
+      }
+      // else expect "N G obj << ... /Type /XRef ... >> stream"
+      const objLex = new Lexer(this.buf, offset);
+      const numTok = objLex.readNumberIfPresent ? null : null;
+      // parse "num gen obj"
+      objLex.skipWhite();
+      const numStr = objLex.readNumberToken();
+      objLex.skipWhite();
+      const genStr = objLex.readNumberToken();
+      objLex.skipWhite();
+      if (!objLex.matchKeyword('obj')) return false;
+      const val = objLex.parseObject(objLex.getLenResolverBound ? null : (d) => {
+        const l = d.get('Length');
+        return typeof l === 'number' ? l : null;
+      });
+      if (!(val instanceof PStream)) return false;
+      const num = parseInt(numStr, 10), gen = parseInt(genStr, 10);
+      this.registerObject(num, gen, val, offset, 'xrefstream');
+      return this.parseXrefStream(val);
+    }
+
+    parseClassicXrefTable(lex) {
+      while (true) {
+        lex.skipWhite();
+        if (lex.matchKeyword('trailer')) {
+          const trailerDict = lex.parseObject(null);
+          if (trailerDict instanceof Map) {
+            for (const [k, v] of trailerDict) if (!this.trailer.has(k)) this.trailer.set(k, v);
+            const xrefStm = trailerDict.get('XRefStm');
+            if (typeof xrefStm === 'number') this.parseXrefAt(xrefStm);
+            const prev = trailerDict.get('Prev');
+            return typeof prev === 'number' ? prev : null;
+          }
+          return null;
+        }
+        // subsection header: start count
+        const save = lex.pos;
+        lex.skipWhite();
+        if (!(lex.peek() >= 0x30 && lex.peek() <= 0x39)) { return null; }
+        const startStr = lex.readNumberToken();
+        lex.skipWhite();
+        const countStr = lex.readNumberToken();
+        const start = parseInt(startStr, 10), cnt = parseInt(countStr, 10);
+        if (isNaN(start) || isNaN(cnt)) { lex.pos = save; return null; }
+        for (let i = 0; i < cnt; i++) {
+          // entries are fixed width "nnnnnnnnnn ggggg n/f" but be lenient
+          lex.skipWhite();
+          const off = lex.readNumberToken();
+          lex.skipWhite();
+          const gen = lex.readNumberToken();
+          lex.skipWhite();
+          const type = String.fromCharCode(lex.peek()); lex.pos++;
+          const num = start + i;
+          if (type === 'n' && !this.objects.has(this.key(num, parseInt(gen, 10)))) {
+            this.pendingXrefEntries = this.pendingXrefEntries || [];
+            this.pendingXrefEntries.push({ num, gen: parseInt(gen, 10), offset: parseInt(off, 10) });
+          }
+        }
+      }
+    }
+
+    parseXrefStream(stream) {
+      const dict = stream.dict;
+      const w = dict.get('W');
+      if (!w || !Array.isArray(w)) return null;
+      const [w0, w1, w2] = w.map(x => typeof x === 'number' ? x : 0);
+      const size = dict.get('Size') || 0;
+      let index = dict.get('Index');
+      if (!index) index = [0, size];
+      const decoded = decodeStreamBytes(dict, stream.rawBytes);
+      const data = decoded.data;
+      let p = 0;
+      const readField = (width, def) => {
+        if (width === 0) return def;
+        let v = 0; for (let i = 0; i < width; i++) v = v * 256 + data[p++];
+        return v;
+      };
+      this.pendingXrefEntries = this.pendingXrefEntries || [];
+      this.pendingCompressedEntries = this.pendingCompressedEntries || [];
+      for (let s = 0; s < index.length; s += 2) {
+        const start = index[s], count = index[s + 1];
+        for (let i = 0; i < count; i++) {
+          if (p >= data.length) break;
+          const type = readField(w0, 1);
+          const f2 = readField(w1, 0);
+          const f3 = readField(w2, 0);
+          const num = start + i;
+          if (this.objects.has(this.key(num, 0)) || this.hasPendingFor(num)) continue;
+          if (type === 1) this.pendingXrefEntries.push({ num, gen: f3, offset: f2 });
+          else if (type === 2) this.pendingCompressedEntries.push({ num, streamNum: f2, indexInStream: f3 });
+        }
+      }
+      for (const [k, v] of dict) if (!this.trailer.has(k)) this.trailer.set(k, v);
+      const prev = dict.get('Prev');
+      return typeof prev === 'number' ? prev : null;
+    }
+
+    hasPendingFor(num) {
+      const inDirect = (this.pendingXrefEntries || []).some(e => e.num === num);
+      const inComp = (this.pendingCompressedEntries || []).some(e => e.num === num);
+      return inDirect || inComp;
+    }
+
+    finalizeDirectObjects() {
+      for (const e of (this.pendingXrefEntries || [])) {
+        if (this.objects.has(this.key(e.num, e.gen))) continue;
+        if (e.offset < 0 || e.offset >= this.buf.length) continue;
+        this.parseObjectAt(e.num, e.gen, e.offset);
+      }
+    }
+
+    parseObjectAt(expectNum, expectGen, offset) {
+      const lex = new Lexer(this.buf, offset);
+      lex.skipWhite();
+      const numStr = lex.readNumberToken();
+      lex.skipWhite();
+      const genStr = lex.readNumberToken();
+      lex.skipWhite();
+      if (!lex.matchKeyword('obj')) return null;
+      const val = lex.parseObject((d) => {
+        const l = d.get('Length');
+        if (typeof l === 'number') return l;
+        if (l instanceof PRef) return this.quickFindObject(l.num, l.gen);
+        return null;
+      });
+      const num = parseInt(numStr, 10) || expectNum;
+      const gen = parseInt(genStr, 10) || expectGen;
+      this.registerObject(num, gen, val, offset, 'direct');
+      return val;
+    }
+
+    registerObject(num, gen, value, offset, source) {
+      this.objects.set(this.key(num, gen), { num, gen, value, offset, source });
+    }
+
+    expandObjectStreams() {
+      this.finalizeDirectObjects();
+      for (const e of (this.pendingCompressedEntries || [])) {
+        if (this.objects.has(this.key(e.num, 0))) continue;
+        const holder = this.objects.get(this.key(e.streamNum, 0));
+        if (!holder || !(holder.value instanceof PStream)) continue;
+        const objStm = holder.value;
+        const decoded = decodeStreamBytes(objStm.dict, objStm.rawBytes);
+        const n = objStm.dict.get('N'), first = objStm.dict.get('First');
+        if (typeof n !== 'number' || typeof first !== 'number') continue;
+        const headLex = new Lexer(decoded.data, 0);
+        const pairs = [];
+        for (let i = 0; i < n; i++) {
+          headLex.skipWhite(); const on = headLex.readNumberToken();
+          headLex.skipWhite(); const oo = headLex.readNumberToken();
+          pairs.push([parseInt(on, 10), parseInt(oo, 10)]);
+        }
+        const idx = pairs.findIndex(p => p[0] === e.num);
+        if (idx < 0) continue;
+        const objOffset = first + pairs[idx][1];
+        const objLex = new Lexer(decoded.data, objOffset);
+        const val = objLex.parseObject(null);
+        this.registerObject(e.num, 0, val, null, `ObjStm ${e.streamNum}`);
+      }
+    }
+
+    bruteForceScan() {
+      const s = bytesToLatin1(this.buf);
+      const re = /(\d+)[ \t\r\n]+(\d+)[ \t\r\n]+obj\b/g;
+      let m;
+      const found = [];
+      while ((m = re.exec(s)) !== null) found.push({ num: parseInt(m[1], 10), gen: parseInt(m[2], 10), offset: m.index });
+      for (const f of found) this.parseObjectAt(f.num, f.gen, f.offset);
+      if (!this.trailer.get('Root')) {
+        const tIdx = s.lastIndexOf('trailer');
+        if (tIdx >= 0) {
+          const lex = new Lexer(this.buf, tIdx + 7);
+          const d = lex.parseObject(null);
+          if (d instanceof Map) for (const [k, v] of d) if (!this.trailer.has(k)) this.trailer.set(k, v);
+        }
+      }
+    }
+
+    getObject(numOrRef, gen) {
+      let num, g;
+      if (numOrRef instanceof PRef) { num = numOrRef.num; g = numOrRef.gen; }
+      else { num = numOrRef; g = gen || 0; }
+      let rec = this.objects.get(this.key(num, g));
+      if (!rec) rec = this.objects.get(this.key(num, 0));
+      return rec;
+    }
+
+    resolve(val) {
+      if (val instanceof PRef) {
+        const rec = this.getObject(val);
+        return rec ? rec.value : PDF_NULL;
+      }
+      return val;
+    }
+
+    getCatalog() { return this.resolve(this.trailer.get('Root')); }
+
+    getAllPages() {
+      const pages = [];
+      const visited = new Set();
+      const catalog = this.getCatalog();
+      if (!(catalog instanceof Map)) return pages;
+      const pagesRoot = this.resolve(catalog.get('Pages'));
+      const walk = (nodeVal, inherited) => {
+        if (!(nodeVal instanceof Map)) return;
+        const type = nodeVal.get('Type');
+        const merged = Object.assign({}, inherited);
+        for (const k of ['Resources', 'MediaBox', 'CropBox', 'Rotate']) if (nodeVal.has(k)) merged[k] = nodeVal.get(k);
+        if (type instanceof PName && type.name === 'Page') {
+          pages.push({ dict: nodeVal, inherited: merged });
+          return;
+        }
+        const kids = this.resolve(nodeVal.get('Kids'));
+        if (Array.isArray(kids)) {
+          for (const kref of kids) {
+            const key = kref instanceof PRef ? this.key(kref.num, kref.gen) : null;
+            if (key) { if (visited.has(key)) continue; visited.add(key); }
+            walk(this.resolve(kref), merged);
+          }
+        }
+      };
+      walk(pagesRoot, {});
+      return pages;
+    }
+  }
+
+  function indexOfStr(buf, str, from) {
+    const target = [];
+    for (let i = 0; i < str.length; i++) target.push(str.charCodeAt(i));
+    outer:
+    for (let i = from; i <= buf.length - target.length; i++) {
+      for (let j = 0; j < target.length; j++) if (buf[i + j] !== target[j]) continue outer;
+      return i;
+    }
+    return -1;
+  }
+
+  function bytesToLatin1(bytes) {
+    let s = '';
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      s += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return s;
+  }
+
+  return {
+    PDFDocument, PRef, PName, PString, PStream, PNull, PDF_NULL, Lexer,
+    decodeStreamBytes, ascii85Decode, asciiHexDecode, runLengthDecode, applyPredictor,
+    bytesToLatin1, indexOfStr
+  };
+}));
+
+</script>
+<script id="app-script">
+(function () {
+'use strict';
+const PC = window.PDFCore;
+
+const state = {
+  doc: null, bytes: null, fileName: '',
+  selectedNum: null, selectedGen: null,
+  viewMode: 'tree',
+  pdfjsDoc: null, pageIndexByKey: {},
+  streamViewTab: 'info',
+  rawEditing: false, streamEditing: false,
+  currentDecoded: null // {data, applied, error} for selected stream
+};
+
+// ---------- DOM shortcuts ----------
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; };
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(msg, isErr) {
+  const t = $('#toast'); t.textContent = msg; t.style.borderColor = isErr ? 'var(--red)' : 'var(--gold-dim)';
+  t.style.color = isErr ? 'var(--red)' : 'var(--gold-bright)';
+  t.classList.add('show'); clearTimeout(toast._h); toast._h = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function bytesToLatin1Str(bytes) { return PC.bytesToLatin1(bytes); }
+function strToBytes(str) { const b = new Uint8Array(str.length); for (let i = 0; i < str.length; i++) b[i] = str.charCodeAt(i) & 0xff; return b; }
+
+// ---------- Value serialization ----------
+function serializeValue(v, pretty, indent) {
+  indent = indent || 0;
+  const pad = pretty ? '  '.repeat(indent) : '';
+  const nl = pretty ? '\n' : '';
+  if (v === null || v === undefined || v === PC.PDF_NULL) return 'null';
+  if (v instanceof PC.PRef) return `${v.num} ${v.gen} R`;
+  if (v instanceof PC.PName) return '/' + escapeName(v.name);
+  if (v instanceof PC.PString) return v.toString();
+  if (typeof v === 'number') return numToStr(v);
+  if (typeof v === 'boolean') return v ? 'true' : 'false';
+  if (v instanceof PC.PStream) return serializeValue(v.dict, pretty, indent);
+  if (Array.isArray(v)) {
+    if (!pretty || v.length <= 6) return '[ ' + v.map(x => serializeValue(x, false)).join(' ') + ' ]';
+    return '[' + nl + v.map(x => pad + '  ' + serializeValue(x, false)).join(nl) + nl + pad + ']';
+  }
+  if (v instanceof Map) {
+    if (v.size === 0) return '<< >>';
+    if (!pretty) {
+      let out = '<< ';
+      for (const [k, val] of v) out += '/' + escapeName(k) + ' ' + serializeValue(val, false) + ' ';
+      return out + '>>';
+    }
+    let out = '<<' + nl;
+    for (const [k, val] of v) out += pad + '  /' + escapeName(k) + ' ' + serializeValue(val, pretty, indent + 1) + nl;
+    return out + pad + '>>';
+  }
+  if (v && v.keyword !== undefined) return v.keyword;
+  return String(v);
+}
+function numToStr(n) {
+  if (Number.isInteger(n)) return String(n);
+  let s = n.toFixed(6).replace(/0+$/, '').replace(/\.$/, '');
+  return s;
+}
+function escapeName(name) {
+  let out = '';
+  for (const ch of name) {
+    const code = ch.codePointAt(0);
+    if (code < 33 || code > 126 || '()<>[]{}/%#'.includes(ch)) {
+      if (code < 256) out += '#' + code.toString(16).padStart(2, '0');
+      else out += ch;
+    } else out += ch;
+  }
+  return out;
+}
+
+function renderValueHtml(v, depth) {
+  depth = depth || 0;
+  if (v === null || v === undefined || v === PC.PDF_NULL) return '<span class="val-null">null</span>';
+  if (v instanceof PC.PRef) {
+    const exists = !!state.doc.getObject(v.num, v.gen);
+    return `<span class="val-ref${exists ? '' : ' val-bad'}" data-num="${v.num}" data-gen="${v.gen}" title="${exists ? 'Zu Objekt springen' : 'Objekt nicht gefunden (haengende Referenz)'}">${v.num} ${v.gen} R</span>`;
+  }
+  if (v instanceof PC.PName) return `<span class="val-name">/${esc(escapeName(v.name))}</span>`;
+  if (v instanceof PC.PString) return `<span class="val-str">${esc(v.toString())}</span>`;
+  if (typeof v === 'number') return `<span class="val-num">${numToStr(v)}</span>`;
+  if (typeof v === 'boolean') return `<span class="val-bool">${v}</span>`;
+  if (v instanceof PC.PStream) return renderValueHtml(v.dict, depth) + ' <span class="val-null">(+ Stream-Daten)</span>';
+  if (Array.isArray(v)) {
+    if (depth > 4) return '<span class="val-null">[&hellip;]</span>';
+    return '[ ' + v.map(x => renderValueHtml(x, depth + 1)).join(' ') + ' ]';
+  }
+  if (v instanceof Map) {
+    if (depth > 4) return '<span class="val-null">&lt;&lt;&hellip;&gt;&gt;</span>';
+    let out = '&lt;&lt; ';
+    for (const [k, val] of v) out += `<span class="val-name">/${esc(escapeName(k))}</span> ` + renderValueHtml(val, depth + 1) + ' ';
+    return out + '&gt;&gt;';
+  }
+  if (v && v.keyword !== undefined) return esc(v.keyword);
+  return esc(String(v));
+}
+
+function typeTag(value) {
+  if (value instanceof PC.PStream) {
+    const sub = value.dict.get('Subtype'), ty = value.dict.get('Type');
+    let label = ty instanceof PC.PName ? ty.name : 'Stream';
+    if (sub instanceof PC.PName) label += '/' + sub.name;
+    return { cls: 'tag-stream', label };
+  }
+  if (value instanceof Map) {
+    const ty = value.get('Type');
+    if (ty instanceof PC.PName) {
+      if (ty.name === 'Page') return { cls: 'tag-page', label: 'Page' };
+      return { cls: 'tag-dict', label: ty.name };
+    }
+    return { cls: 'tag-dict', label: 'Dict' };
+  }
+  if (Array.isArray(value)) return { cls: 'tag-array', label: 'Array[' + value.length + ']' };
+  if (value instanceof PC.PRef) return { cls: 'tag-ref', label: 'Ref' };
+  if (typeof value === 'number') return { cls: '', label: 'Zahl' };
+  if (typeof value === 'boolean') return { cls: '', label: 'Bool' };
+  if (value instanceof PC.PString) return { cls: '', label: value.hex ? 'Hex-String' : 'String' };
+  if (value instanceof PC.PName) return { cls: '', label: 'Name' };
+  return { cls: '', label: 'Null' };
+}
+
+// ---------- File loading ----------
+$('#btn-open').addEventListener('click', () => $('#fileinput').click());
+$('#dz-btn').addEventListener('click', () => $('#fileinput').click());
+$('#fileinput').addEventListener('change', (e) => { if (e.target.files[0]) loadFile(e.target.files[0]); });
+
+const dz = $('#dropzone');
+['dragenter', 'dragover'].forEach(ev => document.body.addEventListener(ev, (e) => { e.preventDefault(); if (!state.doc) dz.classList.add('drag'); }));
+['dragleave', 'drop'].forEach(ev => document.body.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.remove('drag'); }));
+document.body.addEventListener('drop', (e) => {
+  const f = e.dataTransfer.files[0];
+  if (f) loadFile(f);
+});
+
+function loadFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const bytes = new Uint8Array(reader.result);
+      const doc = new PC.PDFDocument(bytes).parse();
+      state.doc = doc; state.bytes = bytes; state.fileName = file.name;
+      state.selectedNum = null; state.selectedGen = null;
+      state.pdfjsDoc = null; state.pageIndexByKey = {};
+      $('#dropzone').classList.add('hidden');
+      $('#workspace').classList.remove('active');
+      $('#btn-export').disabled = false;
+      $('#btn-newobj').disabled = false;
+      renderFileMeta();
+      renderTree();
+      renderFlatList();
+      renderWarnings();
+      loadPdfJs(bytes);
+      toast('PDF geladen: ' + doc.objects.size + ' Objekte gefunden.');
+    } catch (err) {
+      console.error(err);
+      toast('Fehler beim Parsen: ' + err.message, true);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function loadPdfJs(bytes) {
+  if (!window.pdfjsLib) return;
+  try { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; } catch (e) {}
+  const copy = bytes.slice();
+  pdfjsLib.getDocument({ data: copy }).promise.then(pdfDoc => {
+    state.pdfjsDoc = pdfDoc;
+    const pages = state.doc.getAllPages();
+    pages.forEach((p, i) => {
+      // find the object key for this page dict
+      for (const [k, o] of state.doc.objects) {
+        if (o.value === p.dict) { state.pageIndexByKey[k] = i + 1; break; }
+      }
+    });
+    if (state.selectedNum !== null) renderStreamPanels();
+  }).catch(err => { console.warn('pdf.js konnte Datei nicht laden (Vorschau evtl. eingeschraenkt):', err.message); });
+}
+
+function renderFileMeta() {
+  const doc = state.doc;
+  const mm = $('#filemeta'); mm.innerHTML = '';
+  const chips = [
+    ['Datei', state.fileName],
+    ['Version', 'PDF ' + doc.version],
+    ['Gr\u00f6\u00dfe', formatBytes(state.bytes.length)],
+    ['Objekte', doc.objects.size],
+    ['Seiten', doc.getAllPages().length],
+  ];
+  if (doc.trailer.get('Encrypt')) chips.push(['&#128274; Verschl\u00fcsselt', 'ja']);
+  for (const [k, v] of chips) {
+    const c = el('div', 'meta-chip' + (k.includes('Verschl') ? ' warn' : ''), `${k}: <b>${esc(v)}</b>`);
+    mm.appendChild(c);
+  }
+}
+function formatBytes(n) { if (n < 1024) return n + ' B'; if (n < 1048576) return (n / 1024).toFixed(1) + ' KB'; return (n / 1048576).toFixed(2) + ' MB'; }
+
+function renderWarnings() {
+  const bar = $('#warnbar'), list = $('#warnlist');
+  list.innerHTML = '';
+  if (state.doc.warnings.length === 0) { bar.classList.remove('active'); return; }
+  for (const w of state.doc.warnings) list.appendChild(el('li', null, esc(w)));
+  bar.classList.add('active');
+}
+
+// ---------- Tabs (Baum / Alle Objekte) ----------
+$$('.tab').forEach(t => t.addEventListener('click', () => {
+  $$('.tab').forEach(x => x.classList.remove('active')); t.classList.add('active');
+  state.viewMode = t.dataset.tab;
+  $('#treepane').style.display = state.viewMode === 'tree' ? 'block' : 'none';
+  $('#flatpane').style.display = state.viewMode === 'flat' ? 'block' : 'none';
+}));
+
+// ---------- Tree rendering ----------
+function renderTree() {
+  const pane = $('#treepane'); pane.innerHTML = '';
+  const doc = state.doc;
+
+  // Quick access: Pages
+  const pages = doc.getAllPages();
+  if (pages.length) {
+    const pagesRoot = makeNodeRow('&#128441; Seiten (Schnellzugriff)', { cls: 'tag-dict', label: pages.length }, false);
+    const kids = el('div', 'children');
+    pages.forEach((p, i) => {
+      const row = makeNodeRow(`Seite ${i + 1}`, { cls: 'tag-page', label: 'Page' }, false);
+      row.querySelector('.node-row').addEventListener('click', () => {
+        const rec = findObjectByValue(p.dict);
+        if (rec) selectObject(rec.num, rec.gen);
+      });
+      kids.appendChild(row);
+    });
+    pagesRoot.appendChild(kids);
+    pagesRoot.querySelector('.node-toggle').classList.remove('leaf');
+    pagesRoot.querySelector('.node-row').addEventListener('click', () => toggleNode(pagesRoot));
+    pane.appendChild(pagesRoot);
+  }
+
+  // Trailer root
+  const trailerNode = buildTreeNode('Trailer', doc.trailer, null, null);
+  pane.appendChild(trailerNode);
+  const tRow = trailerNode.querySelector('.node-row');
+  toggleNode(trailerNode, true);
+}
+
+function findObjectByValue(val) {
+  for (const [k, o] of state.doc.objects) if (o.value === val) return o;
+  return null;
+}
+
+function makeNodeRow(labelHtml, tag, isRef) {
+  const wrap = el('div', 'node');
+  const row = el('div', 'node-row');
+  const toggle = el('div', 'node-toggle leaf', '&#9656;');
+  const label = el('div', 'node-label', labelHtml);
+  row.appendChild(toggle); row.appendChild(label);
+  if (tag) { const t = el('span', 'node-tag ' + tag.cls, esc(String(tag.label))); row.appendChild(t); }
+  wrap.appendChild(row);
+  return wrap;
+}
+
+function toggleNode(wrap, forceOpen) {
+  const toggle = wrap.querySelector(':scope > .node-row > .node-toggle');
+  let kids = wrap.querySelector(':scope > .children');
+  const isOpen = toggle.classList.contains('open');
+  if (forceOpen === false || (isOpen && forceOpen === undefined)) {
+    toggle.classList.remove('open'); if (kids) kids.classList.remove('open');
+    return;
+  }
+  if (!kids) return;
+  if (!kids.dataset.built) { buildLazyChildren(wrap, kids); kids.dataset.built = '1'; }
+  toggle.classList.add('open'); kids.classList.add('open');
+}
+
+// Builds a node for a given (label, value). num/gen set only if this node IS an indirect object itself.
+function buildTreeNode(labelHtml, value, num, gen) {
+  const tag = typeTag(resolveForTag(value));
+  const wrap = makeNodeRow(labelHtml, tag, false);
+  const row = wrap.querySelector('.node-row');
+  const toggle = wrap.querySelector('.node-toggle');
+  const expandable = valueHasChildren(value);
+  if (expandable) {
+    toggle.classList.remove('leaf');
+    const kids = el('div', 'children');
+    wrap.appendChild(kids);
+    wrap._value = value;
+    row.addEventListener('click', (e) => { toggleNode(wrap); });
+  }
+  if (num !== null && num !== undefined) {
+    wrap.dataset.num = num; wrap.dataset.gen = gen;
+    row.classList.add('is-object');
+    row.addEventListener('click', (e) => { selectObject(num, gen); e.stopPropagation(); });
+  }
+  return wrap;
+}
+
+function resolveForTag(value) {
+  if (value instanceof PC.PRef) { const rec = state.doc.getObject(value); return rec ? rec.value : PC.PDF_NULL; }
+  return value;
+}
+function valueHasChildren(value) {
+  if (value instanceof PC.PRef) { const rec = state.doc.getObject(value); return rec ? valueHasChildren(rec.value) : false; }
+  if (value instanceof PC.PStream) return value.dict.size > 0;
+  if (value instanceof Map) return value.size > 0;
+  if (Array.isArray(value)) return value.length > 0;
+  return false;
+}
+
+function buildLazyChildren(wrap, kidsContainer) {
+  let value = wrap._value;
+  let num = null, gen = null;
+  if (value instanceof PC.PRef) {
+    const rec = state.doc.getObject(value);
+    if (!rec) { kidsContainer.appendChild(el('div', 'empty-msg', 'Objekt nicht gefunden')); return; }
+    num = rec.num; gen = rec.gen; value = rec.value;
+  }
+  let entries = [];
+  if (value instanceof PC.PStream) entries = [...value.dict.entries()];
+  else if (value instanceof Map) entries = [...value.entries()];
+  else if (Array.isArray(value)) entries = value.map((v, i) => ['[' + i + ']', v]);
+  for (const [k, v] of entries) {
+    const isRef = v instanceof PC.PRef;
+    let label;
+    if (k.startsWith('[')) label = `<span>${k}</span>`;
+    else label = `<span class="val-name">/${esc(k)}</span>`;
+    if (isRef) {
+      const rec = state.doc.getObject(v);
+      label += ` <span style="color:var(--text-faint);font-family:var(--mono);font-size:11px;">&rarr; ${v.num} ${v.gen} R</span>`;
+    }
+    const childWrap = buildTreeNode(label, v, null, null);
+    if (isRef) {
+      const rec = state.doc.getObject(v);
+      if (rec) {
+        childWrap.dataset.num = rec.num; childWrap.dataset.gen = rec.gen;
+        childWrap.querySelector('.node-row').addEventListener('click', (e) => { selectObject(rec.num, rec.gen); e.stopPropagation(); });
+      } else {
+        childWrap.querySelector('.node-label').innerHTML += ' <span class="node-tag tag-bad">fehlt</span>';
+      }
+    }
+    kidsContainer.appendChild(childWrap);
+  }
+}
+
+// ---------- Flat object list ----------
+function renderFlatList() {
+  const pane = $('#flatpane'); pane.innerHTML = '';
+  const entries = [...state.doc.objects.values()].sort((a, b) => a.num - b.num || a.gen - b.gen);
+  for (const o of entries) {
+    const tag = typeTag(o.value);
+    const row = el('div', 'flat-row');
+    row.dataset.num = o.num; row.dataset.gen = o.gen;
+    row.innerHTML = `<span class="num">${o.num} ${o.gen}</span><span class="node-tag ${tag.cls}">${esc(tag.label)}</span><span class="src">${esc(o.source || '')}</span>`;
+    row.addEventListener('click', () => selectObject(o.num, o.gen));
+    pane.appendChild(row);
+  }
+}
+
+// ---------- Selection & Inspector ----------
+function selectObject(num, gen) {
+  cancelRawEdit(true); cancelStreamEdit(true);
+  state.selectedNum = num; state.selectedGen = gen;
+  $$('.flat-row.selected').forEach(r => r.classList.remove('selected'));
+  const fr = $(`.flat-row[data-num="${num}"][data-gen="${gen}"]`);
+  if (fr) fr.classList.add('selected');
+  $$('.node-row.selected').forEach(r => r.classList.remove('selected'));
+  $$(`.node[data-num="${num}"][data-gen="${gen}"] > .node-row`).forEach(r => r.classList.add('selected'));
+  $('#workspace').classList.add('active');
+  renderInspector();
+}
+
+function currentRec() { return state.doc.getObject(state.selectedNum, state.selectedGen); }
+
+function renderInspector() {
+  const rec = currentRec();
+  if (!rec) return;
+  const value = rec.value;
+  $('#insp-title').textContent = `${rec.num} ${rec.gen} obj`;
+  const tag = typeTag(value);
+  const badge = $('#insp-typebadge'); badge.textContent = tag.label; badge.className = 'node-tag ' + tag.cls; badge.id = 'insp-typebadge';
+  $('#insp-offset').textContent = rec.offset != null ? `Byte-Offset ${rec.offset}` : `Quelle: ${sourceLabel(rec.source)}`;
+
+  renderDictTable(value);
+  renderStreamPanels();
+}
+
+function sourceLabel(src) {
+  if (!src) return 'unbekannt';
+  if (src === 'direct') return 'direkt im Dateikoerper';
+  if (src === 'xrefstream') return 'Xref-Stream-Objekt';
+  if (src.startsWith('ObjStm')) return 'komprimiert in ' + src;
+  return src;
+}
+
+function renderDictTable(value) {
+  const tbody = $('#dicttable tbody'); tbody.innerHTML = '';
+  let dictVal = value instanceof PC.PStream ? value.dict : value;
+  if (!(dictVal instanceof Map)) {
+    tbody.innerHTML = `<tr><td class="dkey">Wert</td><td class="dval">${renderValueHtml(value)}</td></tr>`;
+    $('#dict-count').textContent = '';
+    return;
+  }
+  for (const [k, v] of dictVal) {
+    const tr = el('tr');
+    tr.innerHTML = `<td class="dkey">/${esc(k)}</td><td class="dval">${renderValueHtml(v)}</td>`;
+    tbody.appendChild(tr);
+  }
+  $('#dict-count').textContent = dictVal.size + ' Eintr\u00e4ge';
+  if (dictVal.size === 0) tbody.innerHTML = '<tr><td class="dval" colspan="2" style="color:var(--text-faint);">Leeres Dictionary</td></tr>';
+}
+
+// click delegation for ref navigation inside dict table & tree
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('.val-ref');
+  if (t && !t.classList.contains('val-bad')) {
+    selectObject(parseInt(t.dataset.num, 10), parseInt(t.dataset.gen, 10));
+  }
+});
+
+// ---------- Raw dict editor ----------
+$('#btn-toggle-raw').addEventListener('click', () => {
+  if (state.rawEditing) { cancelRawEdit(); return; }
+  const rec = currentRec(); if (!rec) return;
+  const value = rec.value;
+  const target = value instanceof PC.PStream ? value.dict : value;
+  $('#raweditor').value = serializeValue(target, true, 0);
+  $('#raweditor-error').textContent = '';
+  $('#dicttable-wrap').style.display = 'none';
+  $('#raweditor-wrap').style.display = 'flex';
+  $('#btn-toggle-raw').textContent = 'Tabellenansicht';
+  state.rawEditing = true;
+});
+function cancelRawEdit(silent) {
+  if (!state.rawEditing) return;
+  $('#dicttable-wrap').style.display = 'block';
+  $('#raweditor-wrap').style.display = 'none';
+  $('#btn-toggle-raw').textContent = 'Rohtext bearbeiten';
+  state.rawEditing = false;
+}
+$('#btn-cancel-raw').addEventListener('click', () => cancelRawEdit());
+$('#btn-apply-raw').addEventListener('click', () => {
+  const rec = currentRec(); if (!rec) return;
+  const text = $('#raweditor').value;
+  try {
+    const bytes = strToBytes(text);
+    const lex = new PC.Lexer(bytes, 0);
+    const parsed = lex.parseObject(null);
+    if (!(parsed instanceof Map)) throw new Error('Erwartet wird ein Dictionary in der Form << /Key Wert ... >>');
+    if (rec.value instanceof PC.PStream) rec.value.dict = parsed;
+    else rec.value = parsed;
+    $('#raweditor-error').textContent = '';
+    cancelRawEdit();
+    renderInspector(); renderTree(); renderFlatList();
+    reselectRows();
+    toast('\u00c4nderungen an Objekt ' + rec.num + ' \u00fcbernommen.');
+  } catch (err) {
+    $('#raweditor-error').textContent = 'Fehler: ' + err.message;
+  }
+});
+
+function reselectRows() {
+  if (state.selectedNum === null) return;
+  const fr = $(`.flat-row[data-num="${state.selectedNum}"][data-gen="${state.selectedGen}"]`);
+  if (fr) fr.classList.add('selected');
+}
+
+// ---------- Stream panels ----------
+$$('.subtab').forEach(st => st.addEventListener('click', () => {
+  $$('.subtab').forEach(x => x.classList.remove('active')); st.classList.add('active');
+  state.streamViewTab = st.dataset.sv;
+  $$('.streamview').forEach(v => v.classList.remove('active'));
+  $('#sv-' + st.dataset.sv).classList.add('active');
+}));
+
+function renderStreamPanels() {
+  const rec = currentRec(); if (!rec) return;
+  const value = rec.value;
+  const isStream = value instanceof PC.PStream;
+  $('#streamedit-actions').classList.toggle('active', isStream);
+  if (!isStream) {
+    $('#stream-info').innerHTML = '<div class="empty-msg">Kein Stream-Objekt ausgew\u00e4hlt.</div>';
+    $('#stream-text').value = ''; $('#stream-hex').innerHTML = '';
+    renderPreviewFor(value, rec);
+    state.currentDecoded = null;
+    return;
+  }
+  const decoded = PC.decodeStreamBytes(value.dict, value.rawBytes);
+  state.currentDecoded = decoded;
+  renderStreamInfo(value, decoded);
+  renderStreamText(decoded);
+  renderStreamHex(decoded);
+  renderPreviewFor(value, rec, decoded);
+}
+
+function renderStreamInfo(streamVal, decoded) {
+  const dict = streamVal.dict;
+  let filters = dict.get('Filter'); if (filters && !Array.isArray(filters)) filters = [filters];
+  const filterHtml = filters ? filters.map(f => `<span class="filterchip">${esc(f.name || f)}</span>`).join('') : '<span class="filterchip">keine</span>';
+  let html = '';
+  html += `<div><b>Rohgr\u00f6\u00dfe:</b> ${formatBytes(streamVal.rawBytes.length)} (${streamVal.rawBytes.length} Bytes)</div>`;
+  html += `<div><b>Dekodierte Gr\u00f6\u00dfe:</b> ${formatBytes(decoded.data.length)} (${decoded.data.length} Bytes)</div>`;
+  html += `<div><b>Filter:</b> ${filterHtml}</div>`;
+  if (decoded.applied.length) html += `<div><b>Angewendet:</b> ${decoded.applied.map(a => `<span class="filterchip">${esc(a)}</span>`).join('')}</div>`;
+  if (decoded.error) html += `<div style="color:var(--red);"><b>Fehler beim Dekodieren:</b> ${esc(decoded.error)}</div>`;
+  $('#stream-info').innerHTML = html;
+}
+
+function renderStreamText(decoded) {
+  let text;
+  try { text = bytesToLatin1Str(decoded.data.length > 400000 ? decoded.data.slice(0, 400000) : decoded.data); }
+  catch (e) { text = '(Bin\u00e4rdaten \u2013 nicht als Text darstellbar)'; }
+  $('#stream-text').value = text + (decoded.data.length > 400000 ? '\n\n\u2026 (gek\u00fcrzt, Datei zu gro\u00df f\u00fcr Volltextanzeige)' : '');
+}
+
+function renderStreamHex(decoded) {
+  const data = decoded.data;
+  const max = Math.min(data.length, 8192);
+  let out = '';
+  for (let i = 0; i < max; i += 16) {
+    const row = data.slice(i, i + 16);
+    let hex = '', asc = '';
+    for (let j = 0; j < 16; j++) {
+      if (j < row.length) {
+        const b = row[j];
+        hex += b.toString(16).padStart(2, '0') + ' ';
+        asc += (b >= 32 && b < 127) ? `<b>${esc(String.fromCharCode(b))}</b>` : '.';
+      } else hex += '   ';
+      if (j === 7) hex += ' ';
+    }
+    out += `<div><span class="off">${i.toString(16).padStart(8, '0')}</span>  <span class="hx">${hex}</span> <span class="as">${asc}</span></div>`;
+  }
+  if (data.length > max) out += `<div style="color:var(--text-faint);margin-top:8px;">\u2026 gek\u00fcrzt (${data.length - max} weitere Bytes)</div>`;
+  $('#stream-hex').innerHTML = out || '<div class="empty-msg">Leerer Stream.</div>';
+}
+
+function renderPreviewFor(value, rec, decoded) {
+  const box = $('#stream-preview'); box.innerHTML = '';
+  const dictVal = value instanceof PC.PStream ? value.dict : value;
+  const isPage = dictVal instanceof Map && dictVal.get('Type') instanceof PC.PName && dictVal.get('Type').name === 'Page';
+  if (isPage) {
+    const key = rec.num + '_' + rec.gen;
+    const btn = el('button', 'btn primary', 'Seite rendern (PDF.js)');
+    box.appendChild(el('div', null, 'Dies ist ein Seitenobjekt.'));
+    box.appendChild(btn);
+    btn.addEventListener('click', () => renderPdfJsPage(state.pageIndexByKey[key]));
+    return;
+  }
+  if (!(value instanceof PC.PStream)) { box.innerHTML = '<div class="empty-msg">Keine Bildvorschau f\u00fcr diesen Objekttyp.</div>'; return; }
+  const sub = dictVal.get('Subtype');
+  const isImage = sub instanceof PC.PName && sub.name === 'Image';
+  if (!isImage) { box.innerHTML = '<div class="empty-msg">Kein Bild-XObject \u2013 keine visuelle Vorschau.</div>'; return; }
+  let filters = dictVal.get('Filter'); if (filters && !Array.isArray(filters)) filters = [filters];
+  const lastFilter = filters && filters.length ? (filters[filters.length - 1].name || filters[filters.length - 1]) : null;
+  try {
+    if (lastFilter === 'DCTDecode') {
+      const b64 = uint8ToBase64(decoded.data);
+      const img = el('img'); img.src = 'data:image/jpeg;base64,' + b64;
+      box.appendChild(img);
+    } else if (!lastFilter || lastFilter === 'FlateDecode' || lastFilter === 'ASCII85Decode' || lastFilter === 'ASCIIHexDecode' || lastFilter === 'RunLengthDecode') {
+      renderRawImageToCanvas(dictVal, decoded.data, box);
+    } else {
+      box.innerHTML = `<div class="empty-msg">Bildformat (${esc(lastFilter)}) wird in dieser Vorschau nicht unterst\u00fctzt.</div>`;
+    }
+  } catch (e) {
+    box.innerHTML = `<div class="empty-msg">Vorschau fehlgeschlagen: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderRawImageToCanvas(dict, data, box) {
+  const w = dict.get('Width') || dict.get('W'), h = dict.get('Height') || dict.get('H');
+  if (!w || !h) { box.innerHTML = '<div class="empty-msg">Keine Bildabmessungen gefunden.</div>'; return; }
+  const bpc = dict.get('BitsPerComponent') || dict.get('BPC') || 8;
+  const csObj = dict.get('ColorSpace') || dict.get('CS');
+  const cs = csObj instanceof PC.PName ? csObj.name : 'DeviceRGB';
+  if (bpc !== 8) { box.innerHTML = `<div class="empty-msg">${bpc}-Bit Bilder werden in dieser Vorschau nicht unterst\u00fctzt.</div>`; return; }
+  let comps = cs === 'DeviceGray' || cs === 'CalGray' ? 1 : cs === 'DeviceCMYK' ? 4 : 3;
+  const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  const imgData = ctx.createImageData(w, h);
+  const needed = w * h * comps;
+  if (data.length < needed) { box.innerHTML = '<div class="empty-msg">Bilddaten unvollst\u00e4ndig \u2013 keine Vorschau m\u00f6glich.</div>'; return; }
+  for (let i = 0, p = 0; i < w * h; i++, p += 4) {
+    if (comps === 1) { const g = data[i]; imgData.data[p] = g; imgData.data[p + 1] = g; imgData.data[p + 2] = g; imgData.data[p + 3] = 255; }
+    else if (comps === 3) { imgData.data[p] = data[i * 3]; imgData.data[p + 1] = data[i * 3 + 1]; imgData.data[p + 2] = data[i * 3 + 2]; imgData.data[p + 3] = 255; }
+    else if (comps === 4) {
+      const c = data[i * 4], m = data[i * 4 + 1], y = data[i * 4 + 2], k = data[i * 4 + 3];
+      imgData.data[p] = 255 - Math.min(255, c + k); imgData.data[p + 1] = 255 - Math.min(255, m + k); imgData.data[p + 2] = 255 - Math.min(255, y + k); imgData.data[p + 3] = 255;
+    }
+  }
+  ctx.putImageData(imgData, 0, 0);
+  box.appendChild(canvas);
+}
+
+function uint8ToBase64(bytes) {
+  let binary = ''; const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+  return btoa(binary);
+}
+
+function renderPdfJsPage(pageIndex) {
+  const box = $('#stream-preview');
+  if (!state.pdfjsDoc || !pageIndex) { box.innerHTML = '<div class="empty-msg">PDF.js-Vorschau nicht verf\u00fcgbar f\u00fcr diese Seite.</div>'; return; }
+  box.innerHTML = '<div class="empty-msg">Rendere\u2026</div>';
+  state.pdfjsDoc.getPage(pageIndex).then(page => {
+    const vp0 = page.getViewport({ scale: 1 });
+    const scale = Math.min(1.4, 760 / vp0.width);
+    const viewport = page.getViewport({ scale });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width; canvas.height = viewport.height;
+    const ctx = canvas.getContext('2d');
+    box.innerHTML = '';
+    box.appendChild(canvas);
+    page.render({ canvasContext: ctx, viewport }).promise.catch(err => { box.innerHTML = `<div class="empty-msg">Renderfehler: ${esc(err.message)}</div>`; });
+  }).catch(err => { box.innerHTML = `<div class="empty-msg">Renderfehler: ${esc(err.message)}</div>`; });
+}
+
+// ---------- Stream text editing ----------
+$('#btn-edit-stream').addEventListener('click', () => {
+  const rec = currentRec(); if (!rec || !(rec.value instanceof PC.PStream)) return;
+  $('#stream-text').readOnly = false;
+  $('#stream-text').focus();
+  $('#btn-edit-stream').style.display = 'none';
+  $('#btn-apply-stream').style.display = '';
+  $('#btn-cancel-stream').style.display = '';
+  state.streamEditing = true;
+  $$('.subtab').forEach(x => x.classList.remove('active'));
+  $('.subtab[data-sv="text"]').classList.add('active');
+  $$('.streamview').forEach(v => v.classList.remove('active'));
+  $('#sv-text').classList.add('active');
+});
+function cancelStreamEdit(silent) {
+  if (!state.streamEditing) return;
+  $('#stream-text').readOnly = true;
+  $('#btn-edit-stream').style.display = '';
+  $('#btn-apply-stream').style.display = 'none';
+  $('#btn-cancel-stream').style.display = 'none';
+  state.streamEditing = false;
+  if (!silent) renderStreamPanels();
+}
+$('#btn-cancel-stream').addEventListener('click', () => cancelStreamEdit());
+$('#btn-apply-stream').addEventListener('click', () => {
+  const rec = currentRec(); if (!rec || !(rec.value instanceof PC.PStream)) return;
+  try {
+    const text = $('#stream-text').value;
+    const raw = strToBytes(text);
+    const compressed = pako.deflate(raw);
+    rec.value.rawBytes = compressed;
+    rec.value.dict.set('Filter', new PC.PName('FlateDecode'));
+    rec.value.dict.delete('DecodeParms'); rec.value.dict.delete('DP');
+    rec.value.dict.set('Length', compressed.length);
+    cancelStreamEdit(true);
+    renderInspector(); renderTree(); renderFlatList(); reselectRows();
+    toast('Stream-Inhalt von Objekt ' + rec.num + ' aktualisiert (neu FlateDecode-kodiert).');
+  } catch (err) {
+    toast('Fehler beim Kodieren: ' + err.message, true);
+  }
+});
+
+// ---------- Search ----------
+function doSearch() {
+  const q = $('#searchbox').value.trim();
+  if (!q) return;
+  const m = q.match(/^(\d+)(?:\s+(\d+))?/);
+  if (!m) { toast('Bitte Objektnummer eingeben, z.B. "12" oder "12 0"', true); return; }
+  const num = parseInt(m[1], 10), gen = m[2] ? parseInt(m[2], 10) : 0;
+  const rec = state.doc.getObject(num, gen);
+  if (!rec) { toast(`Objekt ${num} ${gen} nicht gefunden.`, true); return; }
+  selectObject(rec.num, rec.gen);
+  $$('.tab').forEach(x => x.classList.remove('active'));
+  $('.tab[data-tab="flat"]').classList.add('active');
+  state.viewMode = 'flat'; $('#treepane').style.display = 'none'; $('#flatpane').style.display = 'block';
+  const row = $(`.flat-row[data-num="${rec.num}"][data-gen="${rec.gen}"]`);
+  if (row) row.scrollIntoView({ block: 'center' });
+}
+$('#btn-search').addEventListener('click', doSearch);
+$('#searchbox').addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'f' && state.doc) { e.preventDefault(); $('#searchbox').focus(); $('#searchbox').select(); }
+});
+
+// ---------- New object ----------
+$('#btn-newobj').addEventListener('click', () => {
+  let maxNum = 0;
+  for (const [k, o] of state.doc.objects) if (o.num > maxNum) maxNum = o.num;
+  const num = maxNum + 1;
+  const dict = new Map([['Type', new PC.PName('Dummy')]]);
+  state.doc.objects.set(num + '_0', { num, gen: 0, value: dict, offset: null, source: 'neu erstellt' });
+  renderTree(); renderFlatList();
+  selectObject(num, 0);
+  $('#btn-toggle-raw').click();
+  toast('Neues Objekt ' + num + ' 0 erstellt \u2013 bitte Inhalt definieren.');
+});
+
+// ---------- Resizer ----------
+(function () {
+  const resizer = $('#resizer'), sidebar = $('#sidebar');
+  let dragging = false;
+  resizer.addEventListener('mousedown', () => { dragging = true; resizer.classList.add('active'); document.body.style.userSelect = 'none'; });
+  window.addEventListener('mousemove', (e) => { if (!dragging) return; const w = Math.max(230, Math.min(window.innerWidth * 0.6, e.clientX)); sidebar.style.width = w + 'px'; });
+  window.addEventListener('mouseup', () => { dragging = false; resizer.classList.remove('active'); document.body.style.userSelect = ''; });
+})();
+
+// ---------- Export / Rebuild PDF ----------
+$('#btn-export').addEventListener('click', () => {
+  try {
+    const blob = rebuildPdf();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const base = state.fileName.replace(/\.pdf$/i, '') || 'dokument';
+    a.href = url; a.download = base + '-bearbeitet.pdf';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    toast('PDF exportiert: ' + base + '-bearbeitet.pdf');
+  } catch (err) {
+    console.error(err);
+    toast('Export fehlgeschlagen: ' + err.message, true);
+  }
+});
+
+function rebuildPdf() {
+  const doc = state.doc;
+  const parts = []; let offset = 0;
+  function push(x) {
+    const bytes = (typeof x === 'string') ? strToBytes(x) : x;
+    parts.push(bytes); const start = offset; offset += bytes.length; return start;
+  }
+  push('%PDF-1.7\n%\xE2\xE3\xCF\xD3\n');
+
+  const entries = [...doc.objects.values()].sort((a, b) => a.num - b.num || a.gen - b.gen);
+  const byNum = new Map();
+  let maxNum = 0;
+  const offsets = new Map(); // num -> {offset, gen}
+
+  for (const rec of entries) {
+    if (byNum.has(rec.num)) continue; // dedupe multiple gens, keep first (lowest gen already sorted)
+    byNum.set(rec.num, rec);
+    if (rec.num > maxNum) maxNum = rec.num;
+  }
+
+  for (const [num, rec] of byNum) {
+    const gen = rec.gen;
+    const startOff = push(`${num} ${gen} obj\n`);
+    offsets.set(num, { offset: startOff, gen });
+    if (rec.value instanceof PC.PStream) {
+      const dictCopy = new Map(rec.value.dict);
+      dictCopy.set('Length', rec.value.rawBytes.length);
+      push(serializeValue(dictCopy, false) + '\nstream\n');
+      push(rec.value.rawBytes);
+      push('\nendstream\nendobj\n');
+    } else {
+      push(serializeValue(rec.value, false) + '\nendobj\n');
+    }
+  }
+
+  const xrefOffset = offset;
+  let xref = `xref\n0 ${maxNum + 1}\n`;
+  xref += '0000000000 65535 f \r\n';
+  for (let n = 1; n <= maxNum; n++) {
+    const o = offsets.get(n);
+    if (o) xref += `${String(o.offset).padStart(10, '0')} ${String(o.gen).padStart(5, '0')} n \r\n`;
+    else xref += '0000000000 65535 f \r\n';
+  }
+  push(xref);
+
+  const trailerDict = new Map();
+  trailerDict.set('Size', maxNum + 1);
+  if (doc.trailer.get('Root')) trailerDict.set('Root', doc.trailer.get('Root'));
+  if (doc.trailer.get('Info')) trailerDict.set('Info', doc.trailer.get('Info'));
+  if (doc.trailer.get('ID')) trailerDict.set('ID', doc.trailer.get('ID'));
+  push('trailer\n' + serializeValue(trailerDict, true) + '\n');
+  push(`startxref\n${xrefOffset}\n%%EOF`);
+
+  let total = 0; for (const p of parts) total += p.length;
+  const out = new Uint8Array(total);
+  let pos = 0; for (const p of parts) { out.set(p, pos); pos += p.length; }
+  return new Blob([out], { type: 'application/pdf' });
+}
+
+})();
+
+</script>
+</body>
+</html>
