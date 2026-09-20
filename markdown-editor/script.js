@@ -282,9 +282,7 @@ Ein sauberer, schneller Markdown-Editor mit Live-Vorschau.
 
 Auch LaTeX-Formeln werden unterstützt — inline wie $E = mc^2$ oder als Block:
 
-$$
-\\int_0^\\infty e^{-x^2}\\,dx = \\frac{\\sqrt{\\pi}}{2}
-$$
+$$\\int_0^\\infty e^{-x^2}\\,dx = \\frac{\\sqrt{\\pi}}{2}$$
 
 \`\`\`js
 console.log("Viel Spaß beim Schreiben!");
