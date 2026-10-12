@@ -36,10 +36,11 @@ button.pri:hover{color:#111;filter:brightness(1.1)}
 #tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--line);overflow-x:auto;flex:none;scrollbar-width:thin}
 .tab{display:flex;gap:8px;align-items:center;padding:7px 12px;border-right:1px solid var(--line);color:var(--mut);cursor:pointer;white-space:nowrap}
 .tab.a{background:var(--bg);color:var(--gold2);box-shadow:inset 0 2px var(--gold)}.tab b{font-weight:400;opacity:.6}.tab b:hover{color:var(--t);opacity:1}
-#ew{flex:1;position:relative;min-height:0;font:13.5px/1.55 'JetBrains Mono',ui-monospace,monospace;overflow:hidden}
-#ln,#hl,#mk,#ta{position:absolute;top:0;bottom:0;margin:0;padding:10px 0;font:inherit;tab-size:2;white-space:pre}
+#ew{flex:1;position:relative;min-height:0;font:14px/22px 'JetBrains Mono',ui-monospace,monospace;font-variant-ligatures:none;font-kerning:none;-webkit-text-size-adjust:100%;text-size-adjust:100%;overflow:hidden}
+#ln,#hl,#mk,#ta{position:absolute;top:0;bottom:0;margin:0;padding:10px 0;font:inherit;font-variant-ligatures:none;font-kerning:none;tab-size:2;white-space:pre;overflow-wrap:normal}
 #ln{left:0;width:46px;text-align:right;padding-right:10px;color:var(--mut);background:var(--bg2);overflow:hidden;border-right:1px solid var(--line);opacity:.8}
 #hl,#mk,#ta{left:46px;right:0;padding-left:12px;padding-right:12px;padding-bottom:30px;overflow:auto;word-wrap:normal;letter-spacing:0}
+#hl,#mk{padding-right:48px;padding-bottom:64px}
 #hl{overflow:hidden;color:var(--tx);pointer-events:none}
 #mk{overflow:hidden;color:transparent;pointer-events:none}
 #mk mark{background:color-mix(in srgb,var(--gold) 28%,transparent);color:transparent;border-radius:2px}
@@ -55,9 +56,9 @@ button.pri:hover{color:#111;filter:brightness(1.1)}
 #sr .hit:hover{background:var(--bg3)}#sr .hit span{display:inline-block;width:38px;color:var(--mut)}
 #sr mark{background:color-mix(in srgb,var(--gold) 45%,transparent);color:inherit}
 #sb[hidden],#sr[hidden]{display:none}
-#ta{background:transparent;color:transparent;caret-color:var(--gold2);border:0;outline:0;resize:none}
+#ta{background:transparent;color:transparent;caret-color:var(--gold2);border:0;outline:0;resize:none;-webkit-appearance:none;appearance:none;border-radius:0}
 #ta::selection{background:color-mix(in srgb,var(--gold) 35%,transparent)}
-#hl i{font-style:normal}.t{color:var(--t)}.a{color:var(--a)}.s{color:var(--s)}.k{color:var(--k)}.n{color:var(--n)}.c{color:var(--c);font-style:italic}
+#hl i{font-style:normal}.t{color:var(--t)}.a{color:var(--a)}.s{color:var(--s)}.k{color:var(--k)}.n{color:var(--n)}.c{color:var(--c)}
 .empty{color:var(--mut);padding:30px;font-family:Barlow}.imgbox{padding:20px;font-family:Barlow}.imgbox img{max-width:100%;border:1px solid var(--line)}
 #st{display:flex;gap:16px;padding:4px 12px;background:var(--bg2);border-top:1px solid var(--line);color:var(--mut);font-size:12px;flex:none}
 #gut{flex:none;width:6px;background:var(--line);cursor:col-resize;touch-action:none}#main.v #gut{width:auto;height:6px;cursor:row-resize}#gut:hover{background:var(--gold)}
@@ -65,11 +66,18 @@ button.pri:hover{color:#111;filter:brightness(1.1)}
 #pvh .t2{font:17px 'Bebas Neue';letter-spacing:1.5px;color:var(--gold);margin-right:auto}
 #fw{flex:1;background:#fff;display:flex;justify-content:center;min-height:0;overflow:auto}
 #fw.dev{background:repeating-conic-gradient(var(--bg3) 0 25%,var(--bg2) 0 50%) 0 0/20px 20px}
+#fw.dev{justify-content:flex-start;align-items:flex-start;overflow:hidden}
+#fw.dev #fr{box-shadow:0 6px 30px #0008;border-radius:10px}
+#fw.dev.ph #fr{border-radius:26px;outline:6px solid #111}
 #fr{border:0;background:#fff;width:100%;height:100%}#fw.tab2 #fr{width:768px}#fw.ph #fr{width:390px}
 #pv:fullscreen{background:var(--bg)}
 #con{height:130px;overflow:auto;background:var(--bg2);border-top:1px solid var(--line);font:12px/1.5 'JetBrains Mono',monospace;padding:6px 10px;flex:none}
 #con.off{display:none}#con div{border-bottom:1px solid var(--line);padding:1px 0}.error{color:var(--t)}.warn{color:var(--n)}.info{color:var(--a)}
-#md{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:9}#md.on{display:flex}
+#md,#hp,#ex{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:9}#md.on,#hp.on,#ex.on{display:flex}
+#exA{width:100%;height:42vh;background:var(--bg);color:var(--tx);border:1px solid var(--line);border-radius:6px;padding:8px;font:12px/1.5 'JetBrains Mono',monospace;resize:none;margin-bottom:10px;white-space:pre}
+#exH{margin:0 0 10px;color:var(--mut);font-size:13px}
+#hk{display:grid;grid-template-columns:auto 1fr;gap:5px 16px;margin-bottom:14px;font-size:13px}
+#hk b{color:var(--gold2);font:500 12px 'JetBrains Mono',monospace}
 .card{background:var(--bg2);border:1px solid var(--gold);border-radius:10px;padding:18px;width:min(360px,90vw)}
 .card h3{margin:0 0 12px;font:20px 'Bebas Neue';letter-spacing:1.5px;color:var(--gold)}
 .card input{width:100%;padding:8px;background:var(--bg);color:var(--tx);border:1px solid var(--line);border-radius:6px;font:inherit;margin-bottom:12px}
@@ -84,6 +92,7 @@ button.pri:hover{color:#111;filter:brightness(1.1)}
 <header>
  <div class="logo">WERK<span>STATT</span></div>
  <button id="bSide" title="Dateiliste ein/aus">☰</button><span class="sep"></span>
+ <button id="bProj" title="Neues Projekt mit Starter-Dateien">🆕 Projekt</button>
  <button id="bNew">＋ Neue Datei</button>
  <button id="bOpen">📂 Laden</button>
  <button id="bSaveP">💾 Projekt speichern</button>
@@ -95,6 +104,8 @@ button.pri:hover{color:#111;filter:brightness(1.1)}
  <button id="bRun" class="pri">▶ Ausführen</button>
  <button id="bAuto" class="on">Auto</button>
  <button id="bLay" title="Layout wechseln">▥ Layout</button>
+ <button id="fMin" title="Schrift kleiner">A−</button><button id="fPlus" title="Schrift größer">A+</button>
+ <button id="bHelp" title="Tastenkürzel">⌨</button>
  <button id="bTheme">🎨 Styles</button>
  <button id="bFs">⛶ Vollbild</button>
 </header>
@@ -102,11 +113,13 @@ button.pri:hover{color:#111;filter:brightness(1.1)}
  <aside id="side"><div class="sh">DATEIEN <button id="bAdd" title="Neue Datei">＋</button></div><ul id="list"></ul><div class="hint">Dateien per Drag &amp; Drop hierher ziehen. Fahre über eine Datei für Umbenennen, Duplizieren, Löschen.</div></aside>
  <section id="ed"><div id="tabs"></div><div id="sb" hidden><div class="sr1"><input id="q" placeholder="Suchen…" autocomplete="off"><button id="bCase" title="Groß-/Kleinschreibung beachten">Aa</button><button id="bWord" title="Ganzes Wort">Wort</button><button id="bRe" title="Regulärer Ausdruck">.*</button><span id="qc"></span><button id="qp" title="Vorheriger (Umschalt+Enter)">▲</button><button id="qn" title="Nächster (Enter / F3)">▼</button><button id="bAll" title="In allen Dateien suchen (Strg+Umschalt+F)">Alle Dateien</button><button id="qx" title="Schließen (Esc)">✕</button></div><div class="sr1"><input id="rp" placeholder="Ersetzen durch…" autocomplete="off"><button id="rOne">Ersetzen</button><button id="rAll">Alle ersetzen</button></div></div><div id="ew"><div id="ln"></div><pre id="mk"></pre><pre id="hl"></pre><textarea id="ta" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea></div><div id="sr" hidden></div><div id="st"><span id="pos"></span><span id="info"></span><span class="sp"></span><span id="sv"></span></div></section>
  <div id="gut"></div>
- <section id="pv"><div id="pvh"><span class="t2">VORSCHAU</span><button data-d="">🖥</button><button data-d="tab2">▭ Tablet</button><button data-d="ph">📱</button><button id="bCon">Konsole <span id="cn">0</span></button><button id="bRel">⟳</button><button id="bPfs">⛶</button></div><div id="fw"><iframe id="fr" sandbox="allow-scripts allow-modals allow-forms allow-popups allow-downloads" title="Vorschau"></iframe></div><div id="con" class="off"></div></section>
+ <section id="pv"><div id="pvh"><span class="t2">VORSCHAU</span><button data-d="">🖥</button><button data-d="tab2">▭ Tablet</button><button data-d="ph">📱 Handy</button><button id="bRot" hidden title="Hoch-/Querformat wechseln">↻ Hochformat</button><button id="bCon">Konsole <span id="cn">0</span></button><button id="bRel">⟳</button><button id="bPfs">⛶</button></div><div id="fw"><iframe id="fr" sandbox="allow-scripts allow-modals allow-forms allow-popups allow-downloads" title="Vorschau"></iframe></div><div id="con" class="off"></div></section>
 </div>
 </div>
 <input type="file" id="fin" multiple hidden>
 <div id="md"><div class="card"><h3 id="mt"></h3><input id="mi"><div class="row"><button id="mc">Abbrechen</button><button id="mok" class="pri">OK</button></div></div></div>
+<div id="hp"><div class="card"><h3>Tastenkürzel</h3><div id="hk"></div><div class="row"><button id="hx" class="pri">Schließen</button></div></div></div>
+<div id="ex"><div class="card" style="width:min(680px,94vw)"><h3 id="exT">Export</h3><p id="exH"></p><textarea id="exA" readonly spellcheck="false"></textarea><div class="row"><button id="exC" class="pri">Kopieren</button><button id="exX">Schließen</button></div></div></div>
 <div id="toast"></div>
 <script>
 const $=s=>document.querySelector(s),KEY='werkstatt_v1';
@@ -146,7 +159,7 @@ document.getElementById('btn').addEventListener('click', () => {
 });
 
 console.log('Werkstatt bereit ✔');`}];
-let S={files:[],tabs:[],active:'',theme:'gold',auto:true,vert:false};
+let S={files:[],tabs:[],active:'',theme:'gold',auto:true,vert:false,fs:13.5,dev:'',land:false};
 const cur=()=>S.files.find(f=>f.name===S.active);
 const ext=n=>(n.split('.').pop()||'').toLowerCase();
 const icon=n=>({html:'🌐',htm:'🌐',css:'🎨',js:'⚡',json:'🧾',md:'📝',svg:'🖼',png:'🖼',jpg:'🖼',jpeg:'🖼',gif:'🖼',webp:'🖼'})[ext(n)]||'📄';
@@ -163,8 +176,8 @@ function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clea
 function ask(t,val,ok){return new Promise(res=>{$('#mt').textContent=t;const i=$('#mi');i.style.display=val===null?'none':'';i.value=val||'';$('#mok').textContent=ok||'OK';$('#md').classList.add('on');if(val!==null){i.focus();i.select()}
 const done=v=>{$('#md').classList.remove('on');res(v)};$('#mok').onclick=()=>done(val===null?true:i.value.trim());$('#mc').onclick=()=>done(null);i.onkeydown=e=>{if(e.key==='Enter')$('#mok').click();if(e.key==='Escape')$('#mc').click()}})}
 async function save(name,data){if(!data||!data.size&&!data.length){toast('Nichts zu speichern');return}
- const d=window.claude&&await claude.use('downloads');if(!d){toast('Download ist hier nicht verfügbar');return}
- try{await d.save({filename:name,data});toast('Gespeichert: '+name)}catch(e){toast(e&&e.code==='declined'?'Abgebrochen':e&&e.code==='rejected_extension'?'Dateityp nicht erlaubt – nutze ZIP oder Projekt speichern':'Fehler: '+(e&&e.message||e))}}
+ let d=null;try{d=window.claude&&await claude.use('downloads')}catch(e){}if(!d){fallback(name,data);return}
+ try{await d.save({filename:name,data});toast('Gespeichert: '+name)}catch(e){toast(e&&e.code==='declined'?'Abgebrochen':e&&e.code==='rejected_extension'?(typeof data==='string'?(d.save({filename:name+'.txt',data}).then(()=>toast('Gespeichert als '+name+'.txt – Endung bei Bedarf umbenennen')).catch(()=>{}),'Endung nicht erlaubt – speichere als .txt …'):'Dateityp nicht erlaubt – nutze ZIP oder Projekt speichern'):'Fehler: '+(e&&e.message||e))}}
 let t1;const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));$('#sv').textContent='● lokal gespeichert'}catch(e){$('#sv').textContent='Lokaler Speicher voll – bitte Projekt speichern'}};
 const later=()=>{$('#sv').textContent='… ungespeichert';clearTimeout(t1);t1=setTimeout(persist,700)};
 let t2;const laterRun=()=>{clearTimeout(t2);t2=setTimeout(run,600)};
@@ -176,10 +189,10 @@ function upd(){const f=cur();if(!f||f.data)return;hl.innerHTML=(H[lang(f.name)]|
 function pos(){const v=ta.value.slice(0,ta.selectionStart).split('\n');$('#pos').textContent=`Zeile ${v.length}, Spalte ${v[v.length-1].length+1}`}
 function loadEd(){const f=cur();lastN=0;$('#mk').innerHTML='';if(!f){ta.hidden=true;ln.textContent='';hl.innerHTML='<div class="empty">Keine Datei geöffnet – wähle links eine aus oder lege eine neue an.</div>';return}
  if(f.data){ta.hidden=true;ln.textContent='';hl.innerHTML=`<div class="imgbox"><img src="${f.data}" alt=""><p>Bilddatei – wird in der Vorschau über den Dateinamen eingebunden.</p></div>`;return}
- ta.hidden=false;ta.value=f.content;upd()}
+ ta.hidden=false;ta.value=f.content;const q=POS[f.name];if(q){ta.setSelectionRange(q[0],q[1]);ta.scrollTop=q[2];ta.scrollLeft=q[3]}upd();ta.onscroll()}
 const renderAll=()=>{renderList();renderTabs();loadEd()};
-function openF(n){if(!S.tabs.includes(n))S.tabs.push(n);S.active=n;renderAll();if(!ta.hidden)ta.focus();later()}
-function closeT(n){const i=S.tabs.indexOf(n);S.tabs.splice(i,1);if(S.active===n)S.active=S.tabs[i]||S.tabs[i-1]||'';renderAll();later()}
+function openF(n){savePos();if(!S.tabs.includes(n))S.tabs.push(n);S.active=n;renderAll();if(!ta.hidden)ta.focus();later()}
+function closeT(n){savePos();const i=S.tabs.indexOf(n);S.tabs.splice(i,1);if(S.active===n)S.active=S.tabs[i]||S.tabs[i-1]||'';renderAll();later()}
 const tpl=n=>ext(n)==='html'?'<!DOCTYPE html>\n<html lang="de">\n<head>\n<meta charset="UTF-8">\n<title>Neu</title>\n</head>\n<body>\n\n</body>\n</html>':'';
 const uniq=n=>{let b=n,i=1;while(get(n)){const p=b.lastIndexOf('.');n=p>0?b.slice(0,p)+'-'+(++i)+b.slice(p):b+'-'+(++i)}return n};
 async function newFile(){const n=await ask('Neue Datei','neu.html','Erstellen');if(!n)return;if(get(n))return toast('Name existiert schon');S.files.push({name:n,content:tpl(n)});openF(n)}
@@ -191,31 +204,35 @@ $('#list').onclick=async e=>{const li=e.target.closest('li');if(!li)return;const
 $('#tabs').onclick=e=>{const t=e.target.closest('.tab');if(!t)return;e.target.dataset.x!==undefined?closeT(t.dataset.n):openF(t.dataset.n)};
 function ins(t){ta.focus();if(!document.execCommand('insertText',false,t)){ta.setRangeText(t,ta.selectionStart,ta.selectionEnd,'end');ta.dispatchEvent(new Event('input'))}}
 ta.oninput=()=>{const f=cur();if(!f)return;f.content=ta.value;upd();later();if(S.auto)laterRun()};
-ta.onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();ins('  ')}
+ta.onkeydown=e=>{if(edKey(e))return;if(e.key==='Tab'){e.preventDefault();ins('  ')}
  else if(e.key==='Enter'&&!e.ctrlKey&&!e.metaKey){const v=ta.value,s=ta.selectionStart,ls=v.lastIndexOf('\n',s-1)+1,line=v.slice(ls,s);let ind=line.match(/^\s*/)[0];if(/[{[(]\s*$/.test(line))ind+='  ';e.preventDefault();ins('\n'+ind)}};
 ta.onkeyup=ta.onclick=pos;
 ta.onscroll=()=>{hl.scrollTop=mk.scrollTop=ta.scrollTop;hl.scrollLeft=mk.scrollLeft=ta.scrollLeft;ln.scrollTop=ta.scrollTop};
 addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();persist();toast('Lokal gespeichert')}if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();run()}});
 /* Vorschau */
-const HOOK=`<script>(function(){var p=function(t,a){try{parent.postMessage({wk:1,t:t,m:[].map.call(a,function(x){try{return typeof x==='object'?JSON.stringify(x):String(x)}catch(e){return String(x)}}).join(' ')},'*')}catch(e){}};['log','info','warn','error'].forEach(function(k){var o=console[k];console[k]=function(){p(k,arguments);o.apply(console,arguments)}});addEventListener('error',function(e){p('error',[e.message+' (Zeile '+(e.lineno||'?')+')'])});addEventListener('unhandledrejection',function(e){p('error',['Promise: '+e.reason])})})()<\/script>`;
+const HOOK=`<script>(function(){['localStorage','sessionStorage'].forEach(function(n){try{window[n].getItem('_')}catch(e){var d={};try{Object.defineProperty(window,n,{configurable:true,value:{getItem:function(k){return k in d?d[k]:null},setItem:function(k,v){d[k]=String(v)},removeItem:function(k){delete d[k]},clear:function(){d={}},key:function(i){return Object.keys(d)[i]||null},get length(){return Object.keys(d).length}}})}catch(e2){}}});var p=function(t,a){try{parent.postMessage({wk:1,t:t,m:[].map.call(a,function(x){try{return typeof x==='object'?JSON.stringify(x):String(x)}catch(e){return String(x)}}).join(' ')},'*')}catch(e){}};['log','info','warn','error'].forEach(function(k){var o=console[k];console[k]=function(){p(k,arguments);o.apply(console,arguments)}});addEventListener('error',function(e){p('error',[e.message+' (Zeile '+(e.lineno||'?')+')'])});addEventListener('unhandledrejection',function(e){p('error',['Promise: '+e.reason])})})()<\/script>`;
 function build(hook){const idx=S.files.find(f=>f.name==='index.html')||S.files.find(f=>/\.html?$/i.test(f.name));
  if(!idx)return'<body style="font-family:sans-serif;padding:2em">Keine HTML-Datei im Projekt.</body>';
- let h=idx.content;
+ let h=idx.content;const late=[];
  h=h.replace(/(src|href)=["']([^"']+)["']/gi,(m,a,p)=>{const f=get(p);return f&&f.data?`${a}="${f.data}"`:m});
  h=h.replace(/<link[^>]+href=["']([^"']+)["'][^>]*>/gi,(m,p)=>{const f=get(p);return f&&/\.css$/i.test(f.name)?`<style>\n${f.content}\n</style>`:m});
- h=h.replace(/<script([^>]*?)src=["']([^"']+)["']([^>]*)>\s*<\/script>/gi,(m,a,p,b)=>{const f=get(p);return f&&!f.data?`<script${a}${b}>\n${f.content.replace(/<\/script/gi,'<\\/script')}\n<\/script>`:m});
- return hook?(/<head[^>]*>/i.test(h)?h.replace(/<head[^>]*>/i,m=>m+HOOK):HOOK+h):h}
+ h=h.replace(/<script([^>]*?)src=["']([^"']+)["']([^>]*)>\s*<\/script>/gi,(m,a,p,b)=>{const f=get(p);if(!f||f.data)return m;const at=(a+b).replace(/\sdefer(=["']?[^\s>"']*["']?)?/gi,''),s=`<script${at}>\n${f.content.replace(/<\/script/gi,'<\\/script')}\n<\/script>`;if(at!==a+b&&!/type=["']?module/i.test(at)){late.push(s);return''}return s});
+ if(late.length)h=/<\/body>/i.test(h)?h.replace(/<\/body>/i,m=>late.join('\n')+m):h+late.join('\n');return hook?(/<head(\s[^>]*)?>/i.test(h)?h.replace(/<head(\s[^>]*)?>/i,m=>m+HOOK):HOOK+h):h}
 function run(){$('#con').innerHTML='';cn=0;$('#cn').textContent=0;fr.srcdoc=build(true)}
 let cn=0;
 addEventListener('message',e=>{if(e.source!==fr.contentWindow||!e.data||!e.data.wk)return;const d=document.createElement('div');d.className=e.data.t;d.textContent='› '+e.data.m;$('#con').appendChild(d);$('#con').scrollTop=1e9;$('#cn').textContent=++cn;if(e.data.t==='error'&&$('#con').classList.contains('off'))$('#con').classList.remove('off')});
-document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{const w=$('#fw');w.className=b.dataset.d?'dev '+b.dataset.d:''});
+function setDev(){const w=$('#fw'),d=S.dev||'';w.className=d?'dev '+d+(S.land?' land':''):'';$('#bRot').hidden=!d;$('#bRot').textContent=S.land?'↻ Querformat':'↻ Hochformat';document.querySelectorAll('[data-d]').forEach(b=>b.classList.toggle('on',(b.dataset.d||'')===d));fitDev()}
+function fitDev(){const w=$('#fw'),r=fr.style;if(!S.dev){r.cssText='';return}const P=S.dev==='ph'?[390,844]:[768,1024],W=S.land?P[1]:P[0],H=S.land?P[0]:P[1],s=Math.max(.2,Math.min(1,(w.clientWidth-24)/W,(w.clientHeight-24)/H));r.width=W+'px';r.height=H+'px';r.flex='none';r.transformOrigin='0 0';r.transform='scale('+s+')';r.marginLeft=Math.max(12,(w.clientWidth-W*s)/2)+'px';r.marginTop=Math.max(12,(w.clientHeight-H*s)/2)+'px'}
+document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{S.dev=b.dataset.d;setDev();later()});
+$('#bRot').onclick=()=>{S.land=!S.land;setDev();later()};
+new ResizeObserver(fitDev).observe($('#fw'));
 $('#bCon').onclick=()=>$('#con').classList.toggle('off');
 $('#bRel').onclick=$('#bRun').onclick=run;
 $('#bAuto').onclick=e=>{S.auto=!S.auto;e.target.classList.toggle('on',S.auto);later()};
 /* Laden / Speichern */
 async function importFiles(list){let last='',proj=false;
  for(const file of list){const isImg=/^image\//.test(file.type);
-  const c=await new Promise(r=>{const fr2=new FileReader();fr2.onload=()=>r(fr2.result);isImg?fr2.readAsDataURL(file):fr2.readAsText(file)});
+  const c=await new Promise(r=>{const fr2=new FileReader();fr2.onload=()=>r(isImg?fr2.result:fr2.result.replace(/\r\n?/g,'\n'));isImg?fr2.readAsDataURL(file):fr2.readAsText(file)});
   if(/\.json$/i.test(file.name)){try{const j=JSON.parse(c);if(j&&j.werkstatt&&Array.isArray(j.files)){if(await ask('Projekt laden? Das aktuelle Projekt wird ersetzt.',null,'Laden')){S.files=j.files;S.tabs=[];S.active='';last=(S.files.find(f=>f.name==='index.html')||S.files[0]||{}).name||'';proj=true}continue}}catch(e){}}
   const ex=get(file.name);const o=isImg?{name:file.name,data:c}:{name:file.name,content:c};
   if(ex){Object.keys(ex).forEach(k=>delete ex[k]);Object.assign(ex,o)}else S.files.push(o);last=file.name}
@@ -252,10 +269,10 @@ function reveal(){const m=M[Q.idx];if(!m)return;ta.setSelectionRange(m.i,m.i+m.l
 function step(d){if(!M.length)return;Q.idx=(Q.idx+d+M.length)%M.length;marks();reveal();$('#qc').textContent=(Q.idx+1)+' / '+M.length}
 const rep=s=>Q.re?s.replace(mkRe(false),rEl.value):rEl.value;
 function apply(f,t){f.content=t;if(f===cur()){ta.value=t;upd()}later()}
-function replOne(){const f=cur(),m=M[Q.idx];if(!f||f.data||!m)return;const t=ta.value;apply(f,t.slice(0,m.i)+rep(t.slice(m.i,m.i+m.l))+t.slice(m.i+m.l));if(S.auto)laterRun();reveal()}
+function replOne(){const f=cur(),m=M[Q.idx];if(!f||f.data||!m)return;const r=rep(ta.value.slice(m.i,m.i+m.l));ta.setSelectionRange(m.i,m.i+m.l);if(r)ins(r);else document.execCommand('delete');rEl.focus();reveal()}
 async function replAll(){const files=(Q.all?S.files:[cur()]).filter(f=>f&&!f.data);if(!mkRe(true))return toast('Bitte Suchbegriff eingeben');let n=0,k=0;const plan=files.map(f=>{const c=(findAll(f.content)||[]).length;n+=c;if(c)k++;return[f,c]}).filter(p=>p[1]);if(!n)return toast('Keine Treffer');
  if(Q.all&&!(await ask(n+' Treffer in '+k+' Dateien ersetzen?',null,'Ersetzen')))return;
- plan.forEach(([f])=>apply(f,f.content.replace(mkRe(true),Q.re?rEl.value:()=>rEl.value)));refind();if(S.auto)run();toast(n+' Ersetzungen')}
+ plan.forEach(([f])=>{const t=f.content.replace(mkRe(true),Q.re?rEl.value:()=>rEl.value);if(f===cur()){ta.select();ins(t)}else apply(f,t)});refind();if(S.auto)run();toast(n+' Ersetzungen')}
 function gsearch(){const sr=$('#sr');let h='',tot=0,fc=0,shown=0;for(const f of S.files){if(f.data)continue;const ms=findAll(f.content);if(!ms||!ms.length)continue;fc++;tot+=ms.length;h+=`<div class="fh">${icon(f.name)} ${esc(f.name)} <small>(${ms.length})</small></div>`;const c=f.content;for(const m of ms){if(shown++>=400)break;const ls=c.lastIndexOf('\n',m.i-1)+1;let le=c.indexOf('\n',m.i);if(le<0)le=c.length;const e=Math.min(m.i+m.l,le),lno=c.slice(0,m.i).split('\n').length;h+=`<div class="hit" data-f="${esc(f.name)}" data-i="${m.i}"><span>${lno}</span>${esc(c.slice(Math.max(ls,m.i-40),m.i))}<mark>${esc(c.slice(m.i,e))}</mark>${esc(c.slice(e,Math.min(le,e+80)))}</div>`}}
  sr.innerHTML=`<div class="fh">${qEl.value?tot+' Treffer in '+fc+' Dateien'+(shown>400?' (erste 400 angezeigt)':''):'Suchbegriff eingeben'}</div>`+h;sr.hidden=false}
 $('#sr').onclick=e=>{const h=e.target.closest('.hit');if(!h)return;const i=+h.dataset.i;openF(h.dataset.f);refind();const k=M.findIndex(m=>m.i===i);if(k>=0){Q.idx=k;marks();reveal();$('#qc').textContent=(k+1)+' / '+M.length}};
@@ -267,11 +284,47 @@ qEl.oninput=()=>refind(true);$('#qn').onclick=()=>step(1);$('#qp').onclick=()=>s
 qEl.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();step(e.shiftKey?-1:1)}else if(e.key==='Escape')closeFind()};
 rEl.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();replOne()}else if(e.key==='Escape')closeFind()};
 addEventListener('keydown',e=>{const k=e.key.toLowerCase(),c=e.ctrlKey||e.metaKey;if(c&&k==='f'){e.preventDefault();openFind(e.shiftKey?true:undefined)}else if(c&&k==='h'){e.preventDefault();openFind(undefined,true)}else if(k==='f3'&&!sb.hidden){e.preventDefault();step(e.shiftKey?-1:1)}else if(k==='escape'&&!sb.hidden&&document.activeElement===ta)closeFind()});
+/* Editor-Komfort */
+const SK='<!DOCTYPE html>\n<html lang="de">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <title>Titel</title>\n  <link rel="stylesheet" href="style.css">\n</head>\n<body>\n  \n  <script src="script.js"><\/script>\n</body>\n</html>';
+const PAIR={'(':')','[':']','{':'}','"':'"',"'":"'",'`':'`'};
+const del=(a,b)=>{ta.setSelectionRange(a,b);document.execCommand('delete')||(ta.setRangeText('',a,b,'end'),ta.dispatchEvent(new Event('input')))};
+function edKey(e){const f=cur();if(!f||f.data)return false;const k=e.key,c=e.ctrlKey||e.metaKey,v=ta.value,a=ta.selectionStart,b=ta.selectionEnd,L=lang(f.name);
+ if(c&&k==='/'){e.preventDefault();cmt(L);return true}
+ if(k==='Tab'){if(e.shiftKey||v.slice(a,b).includes('\n')){e.preventDefault();blk(e.shiftKey);return true}
+  if(L==='html'&&a===b&&/(^|\n)!$/.test(v.slice(0,a))){e.preventDefault();ta.setSelectionRange(a-1,a);ins(SK);const p=a-1+SK.indexOf('<body>\n  ')+9;ta.setSelectionRange(p,p);return true}return false}
+ if(e.isComposing||k==='Dead')return false;if((c||e.altKey)&&!(e.getModifierState&&e.getModifierState('AltGraph')))return false;
+ const n=v[a]||'',p=v[a-1]||'';
+ if(a===b){
+  if(k===n&&')]}"\'`'.includes(k)){e.preventDefault();ta.setSelectionRange(a+1,a+1);return true}
+  if(PAIR[k]&&!/\w/.test(n)&&!(PAIR[k]===k&&/\w/.test(p))){e.preventDefault();ins(k+PAIR[k]);ta.setSelectionRange(a+1,a+1);return true}
+  if(k==='Backspace'&&PAIR[p]&&PAIR[p]===n){e.preventDefault();del(a-1,a+1);return true}
+  if(k==='>'&&L==='html'){const m=v.slice(0,a).match(/<([a-zA-Z][\w-]*)(?:\s[^<>]*)?$/);if(m&&!/\/$/.test(v.slice(0,a))&&!/^(br|hr|img|input|meta|link|area|base|col|embed|source|track|wbr)$/i.test(m[1])){e.preventDefault();ins('></'+m[1]+'>');ta.setSelectionRange(a+1,a+1);return true}}
+  if(k==='Enter'&&((p==='{'&&n==='}')||(p==='['&&n===']')||(p==='('&&n===')')||(p==='>'&&v.slice(a,a+2)==='</'))){const ls=v.lastIndexOf('\n',a-1)+1,ind=v.slice(ls,a).match(/^\s*/)[0];e.preventDefault();ins('\n'+ind+'  \n'+ind);const q=a+1+ind.length+2;ta.setSelectionRange(q,q);return true}
+ }else if(PAIR[k]&&k!=="'"){e.preventDefault();ins(k+v.slice(a,b)+PAIR[k]);ta.setSelectionRange(a+1,b+1);return true}
+ return false}
+function lineRange(){const v=ta.value,a=ta.selectionStart,b=ta.selectionEnd,s=v.lastIndexOf('\n',a-1)+1;let e=v.indexOf('\n',b>a&&v[b-1]==='\n'?b-1:b);if(e<0)e=v.length;return[s,e,a,b]}
+function blk(sh){const[s,e,a,b]=lineRange(),t=ta.value.slice(s,e),o=t.split('\n').map(l=>sh?l.replace(/^( {1,2}|\t)/,''):'  '+l).join('\n');ta.setSelectionRange(s,e);if(o!==t)ins(o);if(a===b){const q=Math.max(s,a-(t.length-o.length));ta.setSelectionRange(q,q)}else ta.setSelectionRange(s,s+o.length)}
+function cmt(L){const[s,e]=lineRange(),t=ta.value.slice(s,e),ls=t.split('\n'),P=L==='js'?['// ','']:L==='css'?['/* ',' */']:['<!-- ',' -->'],p0=P[0].trim(),p1=P[1].trim();
+ const all=ls.every(l=>!l.trim()||(l.trim().startsWith(p0)&&(!p1||l.trim().endsWith(p1))));
+ const o=ls.map(l=>{if(!l.trim())return l;const ind=l.match(/^\s*/)[0];if(all){let x=l.trim().slice(p0.length);if(p1)x=x.slice(0,-p1.length).replace(/ $/,'');return ind+x.replace(/^ /,'')}return ind+P[0]+l.slice(ind.length)+P[1]}).join('\n');ta.setSelectionRange(s,e);ins(o);ta.setSelectionRange(s,s+o.length)}
+const POS={};function savePos(){const f=cur();if(f&&!f.data&&!ta.hidden)POS[f.name]=[ta.selectionStart,ta.selectionEnd,ta.scrollTop,ta.scrollLeft]}
+const setFs=()=>{S.fs=Math.round(S.fs);const e=$('#ew').style;e.fontSize=S.fs+'px';e.lineHeight=Math.round(S.fs*1.55)+'px'};
+$('#fMin').onclick=()=>{S.fs=Math.max(10,S.fs-1);setFs();later()};$('#fPlus').onclick=()=>{S.fs=Math.min(24,S.fs+1);setFs();later()};
+const KEYS=[['Strg+S','Lokal speichern'],['Strg+Enter','Vorschau ausführen'],['Strg+F / Strg+H','Suchen / Ersetzen'],['Strg+Umschalt+F','In allen Dateien suchen'],['F3 / Umschalt+F3','Nächster / vorheriger Treffer'],['Strg+/','Zeilen aus-/einkommentieren'],['Tab / Umschalt+Tab','Einrücken / Ausrücken'],['! + Tab','HTML-Grundgerüst (in .html)'],['Esc','Suche schließen']];
+$('#hk').innerHTML=KEYS.map(k=>`<b>${k[0]}</b><span>${k[1]}</span>`).join('');
+$('#bHelp').onclick=()=>$('#hp').classList.add('on');$('#hx').onclick=()=>$('#hp').classList.remove('on');$('#hp').onclick=e=>{if(e.target.id==='hp')e.target.classList.remove('on')};
+$('#bProj').onclick=async()=>{if(await ask('Neues Projekt mit Starter-Dateien? Das aktuelle wird ersetzt – speichere es vorher.',null,'Neu starten')){S.files=starter();S.tabs=['index.html'];S.active='index.html';renderAll();run();later();toast('Neues Projekt')}};
+/* Export-Ersatz */
+function fallback(name,data){try{const b=data instanceof Blob?data:new Blob([data],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}catch(e){}
+ if(typeof data==='string')showExport(name,data);else toast('Download ist in dieser Ansicht nicht möglich – öffne die Seite über den claude.ai-Link oder nutze „Projekt speichern“')}
+function showExport(name,text){$('#exT').textContent='Export: '+name;$('#exH').textContent='Der direkte Download ist in dieser Ansicht nicht verfügbar. Kopiere den Inhalt und speichere ihn lokal als „'+name+'“.';const t=$('#exA');t.value=text;$('#ex').classList.add('on');t.focus();t.select()}
+$('#exX').onclick=()=>$('#ex').classList.remove('on');
+$('#exC').onclick=async()=>{const t=$('#exA');t.focus();t.select();let ok=false;try{ok=document.execCommand('copy')}catch(e){}if(!ok&&navigator.clipboard){try{await navigator.clipboard.writeText(t.value);ok=true}catch(e){}}toast(ok?'In die Zwischenablage kopiert':'Bitte Text markieren und mit Strg+C kopieren')};
 /* Start */
 (function(){let ok=false;try{const j=JSON.parse(localStorage.getItem(KEY));if(j&&j.files&&j.files.length){S=Object.assign(S,j);ok=true}}catch(e){}
  if(!ok){S.files=starter();S.tabs=['index.html'];S.active='index.html'}
  if(!get(S.active))S.active=S.tabs[0]||'';
- setTheme();setLay();$('#bAuto').classList.toggle('on',S.auto);renderAll();run();if(ok)toast('Projekt wiederhergestellt')})();
+ setTheme();setLay();setFs();setDev();$('#bAuto').classList.toggle('on',S.auto);renderAll();run();if(ok)toast('Projekt wiederhergestellt')})();
 </script>
 </body>
 </html>
