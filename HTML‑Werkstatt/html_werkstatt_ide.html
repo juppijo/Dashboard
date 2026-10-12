@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zaminia HTML-Werkstatt IDE</title>
+    <title>Zaminia HTML-Werkstatt IDE v5</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -63,28 +63,59 @@
             background: #dc2626;
         }
 
-        /* Editor Overlay Styles for Syntax Highlighting */
-        .editor-container {
+        /* Editor Wrapper & Perfect Alignment Styles */
+        .editor-wrapper {
             position: relative;
             flex: 1;
             width: 100%;
+            height: 100%;
+            display: flex;
+            background-color: #0f0a0a;
+            overflow: hidden;
+        }
+
+        /* Line Numbers Gutter */
+        #lineNumbersGutter {
+            width: 50px;
+            background-color: #120d0d;
+            border-right: 1px solid #261b1b;
+            color: #6b7280;
+            font-family: 'Fira Code', Menlo, Monaco, Consolas, 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 22px;
+            padding: 16px 0;
+            text-align: right;
+            user-select: none;
+            overflow: hidden;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        .line-num {
+            padding-right: 12px;
+        }
+
+        .editor-container {
+            position: relative;
+            flex: 1;
             height: 100%;
             overflow: hidden;
             background-color: #0f0a0a;
         }
 
+        /* Both textarea and highlight display share IDENTICAL typography, padding, and box metrics */
         .editor-layer {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            padding: 1rem;
+            padding: 16px;
             margin: 0;
             border: 0;
             font-family: 'Fira Code', Menlo, Monaco, Consolas, 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.6;
+            font-size: 13px;
+            line-height: 22px;
             tab-size: 4;
             white-space: pre-wrap;
             word-wrap: break-word;
@@ -99,19 +130,54 @@
             z-index: 2;
             resize: none;
             outline: none;
+            /* Prevents automatic scrollbars from skewing alignment */
+            overflow-x: auto;
+            overflow-y: scroll;
         }
 
         #highlightDisplay {
             z-index: 1;
             pointer-events: none;
             background: #0f0a0a;
+            overflow: hidden;
+        }
+
+        /* Resizer Splitter Bars */
+        .resizer-x {
+            width: 6px;
+            cursor: col-resize;
+            background: #181111;
+            border-left: 1px solid #261b1b;
+            border-right: 1px solid #261b1b;
+            transition: background 0.2s;
+            position: relative;
+            z-index: 30;
+            flex-shrink: 0;
+        }
+        .resizer-x:hover, .resizer-x.active {
+            background: #ef4444;
+        }
+
+        .resizer-y {
+            height: 6px;
+            cursor: row-resize;
+            background: #181111;
+            border-top: 1px solid #261b1b;
+            border-bottom: 1px solid #261b1b;
+            transition: background 0.2s;
+            position: relative;
+            z-index: 30;
+            flex-shrink: 0;
+        }
+        .resizer-y:hover, .resizer-y.active {
+            background: #ef4444;
         }
 
         /* Prism Theme Custom Overrides for Zaminia Dark UI */
         code[class*="language-"], pre[class*="language-"] {
             font-family: 'Fira Code', Menlo, Monaco, Consolas, 'Courier New', monospace !important;
-            font-size: 14px !important;
-            line-height: 1.6 !important;
+            font-size: 13px !important;
+            line-height: 22px !important;
             text-shadow: none !important;
             background: transparent !important;
             padding: 0 !important;
@@ -138,12 +204,24 @@
             </div>
             <div>
                 <h1 class="font-bold tracking-wide text-sm md:text-base text-gray-100 flex items-center gap-2">
-                    Zaminia Werkstatt <span class="text-xs bg-zaminia-900/60 text-zaminia-400 border border-zaminia-700/50 px-2 py-0.5 rounded-full font-mono">IDE v3.2 (Color Edition)</span>
+                    Zaminia Werkstatt <span class="text-xs bg-zaminia-900/60 text-zaminia-400 border border-zaminia-700/50 px-2 py-0.5 rounded-full font-mono">IDE v5.0 (Line Numbers & Gutter)</span>
                 </h1>
             </div>
         </div>
 
         <div class="flex items-center space-x-2 md:space-x-3">
+            <!-- Collapse Toggles -->
+            <div class="hidden md:flex items-center space-x-1 bg-darkbase-900 p-1 rounded-lg border border-darkbase-700 text-xs mr-2">
+                <button onclick="toggleSidebar()" id="btnToggleSidebar" title="Sidebar ein-/ausklappen" class="px-2 py-1 hover:bg-darkbase-700 rounded text-gray-300 transition flex items-center space-x-1">
+                    <i class="fa-solid fa-folder-tree text-zaminia-400"></i>
+                    <span>Dateien</span>
+                </button>
+                <button onclick="toggleConsolePane()" id="btnToggleConsole" title="Konsole ein-/ausklappen" class="px-2 py-1 hover:bg-darkbase-700 rounded text-gray-300 transition flex items-center space-x-1">
+                    <i class="fa-solid fa-terminal text-amber-400"></i>
+                    <span>Konsole</span>
+                </button>
+            </div>
+
             <button onclick="saveProjectToLocalStorage()" title="Projekt lokal speichern (Ctrl+S)" class="flex items-center space-x-1.5 px-3 py-1.5 bg-darkbase-700 hover:bg-darkbase-600 border border-darkbase-600 text-xs font-medium rounded-lg transition-all shadow-sm">
                 <i class="fa-solid fa-floppy-disk text-zaminia-400"></i>
                 <span class="hidden sm:inline">Speichern</span>
@@ -178,10 +256,11 @@
         </div>
     </header>
 
+    <!-- Main Workspace Container with Resizable Panes -->
     <div class="flex-1 flex overflow-hidden relative" id="workspaceContainer">
         
         <!-- Sidebar: File Manager -->
-        <div id="sidebar" class="w-64 bg-darkbase-800/90 border-r border-darkbase-700 flex flex-col shrink-0 select-none transition-all duration-300">
+        <div id="sidebar" class="w-64 bg-darkbase-800/90 border-r border-darkbase-700 flex flex-col shrink-0 select-none transition-all duration-150" style="width: 250px; min-width: 150px; max-width: 450px;">
             <div class="p-3 border-b border-darkbase-700 flex items-center justify-between text-xs font-semibold tracking-wider text-gray-400 uppercase">
                 <span><i class="fa-solid fa-folder-tree mr-1.5 text-zaminia-500"></i> Dateien</span>
                 <div class="flex items-center space-x-1">
@@ -214,69 +293,126 @@
             </div>
         </div>
 
-        <!-- Center Editor Area -->
-        <div id="editorPane" class="flex-1 flex flex-col bg-darkbase-900 overflow-hidden relative">
+        <!-- Resizer: Sidebar <-> Center Editor -->
+        <div class="resizer-x" id="resizerSidebar" title="Größe anpassen"></div>
+
+        <!-- Center Column (Editor + Console vertically resizable) -->
+        <div id="centerColumn" class="flex-1 flex flex-col overflow-hidden relative" style="min-width: 250px;">
             
-            <!-- Editor Top Toolbar & Tabs -->
-            <div class="bg-darkbase-800 border-b border-darkbase-700 flex items-center justify-between shrink-0 h-10 px-2">
-                <div id="tabBar" class="flex items-center overflow-x-auto space-x-1 flex-1">
-                    <!-- Tabs populated via JS -->
+            <!-- Editor Pane -->
+            <div id="editorPane" class="flex-1 flex flex-col bg-darkbase-900 overflow-hidden relative" style="min-height: 150px;">
+                <!-- Editor Top Toolbar & Tabs -->
+                <div class="bg-darkbase-800 border-b border-darkbase-700 flex items-center justify-between shrink-0 h-10 px-2">
+                    <div id="tabBar" class="flex items-center overflow-x-auto space-x-1 flex-1">
+                        <!-- Tabs populated via JS -->
+                    </div>
+
+                    <!-- Color Picker & Quick Palette Toolbar -->
+                    <div class="flex items-center space-x-2 pl-2 border-l border-darkbase-700">
+                        <div class="flex items-center space-x-1 bg-darkbase-900 px-2 py-1 rounded-lg border border-darkbase-700">
+                            <i class="fa-solid fa-palette text-xs text-zaminia-400" title="Text- / Farb-Werkzeug"></i>
+                            <input type="color" id="colorPicker" value="#ef4444" onchange="insertColorCode(this.value)" class="w-5 h-5 bg-transparent cursor-pointer border-0 p-0 rounded" title="Farbe wählen">
+                            <span id="colorHexText" class="text-[11px] font-mono text-gray-300">#ef4444</span>
+                            <button onclick="insertColorCode(document.getElementById('colorPicker').value)" class="text-[10px] bg-zaminia-700 hover:bg-zaminia-600 text-white px-1.5 py-0.5 rounded transition ml-1">
+                                Einfügen
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Color Picker & Quick Palette Toolbar -->
-                <div class="flex items-center space-x-2 pl-2 border-l border-darkbase-700">
-                    <div class="flex items-center space-x-1 bg-darkbase-900 px-2 py-1 rounded-lg border border-darkbase-700">
-                        <i class="fa-solid fa-palette text-xs text-zaminia-400" title="Text- / Farb-Werkzeug"></i>
-                        <input type="color" id="colorPicker" value="#ef4444" onchange="insertColorCode(this.value)" class="w-5 h-5 bg-transparent cursor-pointer border-0 p-0 rounded" title="Farbe wählen & an Cursor-Position einfügen">
-                        <span id="colorHexText" class="text-[11px] font-mono text-gray-300">#ef4444</span>
-                        <button onclick="insertColorCode(document.getElementById('colorPicker').value)" class="text-[10px] bg-zaminia-700 hover:bg-zaminia-600 text-white px-1.5 py-0.5 rounded transition ml-1" title="Code einfügen">
-                            Einfügen
+                <!-- Code Editor Container with Line Numbers & Syntax Highlighting Overlay -->
+                <div class="flex-1 relative flex flex-col overflow-hidden">
+                    <div class="absolute top-2 right-4 z-10 bg-darkbase-800/80 backdrop-blur border border-darkbase-700 rounded-lg px-2.5 py-1 text-[11px] text-gray-400 flex items-center space-x-2 pointer-events-none shadow">
+                        <span id="activeFileLang" class="font-mono text-zaminia-400 uppercase font-semibold">HTML</span>
+                        <span class="text-darkbase-600">|</span>
+                        <span id="cursorPosition">Ln 1, Col 1</span>
+                    </div>
+
+                    <div class="editor-wrapper">
+                        <!-- Line Numbers Gutter -->
+                        <div id="lineNumbersGutter">1</div>
+                        
+                        <!-- Textarea & Highlighting Overlay -->
+                        <div class="editor-container">
+                            <pre id="highlightDisplay" class="editor-layer"><code id="highlightCode" class="language-html"></code></pre>
+                            <textarea id="codeEditor" 
+                                class="editor-layer"
+                                placeholder="Wähle eine Datei aus oder erstelle eine neue..."
+                                oninput="handleCodeInput(event)"
+                                onkeydown="handleKeyDown(event)"
+                                onkeyup="updateCursorPosition()"
+                                onclick="updateCursorPosition()"
+                                onscroll="syncScroll()"
+                                spellcheck="false"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editor Status Footer -->
+                <div class="bg-darkbase-800 border-t border-darkbase-700 px-3 py-1.5 text-xs text-gray-400 flex items-center justify-between shrink-0">
+                    <div class="flex items-center space-x-3">
+                        <span class="flex items-center space-x-1.5 text-emerald-400">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span id="statusMessage">Bereit</span>
+                        </span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-gray-400">
+                        <button onclick="triggerRun()" class="hover:text-white flex items-center space-x-1 text-zaminia-400 hover:text-zaminia-300 font-medium">
+                            <i class="fa-solid fa-play"></i>
+                            <span>Vorschau aktualisieren</span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Code Editor Container with Syntax Highlighting Overlay -->
-            <div class="flex-1 relative flex flex-col overflow-hidden">
-                <div class="absolute top-2 right-4 z-10 bg-darkbase-800/80 backdrop-blur border border-darkbase-700 rounded-lg px-2.5 py-1 text-[11px] text-gray-400 flex items-center space-x-2 pointer-events-none shadow">
-                    <span id="activeFileLang" class="font-mono text-zaminia-400 uppercase font-semibold">HTML</span>
-                    <span class="text-darkbase-600">|</span>
-                    <span id="cursorPosition">Ln 1, Col 1</span>
-                </div>
+            <!-- Resizer: Editor <-> Console -->
+            <div class="resizer-y" id="resizerConsole" title="Konsole vergrößern/verkleinern"></div>
 
-                <div class="editor-container">
-                    <pre id="highlightDisplay" class="editor-layer"><code id="highlightCode" class="language-html"></code></pre>
-                    <textarea id="codeEditor" 
-                        class="editor-layer"
-                        placeholder="Wähle eine Datei aus oder erstelle eine neue..."
-                        oninput="handleCodeInput(event)"
-                        onkeydown="handleKeyDown(event)"
-                        onkeyup="updateCursorPosition()"
-                        onclick="updateCursorPosition()"
-                        onscroll="syncScroll()"
-                        spellcheck="false"></textarea>
+            <!-- Integrated Console Viewer Panel -->
+            <div id="consolePane" class="bg-darkbase-900 border-t border-darkbase-700 flex flex-col shrink-0 transition-all duration-150" style="height: 140px; min-height: 40px; max-height: 400px;">
+                <div class="bg-darkbase-800 border-b border-darkbase-700 px-3 py-1.5 flex items-center justify-between text-xs text-gray-300 select-none">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-terminal text-amber-400"></i>
+                        <span class="font-bold tracking-wide">Entwickler-Konsole</span>
+                        <span id="consoleBadge" class="bg-darkbase-700 text-gray-400 px-1.5 py-0.2 rounded-full text-[10px] font-mono">0</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-1 bg-darkbase-900 px-2 py-0.5 rounded border border-darkbase-700">
+                            <label class="cursor-pointer text-[11px] text-gray-300 flex items-center space-x-1">
+                                <input type="checkbox" id="filterLog" checked onchange="renderConsoleLogs()" class="accent-zaminia-600">
+                                <span class="text-blue-400">Log</span>
+                            </label>
+                            <span class="text-darkbase-600">|</span>
+                            <label class="cursor-pointer text-[11px] text-gray-300 flex items-center space-x-1">
+                                <input type="checkbox" id="filterWarn" checked onchange="renderConsoleLogs()" class="accent-zaminia-600">
+                                <span class="text-amber-400">Warn</span>
+                            </label>
+                            <span class="text-darkbase-600">|</span>
+                            <label class="cursor-pointer text-[11px] text-gray-300 flex items-center space-x-1">
+                                <input type="checkbox" id="filterError" checked onchange="renderConsoleLogs()" class="accent-zaminia-600">
+                                <span class="text-red-400">Error</span>
+                            </label>
+                        </div>
+                        <button onclick="clearConsoleLogs()" title="Konsole leeren" class="p-1 hover:bg-darkbase-700 rounded text-gray-400 hover:text-white transition">
+                            <i class="fa-solid fa-ban"></i>
+                        </button>
+                        <button onclick="toggleConsolePane()" title="Konsole minimieren/maximieren" class="p-1 hover:bg-darkbase-700 rounded text-gray-400 hover:text-white transition">
+                            <i class="fa-solid fa-chevron-down" id="consoleToggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="consoleOutputList" class="flex-1 overflow-y-auto p-2 font-mono text-xs space-y-1 bg-[#0b0707] select-text">
+                    <!-- Logs populated via JS -->
                 </div>
             </div>
 
-            <!-- Editor Status Footer -->
-            <div class="bg-darkbase-800 border-t border-darkbase-700 px-3 py-1.5 text-xs text-gray-400 flex items-center justify-between shrink-0">
-                <div class="flex items-center space-x-3">
-                    <span class="flex items-center space-x-1.5 text-emerald-400">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="statusMessage">Bereit</span>
-                    </span>
-                </div>
-                <div class="flex items-center space-x-3 text-gray-400">
-                    <button onclick="triggerRun()" class="hover:text-white flex items-center space-x-1 text-zaminia-400 hover:text-zaminia-300 font-medium">
-                        <i class="fa-solid fa-play"></i>
-                        <span>Vorschau aktualisieren</span>
-                    </button>
-                </div>
-            </div>
         </div>
 
+        <!-- Resizer: Center Column <-> Preview Pane -->
+        <div class="resizer-x" id="resizerPreview" title="Größe anpassen"></div>
+
         <!-- Right Preview Pane -->
-        <div id="previewPane" class="w-1/2 flex flex-col bg-white border-l border-darkbase-700 shrink-0 relative transition-all duration-300">
+        <div id="previewPane" class="flex flex-col bg-white border-l border-darkbase-700 shrink-0 relative transition-all duration-150" style="width: 50%; min-width: 200px; max-width: 80%;">
             <div class="bg-darkbase-800 border-b border-darkbase-700 h-10 px-3 flex items-center justify-between shrink-0 text-xs text-gray-300">
                 <div class="flex items-center space-x-2">
                     <i class="fa-solid fa-desktop text-zaminia-400"></i>
@@ -296,6 +432,7 @@
 
     </div>
 
+    <!-- Modal Overlays -->
     <div id="modalOverlay" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div id="newFileModal" class="bg-darkbase-800 border border-darkbase-700 rounded-2xl w-full max-w-md p-6 shadow-2xl hidden">
             <h3 class="text-lg font-bold text-gray-100 mb-4 flex items-center gap-2">
@@ -336,8 +473,8 @@
 <body class="container">
     <div class="card">
         <h1>✨ Hallo aus style.css!</h1>
-        <p>Diese Vorschau bindet <code>style.css</code> und <code>script.js</code> über echte relative Pfade ein.</p>
-        <button onclick="triggerAction()">Klick mich</button>
+        <p>Diese Vorschau bindet Stylesheets ein und fängt Konsolen-Logs & Fehler automatisch ab.</p>
+        <button onclick="triggerAction()">Klick mich für Logs</button>
     </div>
     <script src="script.js"><\\/script>
 </body>
@@ -386,8 +523,16 @@ button:hover {
                 language: "css"
             },
             "script.js": {
-                content: `function triggerAction() {
-    alert("Skript aus script.js wurde erfolgreich ausgeführt!");
+                content: `console.log("App wurde erfolgreich initialisiert.");
+
+function triggerAction() {
+    console.warn("Warnung: Button wurde geklickt!");
+    try {
+        // Test für Konsolen-Fehler
+        nonExistentFunction();
+    } catch(err) {
+        console.error("Fehler abgefangen: " + err.message);
+    }
 }`,
                 language: "javascript"
             }
@@ -397,6 +542,10 @@ button:hover {
         let openTabs = [];
         let activeFile = "index.html";
         let autoRunTimer = null;
+        let consoleLogs = [];
+        let consolePrevHeight = 140;
+        let isConsoleCollapsed = false;
+        let isSidebarCollapsed = false;
 
         window.onload = function() {
             loadSavedProject();
@@ -409,15 +558,225 @@ button:hover {
             document.getElementById("colorPicker").addEventListener("input", function(e) {
                 document.getElementById("colorHexText").innerText = e.target.value;
             });
+
+            initResizers();
         };
 
+        // --- Resizable Panes Logic ---
+        function initResizers() {
+            // Sidebar resizer
+            const resizerSidebar = document.getElementById("resizerSidebar");
+            const sidebar = document.getElementById("sidebar");
+            
+            resizerSidebar.addEventListener("mousedown", (e) => {
+                e.preventDefault();
+                resizerSidebar.classList.add("active");
+                const onMouseMove = (ev) => {
+                    let newWidth = ev.clientX;
+                    if (newWidth < 120) newWidth = 120;
+                    if (newWidth > 500) newWidth = 500;
+                    sidebar.style.width = newWidth + "px";
+                };
+                const onMouseUp = () => {
+                    resizerSidebar.classList.remove("active");
+                    window.removeEventListener("mousemove", onMouseMove);
+                    window.removeEventListener("mouseup", onMouseUp);
+                };
+                window.addEventListener("mousemove", onMouseMove);
+                window.addEventListener("mouseup", onMouseUp);
+            });
+
+            // Preview resizer
+            const resizerPreview = document.getElementById("resizerPreview");
+            const previewPane = document.getElementById("previewPane");
+
+            resizerPreview.addEventListener("mousedown", (e) => {
+                e.preventDefault();
+                resizerPreview.classList.add("active");
+                const onMouseMove = (ev) => {
+                    let newWidth = window.innerWidth - ev.clientX;
+                    if (newWidth < 150) newWidth = 150;
+                    if (newWidth > window.innerWidth - 200) newWidth = window.innerWidth - 200;
+                    previewPane.style.width = newWidth + "px";
+                };
+                const onMouseUp = () => {
+                    resizerPreview.classList.remove("active");
+                    window.removeEventListener("mousemove", onMouseMove);
+                    window.removeEventListener("mouseup", onMouseUp);
+                };
+                window.addEventListener("mousemove", onMouseMove);
+                window.addEventListener("mouseup", onMouseUp);
+            });
+
+            // Console resizer (vertical)
+            const resizerConsole = document.getElementById("resizerConsole");
+            const consolePane = document.getElementById("consolePane");
+
+            resizerConsole.addEventListener("mousedown", (e) => {
+                e.preventDefault();
+                if (isConsoleCollapsed) return;
+                resizerConsole.classList.add("active");
+                const startY = e.clientY;
+                const startHeight = consolePane.offsetHeight;
+
+                const onMouseMove = (ev) => {
+                    let delta = startY - ev.clientY;
+                    let newHeight = startHeight + delta;
+                    if (newHeight < 40) newHeight = 40;
+                    if (newHeight > 500) newHeight = 500;
+                    consolePane.style.height = newHeight + "px";
+                    consolePrevHeight = newHeight;
+                };
+                const onMouseUp = () => {
+                    resizerConsole.classList.remove("active");
+                    window.removeEventListener("mousemove", onMouseMove);
+                    window.removeEventListener("mouseup", onMouseUp);
+                };
+                window.addEventListener("mousemove", onMouseMove);
+                window.addEventListener("mouseup", onMouseUp);
+            });
+        }
+
+        // --- Collapse Toggles ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const resizer = document.getElementById("resizerSidebar");
+            isSidebarCollapsed = !isSidebarCollapsed;
+            if (isSidebarCollapsed) {
+                sidebar.dataset.prevWidth = sidebar.style.width || "250px";
+                sidebar.style.width = "0px";
+                sidebar.style.minWidth = "0px";
+                sidebar.style.padding = "0px";
+                sidebar.style.overflow = "hidden";
+                resizer.style.display = "none";
+            } else {
+                sidebar.style.width = sidebar.dataset.prevWidth || "250px";
+                sidebar.style.minWidth = "150px";
+                sidebar.style.padding = "";
+                sidebar.style.overflow = "";
+                resizer.style.display = "block";
+            }
+        }
+
+        function toggleConsolePane() {
+            const consolePane = document.getElementById("consolePane");
+            const icon = document.getElementById("consoleToggleIcon");
+            const resizer = document.getElementById("resizerConsole");
+            
+            isConsoleCollapsed = !isConsoleCollapsed;
+            if (isConsoleCollapsed) {
+                consolePane.dataset.prevHeight = consolePane.style.height || "140px";
+                consolePane.style.height = "36px";
+                consolePane.style.minHeight = "36px";
+                consolePane.style.maxHeight = "36px";
+                icon.className = "fa-solid fa-chevron-up";
+                resizer.style.display = "none";
+            } else {
+                consolePane.style.height = consolePane.dataset.prevHeight || "140px";
+                consolePane.style.minHeight = "40px";
+                consolePane.style.maxHeight = "400px";
+                icon.className = "fa-solid fa-chevron-down";
+                resizer.style.display = "block";
+            }
+        }
+
+        // --- Console Management ---
+        function addConsoleLog(type, argsFormatted) {
+            const timestamp = new Date().toLocaleTimeString();
+            consoleLogs.push({ type, message: argsFormatted, time: timestamp });
+            if (consoleLogs.length > 200) consoleLogs.shift();
+            renderConsoleLogs();
+        }
+
+        function clearConsoleLogs() {
+            consoleLogs = [];
+            renderConsoleLogs();
+        }
+
+        function renderConsoleLogs() {
+            const list = document.getElementById("consoleOutputList");
+            const badge = document.getElementById("consoleBadge");
+            badge.innerText = consoleLogs.length;
+
+            const showLog = document.getElementById("filterLog").checked;
+            const showWarn = document.getElementById("filterWarn").checked;
+            const showError = document.getElementById("filterError").checked;
+
+            list.innerHTML = "";
+            let countFiltered = 0;
+
+            consoleLogs.forEach(log => {
+                if (log.type === 'log' && !showLog) return;
+                if (log.type === 'warn' && !showWarn) return;
+                if (log.type === 'error' && !showError) return;
+
+                countFiltered++;
+                const item = document.createElement("div");
+                item.className = "flex items-start space-x-2 py-0.5 border-b border-darkbase-800 font-mono text-[11px] leading-relaxed";
+
+                let icon = '<i class="fa-solid fa-info-circle text-blue-400 mt-0.5"></i>';
+                let colorClass = "text-blue-300";
+                let bgClass = "bg-blue-950/20";
+
+                if (log.type === 'warn') {
+                    icon = '<i class="fa-solid fa-triangle-exclamation text-amber-400 mt-0.5"></i>';
+                    colorClass = "text-amber-300";
+                    bgClass = "bg-amber-950/25";
+                } else if (log.type === 'error') {
+                    icon = '<i class="fa-solid fa-circle-xmark text-red-400 mt-0.5"></i>';
+                    colorClass = "text-red-300";
+                    bgClass = "bg-red-950/30";
+                }
+
+                item.className += ` ${bgClass}`;
+                item.innerHTML = `
+                    <span class="text-gray-500 shrink-0 select-none">[${log.time}]</span>
+                    <span class="shrink-0">${icon}</span>
+                    <span class="${colorClass} whitespace-pre-wrap break-all flex-1">${escapeHtml(log.message)}</span>
+                `;
+                list.appendChild(item);
+            });
+
+            if (countFiltered === 0) {
+                list.innerHTML = `<div class="text-gray-500 text-center py-4 italic">Keine Konsoleneinträge vorhanden.</div>`;
+            } else {
+                list.scrollTop = list.scrollHeight;
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        // Global functions exposed to iframe sandbox via parent hook
+        window.parentConsoleLog = function(...args) {
+            addConsoleLog('log', args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '));
+        };
+        window.parentConsoleWarn = function(...args) {
+            addConsoleLog('warn', args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '));
+        };
+        window.parentConsoleError = function(...args) {
+            addConsoleLog('error', args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '));
+        };
+        window.parentWindowError = function(msg, url, line) {
+            addConsoleLog('error', `${msg} (${url ? url.split('/').pop() : 'script'}:${line || 0})`);
+        };
+        window.windowAlert = function(msg) {
+            alertCustom(msg);
+        };
+
+        // --- Project & File Management ---
         function loadSavedProject() {
-            const saved = localStorage.getItem("zaminia_ide_project_v3");
+            const saved = localStorage.getItem("zaminia_ide_project_v5");
             if (saved) {
                 try {
                     projectFiles = JSON.parse(saved);
-                    openTabs = JSON.parse(localStorage.getItem("zaminia_ide_tabs_v3")) || ["index.html"];
-                    activeFile = localStorage.getItem("zaminia_ide_active_v3") || "index.html";
+                    openTabs = JSON.parse(localStorage.getItem("zaminia_ide_tabs_v5")) || ["index.html"];
+                    activeFile = localStorage.getItem("zaminia_ide_active_v5") || "index.html";
                     if (!projectFiles[activeFile]) activeFile = Object.keys(projectFiles)[0];
                 } catch(e) {
                     projectFiles = JSON.parse(JSON.stringify(defaultFiles));
@@ -432,9 +791,9 @@ button:hover {
         }
 
         function saveProjectToLocalStorage() {
-            localStorage.setItem("zaminia_ide_project_v3", JSON.stringify(projectFiles));
-            localStorage.setItem("zaminia_ide_tabs_v3", JSON.stringify(openTabs));
-            localStorage.setItem("zaminia_ide_active_v3", activeFile);
+            localStorage.setItem("zaminia_ide_project_v5", JSON.stringify(projectFiles));
+            localStorage.setItem("zaminia_ide_tabs_v5", JSON.stringify(openTabs));
+            localStorage.setItem("zaminia_ide_active_v5", activeFile);
             showNotification("Projekt erfolgreich gespeichert!");
         }
 
@@ -498,6 +857,7 @@ button:hover {
             renderFileList();
             renderTabs();
             updateHighlighting();
+            updateLineNumbers();
             updateCursorPosition();
         }
 
@@ -519,7 +879,6 @@ button:hover {
 
             highlightCode.className = langClass;
             
-            // Add trailing space for smoother newline renders in textarea
             let text = editor.value;
             if (text.endsWith("\n")) {
                 text += " ";
@@ -529,11 +888,26 @@ button:hover {
             syncScroll();
         }
 
+        function updateLineNumbers() {
+            const editor = document.getElementById("codeEditor");
+            const gutter = document.getElementById("lineNumbersGutter");
+            const linesCount = editor.value.split('\n').length;
+            
+            let html = "";
+            for (let i = 1; i <= linesCount; i++) {
+                html += `<div>${i}</div>`;
+            }
+            gutter.innerHTML = html;
+        }
+
         function syncScroll() {
             const editor = document.getElementById("codeEditor");
             const highlightDisplay = document.getElementById("highlightDisplay");
+            const gutter = document.getElementById("lineNumbersGutter");
+
             highlightDisplay.scrollTop = editor.scrollTop;
             highlightDisplay.scrollLeft = editor.scrollLeft;
+            gutter.scrollTop = editor.scrollTop;
         }
 
         function insertColorCode(hex) {
@@ -642,6 +1016,7 @@ button:hover {
         function handleCodeInput(event) {
             projectFiles[activeFile].content = event.target.value;
             updateHighlighting();
+            updateLineNumbers();
             
             clearTimeout(autoRunTimer);
             autoRunTimer = setTimeout(() => {
@@ -713,18 +1088,45 @@ button:hover {
                 processedHtml = processedHtml.split(`'./${filename}'`).join(`'${url}'`);
             });
 
-            // Custom alert wrapper
-            const alertOverrideScript = `
+            // Injection script to intercept console and errors in iframe
+            const interceptionScript = `
                 <script>
-                    window.alert = function(msg) {
-                        window.parent.windowAlert(msg);
-                    };
+                    (function() {
+                        const originalLog = console.log;
+                        const originalWarn = console.warn;
+                        const originalError = console.error;
+
+                        console.log = function(...args) {
+                            originalLog.apply(console, args);
+                            window.parent.parentConsoleLog(...args);
+                        };
+                        console.warn = function(...args) {
+                            originalWarn.apply(console, args);
+                            window.parent.parentConsoleWarn(...args);
+                        };
+                        console.error = function(...args) {
+                            originalError.apply(console, args);
+                            window.parent.parentConsoleError(...args);
+                        };
+
+                        window.onerror = function(msg, url, line, col, error) {
+                            window.parent.parentWindowError(msg, url, line);
+                            return false;
+                        };
+
+                        window.alert = function(msg) {
+                            window.parent.windowAlert(msg);
+                        };
+                    })();
                 <\/script>
             `;
-            if (processedHtml.includes('</head>')) {
-                processedHtml = processedHtml.replace('</head>', alertOverrideScript + '</head>');
+
+            if (processedHtml.includes('<head>')) {
+                processedHtml = processedHtml.replace('<head>', '<head>' + interceptionScript);
+            } else if (processedHtml.includes('<html>')) {
+                processedHtml = processedHtml.replace('<html>', '<html><head>' + interceptionScript + '</head>');
             } else {
-                processedHtml = alertOverrideScript + processedHtml;
+                processedHtml = interceptionScript + processedHtml;
             }
 
             const finalBlob = new Blob([processedHtml], { type: "text/html" });
@@ -803,7 +1205,7 @@ button:hover {
 <body>
     <header>
         <h1>Zaminia Werkstatt</h1>
-        <p>Erstellen Sie blitzschnell moderne Webanwendungen mit Textfarben.</p>
+        <p>Erstellen Sie blitzschnell moderne Webanwendungen mit Live-Konsole.</p>
     </header>
     <main>
         <button onclick="greet()">Begrüßung anzeigen</button>
@@ -839,7 +1241,9 @@ button {
 button:hover { background: #dc2626; }`, language: "css"
                     },
                     "script.js": {
-                        content: `function greet() {
+                        content: `console.log("Landingpage Template geladen.");
+function greet() {
+    console.log("Button geklickt!");
     alert("Willkommen in Ihrer professionellen Web-Werkstatt!");
 }`, language: "javascript"
                     }
@@ -898,9 +1302,11 @@ button:hover { background: #b91c1c; }`, language: "css"
                     },
                     "script.js": {
                         content: `let score = 0;
+console.log("Spiel gestartet.");
 function addScore() {
     score++;
     document.getElementById("points").innerText = score;
+    console.log("Punktstand erhöht auf: " + score);
 }`, language: "javascript"
                     }
                 };
@@ -918,6 +1324,7 @@ function addScore() {
         function toggleLayout(mode) {
             const editorPane = document.getElementById("editorPane");
             const previewPane = document.getElementById("previewPane");
+            const resizerPreview = document.getElementById("resizerPreview");
             
             document.getElementById("btnSplit").className = "p-2 bg-darkbase-700 hover:bg-darkbase-600 text-gray-300 rounded-lg text-xs transition-all";
             document.getElementById("btnCodeOnly").className = "p-2 bg-darkbase-700 hover:bg-darkbase-600 text-gray-300 rounded-lg text-xs transition-all";
@@ -925,18 +1332,21 @@ function addScore() {
 
             if (mode === 'split') {
                 document.getElementById("btnSplit").className = "p-2 bg-darkbase-600 text-zaminia-400 rounded-lg text-xs transition-all";
-                editorPane.style.display = "flex";
+                document.getElementById("centerColumn").style.display = "flex";
                 previewPane.style.display = "flex";
                 previewPane.style.width = "50%";
+                resizerPreview.style.display = "block";
             } else if (mode === 'code') {
                 document.getElementById("btnCodeOnly").className = "p-2 bg-darkbase-600 text-zaminia-400 rounded-lg text-xs transition-all";
-                editorPane.style.display = "flex";
+                document.getElementById("centerColumn").style.display = "flex";
                 previewPane.style.display = "none";
+                resizerPreview.style.display = "none";
             } else if (mode === 'preview') {
                 document.getElementById("btnPreviewOnly").className = "p-2 bg-darkbase-600 text-zaminia-400 rounded-lg text-xs transition-all";
-                editorPane.style.display = "none";
+                document.getElementById("centerColumn").style.display = "none";
                 previewPane.style.display = "flex";
                 previewPane.style.width = "100%";
+                resizerPreview.style.display = "none";
             }
         }
 
@@ -960,10 +1370,6 @@ function addScore() {
             document.getElementById("messageModal").classList.remove("hidden");
             document.getElementById("modalTitle").innerText = "Meldung";
             document.getElementById("modalText").innerText = message;
-        }
-
-        function windowAlert(msg) {
-            alertCustom(msg);
         }
 
         function showNotification(text) {
