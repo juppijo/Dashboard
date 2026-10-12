@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zaminia HTML-Werkstatt IDE v6 (Responsive Vorschau)</title>
+    <title>Zaminia HTML-Werkstatt IDE v7 (CodeMirror Edition)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -12,12 +12,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     
-    <!-- Prism.js Syntax Highlighting & Dark Theme -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <!-- CodeMirror CSS & Core -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <!-- CodeMirror Modes (HTML, CSS, JS, XML) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -63,82 +67,31 @@
             background: #dc2626;
         }
 
-        /* Editor Wrapper & Perfect Alignment Styles */
-        .editor-wrapper {
-            position: relative;
-            flex: 1;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            background-color: #0f0a0a;
-            overflow: hidden;
+        /* CodeMirror Custom Dark Overrides for Zaminia Theme */
+        .CodeMirror {
+            height: 100% !important;
+            font-family: 'Fira Code', Menlo, Monaco, Consolas, 'Courier New', monospace !important;
+            font-size: 13px !important;
+            line-height: 22px !important;
+            background-color: #0f0a0a !important;
+            color: #f8fafc !important;
         }
-
-        /* Line Numbers Gutter */
-        #lineNumbersGutter {
-            width: 50px;
-            background-color: #120d0d;
-            border-right: 1px solid #261b1b;
-            color: #6b7280;
-            font-family: 'Fira Code', Menlo, Monaco, Consolas, 'Courier New', monospace;
-            font-size: 13px;
-            line-height: 22px;
-            padding: 16px 0;
-            text-align: right;
-            user-select: none;
-            overflow: hidden;
-            box-sizing: border-box;
-            flex-shrink: 0;
+        .CodeMirror-gutters {
+            background-color: #120d0d !important;
+            border-right: 1px solid #261b1b !important;
+            color: #6b7280 !important;
         }
-
-        .line-num {
-            padding-right: 12px;
+        .CodeMirror-linenumber {
+            color: #6b7280 !important;
         }
-
-        .editor-container {
-            position: relative;
-            flex: 1;
-            height: 100%;
-            overflow: hidden;
-            background-color: #0f0a0a;
+        .CodeMirror-cursor {
+            border-left: 2px solid #f87171 !important;
         }
-
-        /* Both textarea and highlight display share IDENTICAL typography, padding, and box metrics */
-        .editor-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            padding: 16px;
-            margin: 0;
-            border: 0;
-            font-family: 'Fira Code', Menlo, Monaco, Consolas, 'Courier New', monospace;
-            font-size: 13px;
-            line-height: 22px;
-            tab-size: 4;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            overflow: auto;
-            box-sizing: border-box;
+        .CodeMirror-selected {
+            background: rgba(239, 68, 68, 0.25) !important;
         }
-
-        #codeEditor {
-            color: transparent;
-            background: transparent;
-            caret-color: #f87171;
-            z-index: 2;
-            resize: none;
-            outline: none;
-            overflow-x: auto;
-            overflow-y: scroll;
-        }
-
-        #highlightDisplay {
-            z-index: 1;
-            pointer-events: none;
-            background: #0f0a0a;
-            overflow: hidden;
+        .CodeMirror-activeline-background {
+            background: rgba(239, 68, 68, 0.05) !important;
         }
 
         /* Resizer Splitter Bars */
@@ -172,27 +125,6 @@
             background: #ef4444;
         }
 
-        /* Prism Theme Custom Overrides for Zaminia Dark UI */
-        code[class*="language-"], pre[class*="language-"] {
-            font-family: 'Fira Code', Menlo, Monaco, Consolas, 'Courier New', monospace !important;
-            font-size: 13px !important;
-            line-height: 22px !important;
-            text-shadow: none !important;
-            background: transparent !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-
-        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #7c7c7c; font-style: italic; }
-        .token.punctuation { color: #a3a3a3; }
-        .token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted { color: #f87171; }
-        .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted { color: #34d399; }
-        .token.operator, .token.entity, .token.url, .language-css .token.string, .style .token.string { color: #fbbf24; }
-        .token.atrule, .token.attr-value, .token.keyword { color: #60a5fa; }
-        .token.function, .token.class-name { color: #c084fc; }
-        .token.regex, .token.important, .token.variable { color: #f472b6; }
-
-        /* Device Frame Mockup Transitions */
         .device-frame-container {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -208,7 +140,7 @@
             </div>
             <div>
                 <h1 class="font-bold tracking-wide text-sm md:text-base text-gray-100 flex items-center gap-2">
-                    Zaminia Werkstatt <span class="text-xs bg-zaminia-900/60 text-zaminia-400 border border-zaminia-700/50 px-2 py-0.5 rounded-full font-mono">IDE v6.0 (Responsive Viewport)</span>
+                    Zaminia Werkstatt <span class="text-xs bg-zaminia-900/60 text-zaminia-400 border border-zaminia-700/50 px-2 py-0.5 rounded-full font-mono">IDE v7.0 (CodeMirror)</span>
                 </h1>
             </div>
         </div>
@@ -260,7 +192,7 @@
         </div>
     </header>
 
-    <!-- Main Workspace Container with Resizable Panes -->
+    <!-- Main Workspace Container -->
     <div class="flex-1 flex overflow-hidden relative" id="workspaceContainer">
         
         <!-- Sidebar: File Manager -->
@@ -279,7 +211,7 @@
             </div>
 
             <div id="fileList" class="flex-1 overflow-y-auto p-2 space-y-1">
-                <!-- Populated via JavaScript -->
+                <!-- Populated via JS -->
             </div>
 
             <div class="p-3 border-t border-darkbase-700 bg-darkbase-900/50">
@@ -297,21 +229,19 @@
             </div>
         </div>
 
-        <!-- Resizer: Sidebar <-> Center Editor -->
         <div class="resizer-x" id="resizerSidebar" title="Größe anpassen"></div>
 
-        <!-- Center Column (Editor + Console vertically resizable) -->
+        <!-- Center Column (Editor + Console) -->
         <div id="centerColumn" class="flex-1 flex flex-col overflow-hidden relative" style="min-width: 250px;">
             
             <!-- Editor Pane -->
             <div id="editorPane" class="flex-1 flex flex-col bg-darkbase-900 overflow-hidden relative" style="min-height: 150px;">
-                <!-- Editor Top Toolbar & Tabs -->
                 <div class="bg-darkbase-800 border-b border-darkbase-700 flex items-center justify-between shrink-0 h-10 px-2">
                     <div id="tabBar" class="flex items-center overflow-x-auto space-x-1 flex-1">
                         <!-- Tabs populated via JS -->
                     </div>
 
-                    <!-- Color Picker & Quick Palette Toolbar -->
+                    <!-- Color Picker Palette Toolbar -->
                     <div class="flex items-center space-x-2 pl-2 border-l border-darkbase-700">
                         <div class="flex items-center space-x-1 bg-darkbase-900 px-2 py-1 rounded-lg border border-darkbase-700">
                             <i class="fa-solid fa-palette text-xs text-zaminia-400" title="Text- / Farb-Werkzeug"></i>
@@ -324,7 +254,7 @@
                     </div>
                 </div>
 
-                <!-- Code Editor Container with Line Numbers & Syntax Highlighting Overlay -->
+                <!-- CodeMirror Container -->
                 <div class="flex-1 relative flex flex-col overflow-hidden">
                     <div class="absolute top-2 right-4 z-10 bg-darkbase-800/80 backdrop-blur border border-darkbase-700 rounded-lg px-2.5 py-1 text-[11px] text-gray-400 flex items-center space-x-2 pointer-events-none shadow">
                         <span id="activeFileLang" class="font-mono text-zaminia-400 uppercase font-semibold">HTML</span>
@@ -332,23 +262,8 @@
                         <span id="cursorPosition">Ln 1, Col 1</span>
                     </div>
 
-                    <div class="editor-wrapper">
-                        <!-- Line Numbers Gutter -->
-                        <div id="lineNumbersGutter">1</div>
-                        
-                        <!-- Textarea & Highlighting Overlay -->
-                        <div class="editor-container">
-                            <pre id="highlightDisplay" class="editor-layer"><code id="highlightCode" class="language-html"></code></pre>
-                            <textarea id="codeEditor" 
-                                class="editor-layer"
-                                placeholder="Wähle eine Datei aus oder erstelle eine neue..."
-                                oninput="handleCodeInput(event)"
-                                onkeydown="handleKeyDown(event)"
-                                onkeyup="updateCursorPosition()"
-                                onclick="updateCursorPosition()"
-                                onscroll="syncScroll()"
-                                spellcheck="false"></textarea>
-                        </div>
+                    <div class="flex-1 overflow-hidden relative">
+                        <textarea id="codeEditor"></textarea>
                     </div>
                 </div>
 
@@ -369,7 +284,6 @@
                 </div>
             </div>
 
-            <!-- Resizer: Editor <-> Console -->
             <div class="resizer-y" id="resizerConsole" title="Konsole vergrößern/verkleinern"></div>
 
             <!-- Integrated Console Viewer Panel -->
@@ -412,13 +326,11 @@
 
         </div>
 
-        <!-- Resizer: Center Column <-> Preview Pane -->
         <div class="resizer-x" id="resizerPreview" title="Größe anpassen"></div>
 
-        <!-- Right Preview Pane with Responsive Device Frame Toolbar -->
+        <!-- Right Preview Pane -->
         <div id="previewPane" class="flex flex-col bg-darkbase-900 border-l border-darkbase-700 shrink-0 relative transition-all duration-150" style="width: 50%; min-width: 250px; max-width: 90%;">
             
-            <!-- Preview Top Toolbar with Device Switcher & Dimensions -->
             <div class="bg-darkbase-800 border-b border-darkbase-700 h-11 px-3 flex items-center justify-between shrink-0 text-xs text-gray-300 select-none">
                 <div class="flex items-center space-x-1.5 overflow-x-auto py-1">
                     <button onclick="setDeviceMode('desktop')" id="devBtn-desktop" title="Desktop Ansicht (100%)" class="px-2.5 py-1 bg-darkbase-600 text-zaminia-400 rounded-lg text-xs font-medium transition flex items-center space-x-1 shadow-sm">
@@ -457,7 +369,6 @@
             <!-- Responsive Emulation Frame Container -->
             <div id="previewViewportWrapper" class="flex-1 bg-[#120d0d] flex items-center justify-center overflow-auto p-4 relative">
                 <div id="deviceMockupFrame" class="device-frame-container bg-white shadow-2xl flex flex-col overflow-hidden transition-all duration-300 relative w-full h-full rounded-none border-0">
-                    <!-- Fake Device Header Bar for Mobiles/Tablets -->
                     <div id="deviceHeaderBar" class="bg-gray-900 text-white text-[11px] px-3 py-1 flex items-center justify-between shrink-0 select-none hidden">
                         <span id="deviceTitleBar" class="font-medium text-gray-300">Zaminia Device Emulation</span>
                         <div class="flex items-center space-x-2 text-gray-400">
@@ -466,7 +377,6 @@
                             <i class="fa-solid fa-battery-full text-[10px] text-emerald-400"></i>
                         </div>
                     </div>
-                    <!-- Iframe Preview -->
                     <iframe id="previewFrame" class="w-full flex-1 border-0 bg-white" sandbox="allow-scripts allow-modals allow-same-origin allow-forms"></iframe>
                 </div>
             </div>
@@ -516,13 +426,13 @@
 <body class="container">
     <div class="card">
         <h1>✨ Responsive Preview</h1>
-        <p>Testen Sie Ihre Webseite in verschiedenen Geräte-Emulationen (Desktop, Tablet, Smartphone im Hoch- und Querformat).</p>
+        <p>Testen Sie Ihre Webseite in verschiedenen Geräte-Emulationen.</p>
         <button onclick="triggerAction()">Klick mich für Logs</button>
     </div>
-    <script src="script.js"><\\/script>
+    <script src="script.js"><\/script>
 </body>
 </html>`,
-                language: "html"
+                language: "htmlmixed"
             },
             "style.css": {
                 content: `body.container {
@@ -580,7 +490,6 @@ button:hover {
 function triggerAction() {
     console.warn("Warnung: Responsive Action Button wurde geklickt!");
     try {
-        // Test für Konsolen-Fehler
         nonExistentFunction();
     } catch(err) {
         console.error("Fehler abgefangen: " + err.message);
@@ -598,9 +507,41 @@ function triggerAction() {
         let isConsoleCollapsed = false;
         let isSidebarCollapsed = false;
         let currentDeviceMode = 'desktop';
+        let cmEditor = null;
+        let isUpdatingEditor = false;
 
         window.onload = function() {
             loadSavedProject();
+            
+            // CodeMirror Instanz initialisieren
+            cmEditor = CodeMirror.fromTextArea(document.getElementById("codeEditor"), {
+                lineNumbers: true,
+                theme: "material-darker",
+                mode: "htmlmixed",
+                indentUnit: 4,
+                tabSize: 4,
+                lineWrapping: true,
+                styleActiveLine: true,
+                autoCloseBrackets: true
+            });
+
+            cmEditor.on("change", function(instance, changeObj) {
+                if (isUpdatingEditor) return;
+                const val = instance.getValue();
+                projectFiles[activeFile].content = val;
+                
+                clearTimeout(autoRunTimer);
+                autoRunTimer = setTimeout(() => {
+                    triggerRun();
+                    saveProjectToLocalStorage();
+                }, 500);
+            });
+
+            cmEditor.on("cursorActivity", function(instance) {
+                const pos = instance.getCursor();
+                document.getElementById("cursorPosition").innerText = `Ln ${pos.line + 1}, Col ${pos.ch + 1}`;
+            });
+
             renderFileList();
             renderTabs();
             openFile(activeFile);
@@ -612,9 +553,9 @@ function triggerAction() {
             });
 
             initResizers();
+            window.addEventListener('resize', () => { cmEditor.refresh(); });
         };
 
-        // --- Responsive Device Mode Manager ---
         function setDeviceMode(mode) {
             currentDeviceMode = mode;
             const buttons = ['desktop', 'tablet-portrait', 'tablet-landscape', 'mobile-portrait', 'mobile-landscape'];
@@ -633,7 +574,6 @@ function triggerAction() {
             const titleBar = document.getElementById("deviceTitleBar");
             const dimLabel = document.getElementById("viewportDimensionLabel");
 
-            // Reset frame styles
             frame.style.width = "100%";
             frame.style.height = "100%";
             frame.style.maxWidth = "none";
@@ -687,7 +627,6 @@ function triggerAction() {
             }
         }
 
-        // --- Resizable Panes Logic ---
         function initResizers() {
             const resizerSidebar = document.getElementById("resizerSidebar");
             const sidebar = document.getElementById("sidebar");
@@ -705,6 +644,7 @@ function triggerAction() {
                     resizerSidebar.classList.remove("active");
                     window.removeEventListener("mousemove", onMouseMove);
                     window.removeEventListener("mouseup", onMouseUp);
+                    if(cmEditor) cmEditor.refresh();
                 };
                 window.addEventListener("mousemove", onMouseMove);
                 window.addEventListener("mouseup", onMouseUp);
@@ -726,6 +666,7 @@ function triggerAction() {
                     resizerPreview.classList.remove("active");
                     window.removeEventListener("mousemove", onMouseMove);
                     window.removeEventListener("mouseup", onMouseUp);
+                    if(cmEditor) cmEditor.refresh();
                 };
                 window.addEventListener("mousemove", onMouseMove);
                 window.addEventListener("mouseup", onMouseUp);
@@ -752,6 +693,7 @@ function triggerAction() {
                     resizerConsole.classList.remove("active");
                     window.removeEventListener("mousemove", onMouseMove);
                     window.removeEventListener("mouseup", onMouseUp);
+                    if(cmEditor) cmEditor.refresh();
                 };
                 window.addEventListener("mousemove", onMouseMove);
                 window.addEventListener("mouseup", onMouseUp);
@@ -776,6 +718,7 @@ function triggerAction() {
                 sidebar.style.overflow = "";
                 resizer.style.display = "block";
             }
+            setTimeout(() => { if(cmEditor) cmEditor.refresh(); }, 150);
         }
 
         function toggleConsolePane() {
@@ -798,6 +741,7 @@ function triggerAction() {
                 icon.className = "fa-solid fa-chevron-down";
                 resizer.style.display = "block";
             }
+            setTimeout(() => { if(cmEditor) cmEditor.refresh(); }, 150);
         }
 
         function addConsoleLog(type, argsFormatted) {
@@ -888,12 +832,12 @@ function triggerAction() {
         };
 
         function loadSavedProject() {
-            const saved = localStorage.getItem("zaminia_ide_project_v6");
+            const saved = localStorage.getItem("zaminia_ide_project_v7");
             if (saved) {
                 try {
                     projectFiles = JSON.parse(saved);
-                    openTabs = JSON.parse(localStorage.getItem("zaminia_ide_tabs_v6")) || ["index.html"];
-                    activeFile = localStorage.getItem("zaminia_ide_active_v6") || "index.html";
+                    openTabs = JSON.parse(localStorage.getItem("zaminia_ide_tabs_v7")) || ["index.html"];
+                    activeFile = localStorage.getItem("zaminia_ide_active_v7") || "index.html";
                     if (!projectFiles[activeFile]) activeFile = Object.keys(projectFiles)[0];
                 } catch(e) {
                     projectFiles = JSON.parse(JSON.stringify(defaultFiles));
@@ -908,9 +852,9 @@ function triggerAction() {
         }
 
         function saveProjectToLocalStorage() {
-            localStorage.setItem("zaminia_ide_project_v6", JSON.stringify(projectFiles));
-            localStorage.setItem("zaminia_ide_tabs_v6", JSON.stringify(openTabs));
-            localStorage.setItem("zaminia_ide_active_v6", activeFile);
+            localStorage.setItem("zaminia_ide_project_v7", JSON.stringify(projectFiles));
+            localStorage.setItem("zaminia_ide_tabs_v7", JSON.stringify(openTabs));
+            localStorage.setItem("zaminia_ide_active_v7", activeFile);
             showNotification("Projekt erfolgreich gespeichert!");
         }
 
@@ -965,78 +909,28 @@ function triggerAction() {
             if (!openTabs.includes(filename)) {
                 openTabs.push(filename);
             }
-            const editor = document.getElementById("codeEditor");
-            editor.value = projectFiles[filename].content;
-            
-            const lang = projectFiles[filename].language || 'html';
-            document.getElementById("activeFileLang").innerText = lang;
-            
+
+            isUpdatingEditor = true;
+            if (cmEditor) {
+                cmEditor.setValue(projectFiles[filename].content);
+                
+                let mode = "htmlmixed";
+                if (filename.endsWith('.css')) mode = "css";
+                if (filename.endsWith('.js')) mode = "javascript";
+                cmEditor.setOption("mode", mode);
+                document.getElementById("activeFileLang").innerText = mode;
+                
+                setTimeout(() => { cmEditor.refresh(); }, 10);
+            }
+            isUpdatingEditor = false;
+
             renderFileList();
             renderTabs();
-            updateHighlighting();
-            updateLineNumbers();
-            updateCursorPosition();
-        }
-
-        function updateHighlighting() {
-            const editor = document.getElementById("codeEditor");
-            const highlightCode = document.getElementById("highlightCode");
-            const lang = projectFiles[activeFile]?.language || 'html';
-
-            let prismLang = Prism.languages.markup;
-            let langClass = "language-html";
-
-            if (lang === 'css') {
-                prismLang = Prism.languages.css;
-                langClass = "language-css";
-            } else if (lang === 'javascript' || lang === 'js') {
-                prismLang = Prism.languages.javascript;
-                langClass = "language-javascript";
-            }
-
-            highlightCode.className = langClass;
-            
-            let text = editor.value;
-            if (text.endsWith("\n")) {
-                text += " ";
-            }
-            
-            highlightCode.innerHTML = Prism.highlight(text, prismLang, lang);
-            syncScroll();
-        }
-
-        function updateLineNumbers() {
-            const editor = document.getElementById("codeEditor");
-            const gutter = document.getElementById("lineNumbersGutter");
-            const linesCount = editor.value.split('\n').length;
-            
-            let html = "";
-            for (let i = 1; i <= linesCount; i++) {
-                html += `<div>${i}</div>`;
-            }
-            gutter.innerHTML = html;
-        }
-
-        function syncScroll() {
-            const editor = document.getElementById("codeEditor");
-            const highlightDisplay = document.getElementById("highlightDisplay");
-            const gutter = document.getElementById("lineNumbersGutter");
-
-            highlightDisplay.scrollTop = editor.scrollTop;
-            highlightDisplay.scrollLeft = editor.scrollLeft;
-            gutter.scrollTop = editor.scrollTop;
         }
 
         function insertColorCode(hex) {
-            const editor = document.getElementById("codeEditor");
-            const start = editor.selectionStart;
-            const end = editor.selectionEnd;
-            const text = editor.value;
-
-            editor.value = text.substring(0, start) + hex + text.substring(end);
-            editor.selectionStart = editor.selectionEnd = start + hex.length;
-            
-            handleCodeInput({ target: editor });
+            if (!cmEditor) return;
+            cmEditor.replaceSelection(hex);
             showNotification(`Farbe ${hex} eingefügt.`);
         }
 
@@ -1075,12 +969,11 @@ function triggerAction() {
                 return;
             }
             const ext = name.split('.').pop().toLowerCase();
-            let lang = "text";
-            if(ext === 'html') lang = "html";
-            if(ext === 'css') lang = "css";
-            if(ext === 'js') lang = "javascript";
+            let mode = "htmlmixed";
+            if(ext === 'css') mode = "css";
+            if(ext === 'js') mode = "javascript";
 
-            projectFiles[name] = { content: "", language: lang };
+            projectFiles[name] = { content: "", language: mode };
             closeModal();
             openFile(name);
             renderFileList();
@@ -1116,55 +1009,17 @@ function triggerAction() {
                 const content = e.target.result;
                 const name = file.name;
                 const ext = name.split('.').pop().toLowerCase();
-                let lang = "text";
-                if(ext === 'html') lang = "html";
-                if(ext === 'css') lang = "css";
-                if(ext === 'js') lang = "javascript";
+                let mode = "htmlmixed";
+                if(ext === 'css') mode = "css";
+                if(ext === 'js') mode = "javascript";
 
-                projectFiles[name] = { content, language: lang };
+                projectFiles[name] = { content, language: mode };
                 openFile(name);
                 renderFileList();
                 saveProjectToLocalStorage();
                 showNotification(`Datei "${name}" hochgeladen.`);
             };
             reader.readAsText(file);
-        }
-
-        function handleCodeInput(event) {
-            projectFiles[activeFile].content = event.target.value;
-            updateHighlighting();
-            updateLineNumbers();
-            
-            clearTimeout(autoRunTimer);
-            autoRunTimer = setTimeout(() => {
-                triggerRun();
-                saveProjectToLocalStorage();
-            }, 500);
-        }
-
-        function handleKeyDown(event) {
-            if (event.key === 'Tab') {
-                event.preventDefault();
-                const start = event.target.selectionStart;
-                const end = event.target.selectionEnd;
-                event.target.value = event.target.value.substring(0, start) + "    " + event.target.value.substring(end);
-                event.target.selectionStart = event.target.selectionEnd = start + 4;
-                handleCodeInput({ target: event.target });
-            }
-            if ((event.ctrlKey || event.metaKey) && event.key === 's') {
-                event.preventDefault();
-                saveProjectToLocalStorage();
-            }
-        }
-
-        function updateCursorPosition() {
-            const editor = document.getElementById("codeEditor");
-            const pos = editor.selectionStart;
-            const textBefore = editor.value.substring(0, pos);
-            const lines = textBefore.split('\n');
-            const line = lines.length;
-            const col = lines[lines.length - 1].length + 1;
-            document.getElementById("cursorPosition").innerText = `Ln ${line}, Col ${col}`;
         }
 
         function triggerRun() {
@@ -1197,7 +1052,9 @@ function triggerAction() {
             });
 
             let processedHtml = htmlContent;
-            Object.keys(projectFiles).forEach(filename => {
+            const sortedFilenames = Object.keys(projectFiles).sort((a, b) => b.length - a.length);
+
+            sortedFilenames.forEach(filename => {
                 const url = blobUrls[filename];
                 processedHtml = processedHtml.split(`"${filename}"`).join(`"${url}"`);
                 processedHtml = processedHtml.split(`'${filename}'`).join(`'${url}'`);
@@ -1284,11 +1141,10 @@ function triggerAction() {
                         if (!zipEntry.dir && !relativePath.startsWith('__MACOSX')) {
                             const p = zipEntry.async("string").then(function(content) {
                                 const ext = relativePath.split('.').pop().toLowerCase();
-                                let lang = "text";
-                                if(ext === 'html') lang = "html";
-                                if(ext === 'css') lang = "css";
-                                if(ext === 'js') lang = "javascript";
-                                projectFiles[relativePath] = { content, language: lang };
+                                let mode = "htmlmixed";
+                                if(ext === 'css') mode = "css";
+                                if(ext === 'js') mode = "javascript";
+                                projectFiles[relativePath] = { content, language: mode };
                             });
                             promises.push(p);
                         }
@@ -1326,9 +1182,9 @@ function triggerAction() {
     <main>
         <button onclick="greet()">Begrüßung anzeigen</button>
     </main>
-    <script src="script.js"><\\/script>
+    <script src="script.js"><\/script>
 </body>
-</html>`, language: "html"
+</html>`, language: "htmlmixed"
                     },
                     "style.css": {
                         content: `body {
@@ -1382,9 +1238,9 @@ function greet() {
         <p>Punkte: <span id="points">0</span></p>
         <button onclick="addScore()">Klicken!</button>
     </div>
-    <script src="script.js"><\\/script>
+    <script src="script.js"><\/script>
 </body>
-</html>`, language: "html"
+</html>`, language: "htmlmixed"
                     },
                     "style.css": {
                         content: `body {
@@ -1470,6 +1326,7 @@ function addScore() {
                 previewPane.style.width = "100%";
                 resizerPreview.style.display = "none";
             }
+            setTimeout(() => { if(cmEditor) cmEditor.refresh(); }, 150);
         }
 
         function toggleFullScreen() {
@@ -1484,12 +1341,13 @@ function addScore() {
                 }
                 document.getElementById("fsIcon").className = "fa-solid fa-expand";
             }
+            setTimeout(() => { if(cmEditor) cmEditor.refresh(); }, 150);
         }
 
         function alertCustom(message) {
             document.getElementById("modalOverlay").classList.remove("hidden");
             document.getElementById("newFileModal").classList.add("hidden");
-            document.getElementById("messageModal").classList.add("hidden");
+            document.getElementById("messageModal").classList.remove("hidden");
             document.getElementById("modalTitle").innerText = "Meldung";
             document.getElementById("modalText").innerText = message;
         }
