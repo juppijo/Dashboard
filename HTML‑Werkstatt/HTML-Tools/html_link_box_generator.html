@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full bg-slate-900 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Link-Box Generator</title>
+    <!-- Tailwind CSS for Application UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col overflow-hidden bg-slate-950 text-slate-100">
+
+    <!-- Header -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md px-6 py-4 flex items-center justify-between z-10">
+        <div class="flex items-center gap-3">
+            <div class="p-2 bg-indigo-600/20 text-indigo-400 rounded-xl border border-indigo-500/30">
+                <i data-lucide="link-2" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg text-white tracking-wide">LinkBox Designer</h1>
+                <p class="text-xs text-slate-400">Erstelle stilvolle HTML Link-Box-Container für deine Website</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button id="btn-reset" class="text-xs font-medium px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all flex items-center gap-1.5">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Zurücksetzen
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+
+        <!-- Left Panel: Configurator -->
+        <aside class="w-full md:w-[420px] lg:w-[460px] border-r border-slate-800 bg-slate-900/50 flex flex-col h-full overflow-y-auto">
+            
+            <!-- Preset Selector -->
+            <div class="p-5 border-b border-slate-800/80">
+                <label class="text-xs font-semibold uppercase tracking-wider text-indigo-400 block mb-3">Preset Styles</label>
+                <div class="grid grid-cols-2 gap-2" id="preset-grid">
+                    <button data-preset="modern" class="preset-btn px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-800 text-xs text-left font-medium transition active text-white flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Modern Minimal
+                    </button>
+                    <button data-preset="darkneon" class="preset-btn px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-800 text-xs text-left font-medium transition text-slate-300 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> Dark Neon
+                    </button>
+                    <button data-preset="glass" class="preset-btn px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-800 text-xs text-left font-medium transition text-slate-300 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span> Glassmorphism
+                    </button>
+                    <button data-preset="gold" class="preset-btn px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-800 text-xs text-left font-medium transition text-slate-300 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Elegant Gold
+                    </button>
+                    <button data-preset="softgradient" class="preset-btn px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-800 text-xs text-left font-medium transition text-slate-300 flex items-center gap-2 col-span-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-pink-400"></span> Gradient Soft
+                    </button>
+                </div>
+            </div>
+
+            <!-- Form Accordions / Sections -->
+            <div class="p-5 space-y-6">
+
+                <!-- Section: Content -->
+                <div class="space-y-4">
+                    <h2 class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Inhalt</h2>
+                    
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Ziel-URL (Link)</label>
+                        <input type="url" id="cfg-url" value="https://example.com" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Titel</label>
+                        <input type="text" id="cfg-title" value="Exklusiver Design Guide 2026" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Beschreibung</label>
+                        <textarea id="cfg-desc" rows="2" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition resize-none">Entdecke die neuesten Webdesign-Trends und erstelle atemberaubende Benutzeroberflächen.</textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Icon / Emoji</label>
+                            <input type="text" id="cfg-icon" value="🚀" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Button-Text</label>
+                            <input type="text" id="cfg-btn-text" value="Jetzt ansehen →" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-slate-800">
+
+                <!-- Section: Colors & Background -->
+                <div class="space-y-4">
+                    <h2 class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Farben & Hintergrund</h2>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Hintergrund Start</label>
+                            <div class="flex gap-2">
+                                <input type="color" id="cfg-bg-1" value="#1e1b4b" class="h-9 w-10 bg-transparent rounded cursor-pointer border border-slate-700">
+                                <input type="text" id="cfg-bg-1-hex" value="#1e1b4b" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-2 py-1 text-xs text-slate-200">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Hintergrund Ende</label>
+                            <div class="flex gap-2">
+                                <input type="color" id="cfg-bg-2" value="#312e81" class="h-9 w-10 bg-transparent rounded cursor-pointer border border-slate-700">
+                                <input type="text" id="cfg-bg-2-hex" value="#312e81" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-2 py-1 text-xs text-slate-200">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Textfarbe</label>
+                            <div class="flex gap-2">
+                                <input type="color" id="cfg-text-color" value="#ffffff" class="h-9 w-10 bg-transparent rounded cursor-pointer border border-slate-700">
+                                <input type="text" id="cfg-text-color-hex" value="#ffffff" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-2 py-1 text-xs text-slate-200">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Button Farbe</label>
+                            <div class="flex gap-2">
+                                <input type="color" id="cfg-btn-bg" value="#6366f1" class="h-9 w-10 bg-transparent rounded cursor-pointer border border-slate-700">
+                                <input type="text" id="cfg-btn-bg-hex" value="#6366f1" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-2 py-1 text-xs text-slate-200">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-slate-800">
+
+                <!-- Section: Styling & Dimensions -->
+                <div class="space-y-4">
+                    <h2 class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Rahmen & Schatten</h2>
+
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>Abrundung (Border Radius)</span>
+                            <span id="lbl-radius">16px</span>
+                        </div>
+                        <input type="range" id="cfg-radius" min="0" max="40" value="16" class="w-full accent-indigo-500">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Rahmenfarbe</label>
+                            <div class="flex gap-2">
+                                <input type="color" id="cfg-border-color" value="#818cf8" class="h-9 w-10 bg-transparent rounded cursor-pointer border border-slate-700">
+                                <input type="text" id="cfg-border-color-hex" value="#818cf8" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-2 py-1 text-xs text-slate-200">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Rahmenbreite</label>
+                            <select id="cfg-border-width" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-2 py-2 text-xs text-slate-100 focus:outline-none">
+                                <option value="0px">Kein Rahmen</option>
+                                <option value="1px" selected>1px</option>
+                                <option value="2px">2px</option>
+                                <option value="4px">4px</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Schatten Intensity</label>
+                        <select id="cfg-shadow" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none">
+                            <option value="none">Kein Schatten</option>
+                            <option value="0 4px 15px rgba(0, 0, 0, 0.1)">Soft</option>
+                            <option value="0 10px 25px -5px rgba(0, 0, 0, 0.3)" selected>Medium</option>
+                            <option value="0 20px 35px -10px rgba(99, 102, 241, 0.4)">Glow Effect (Farbig)</option>
+                            <option value="0 25px 50px -12px rgba(0, 0, 0, 0.6)">Deep Shadow</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- Right Panel: Preview and Code -->
+        <section class="flex-1 flex flex-col h-full bg-slate-950 overflow-y-auto">
+            
+            <!-- Top Controls bar in Preview Area -->
+            <div class="px-6 py-3 border-b border-slate-800 bg-slate-900/30 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-xs font-semibold text-slate-300 uppercase tracking-wide">Live-Vorschau</span>
+                </div>
+                <button id="btn-fullscreen" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                    <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Vollbild-Vorschau
+                </button>
+            </div>
+
+            <!-- Visual Preview Container -->
+            <div class="flex-1 p-8 flex items-center justify-center min-h-[320px] bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]">
+                <div id="preview-wrapper" class="w-full max-w-lg transition-all duration-300">
+                    <!-- Dynamic Live Preview Box inserted here -->
+                </div>
+            </div>
+
+            <!-- Code Export Panel -->
+            <div class="border-t border-slate-800 bg-slate-900/60 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex gap-2 border-b border-slate-800 pb-2">
+                        <button id="tab-btn-html" class="tab-btn active text-xs font-medium text-indigo-400 border-b-2 border-indigo-500 pb-1 px-1">HTML Code</button>
+                        <button id="tab-btn-css" class="tab-btn text-xs font-medium text-slate-400 hover:text-slate-200 pb-1 px-1">CSS Style</button>
+                        <button id="tab-btn-full" class="tab-btn text-xs font-medium text-slate-400 hover:text-slate-200 pb-1 px-1">Komplett (HTML + CSS inline)</button>
+                    </div>
+
+                    <button id="btn-copy" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg shadow-lg shadow-indigo-600/20 transition flex items-center gap-2">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                        <span id="copy-btn-text">Code Kopieren</span>
+                    </button>
+                </div>
+
+                <!-- Code Container -->
+                <div class="relative bg-slate-950 border border-slate-800 rounded-xl overflow-hidden">
+                    <pre class="p-4 text-xs font-mono text-slate-300 overflow-x-auto max-h-48 leading-relaxed" id="code-output"></pre>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Fullscreen Modal -->
+    <div id="modal-fullscreen" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-50 hidden flex-col items-center justify-center p-6">
+        <button id="btn-close-modal" class="absolute top-6 right-6 p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full transition">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        <div class="text-xs uppercase tracking-widest text-slate-500 mb-8 font-semibold">Vollbild-Vorschau</div>
+        <div id="modal-content" class="w-full max-w-xl">
+            <!-- Dynamic Content -->
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-emerald-500 text-slate-950 px-4 py-3 rounded-xl font-medium text-sm shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+        <span>Code erfolgreich kopiert!</span>
+    </div>
+
+    <script>
+        // State management
+        const config = {
+            url: 'https://example.com',
+            title: 'Exklusiver Design Guide 2026',
+            desc: 'Entdecke die neuesten Webdesign-Trends und erstelle atemberaubende Benutzeroberflächen.',
+            icon: '🚀',
+            btnText: 'Jetzt ansehen →',
+            bg1: '#1e1b4b',
+            bg2: '#312e81',
+            textColor: '#ffffff',
+            btnBg: '#6366f1',
+            radius: 16,
+            borderColor: '#818cf8',
+            borderWidth: '1px',
+            shadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)'
+        };
+
+        const presets = {
+            modern: {
+                bg1: '#ffffff',
+                bg2: '#f8fafc',
+                textColor: '#0f172a',
+                btnBg: '#0f172a',
+                radius: 12,
+                borderColor: '#e2e8f0',
+                borderWidth: '1px',
+                shadow: '0 4px 15px rgba(0, 0, 0, 0.05)'
+            },
+            darkneon: {
+                bg1: '#090d16',
+                bg2: '#0f172a',
+                textColor: '#f8fafc',
+                btnBg: '#06b6d4',
+                radius: 16,
+                borderColor: '#22d3ee',
+                borderWidth: '1px',
+                shadow: '0 20px 35px -10px rgba(99, 102, 241, 0.4)'
+            },
+            glass: {
+                bg1: '#2e1065',
+                bg2: '#581c87',
+                textColor: '#ffffff',
+                btnBg: '#a855f7',
+                radius: 24,
+                borderColor: '#c084fc',
+                borderWidth: '1px',
+                shadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)'
+            },
+            gold: {
+                bg1: '#18181b',
+                bg2: '#27272a',
+                textColor: '#fef08a',
+                btnBg: '#eab308',
+                radius: 8,
+                borderColor: '#fde047',
+                borderWidth: '1px',
+                shadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)'
+            },
+            softgradient: {
+                bg1: '#f43f5e',
+                bg2: '#8b5cf6',
+                textColor: '#ffffff',
+                btnBg: '#ffffff',
+                radius: 20,
+                borderColor: '#ffffff',
+                borderWidth: '0px',
+                shadow: '0 20px 35px -10px rgba(244, 63, 94, 0.4)'
+            }
+        };
+
+        let currentTab = 'html';
+
+        // DOM Element Mapping
+        const inputs = {
+            url: document.getElementById('cfg-url'),
+            title: document.getElementById('cfg-title'),
+            desc: document.getElementById('cfg-desc'),
+            icon: document.getElementById('cfg-icon'),
+            btnText: document.getElementById('cfg-btn-text'),
+            bg1: document.getElementById('cfg-bg-1'),
+            bg1Hex: document.getElementById('cfg-bg-1-hex'),
+            bg2: document.getElementById('cfg-bg-2'),
+            bg2Hex: document.getElementById('cfg-bg-2-hex'),
+            textColor: document.getElementById('cfg-text-color'),
+            textColorHex: document.getElementById('cfg-text-color-hex'),
+            btnBg: document.getElementById('cfg-btn-bg'),
+            btnBgHex: document.getElementById('cfg-btn-bg-hex'),
+            radius: document.getElementById('cfg-radius'),
+            borderColor: document.getElementById('cfg-border-color'),
+            borderColorHex: document.getElementById('cfg-border-color-hex'),
+            borderWidth: document.getElementById('cfg-border-width'),
+            shadow: document.getElementById('cfg-shadow')
+        };
+
+        const previewWrapper = document.getElementById('preview-wrapper');
+        const codeOutput = document.getElementById('code-output');
+        const lblRadius = document.getElementById('lbl-radius');
+
+        // Generator Logic for Clean HTML/CSS Component
+        function generateHTMLCode() {
+            const isGradient = config.bg1 !== config.bg2;
+            const bgStyle = isGradient ? `linear-gradient(135deg, ${config.bg1}, ${config.bg2})` : config.bg1;
+            
+            return `<a href="${config.url}" class="link-box-container" target="_blank" rel="noopener noreferrer">
+  <div class="link-box-icon">${config.icon}</div>
+  <div class="link-box-content">
+    <h3 class="link-box-title">${config.title}</h3>
+    <p class="link-box-description">${config.desc}</p>
+  </div>
+  <div class="link-box-button">${config.btnText}</div>
+</a>`;
+        }
+
+        function generateCSSCode() {
+            const isGradient = config.bg1 !== config.bg2;
+            const bgStyle = isGradient ? `linear-gradient(135deg, ${config.bg1}, ${config.bg2})` : config.bg1;
+
+            return `.link-box-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: ${bgStyle};
+  color: ${config.textColor};
+  border-radius: ${config.radius}px;
+  border: ${config.borderWidth} solid ${config.borderColor};
+  box-shadow: ${config.shadow};
+  text-decoration: none;
+  font-family: system-ui, -apple-system, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+.link-box-container:hover {
+  transform: translateY(-3px);
+  box-shadow: ${config.shadow}, 0 12px 20px rgba(0,0,0,0.15);
+}
+
+.link-box-icon {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.link-box-content {
+  flex-grow: 1;
+}
+
+.link-box-title {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: ${config.textColor};
+}
+
+.link-box-description {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.85;
+  color: ${config.textColor};
+  line-height: 1.4;
+}
+
+.link-box-button {
+  padding: 10px 18px;
+  background: ${config.btnBg};
+  color: ${config.textColor === '#ffffff' || config.bg1 === '#ffffff' ? (config.btnBg === '#ffffff' ? '#000000' : '#ffffff') : '#ffffff'};
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+}
+
+.link-box-container:hover .link-box-button {
+  opacity: 0.9;
+}
+
+@media (max-width: 520px) {
+  .link-box-container {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+}`;
+        }
+
+        function generateFullCode() {
+            return `<style>
+${generateCSSCode()}
+</style>
+
+${generateHTMLCode()}`;
+        }
+
+        // Render Update
+        function updateUI() {
+            // Update Preview Render
+            const htmlContent = generateHTMLCode();
+            const cssContent = generateCSSCode();
+
+            previewWrapper.innerHTML = `
+                <style>${cssContent}</style>
+                ${htmlContent}
+            `;
+
+            // Update Fullscreen modal content if visible
+            document.getElementById('modal-content').innerHTML = previewWrapper.innerHTML;
+
+            // Update Code View
+            if (currentTab === 'html') {
+                codeOutput.textContent = generateHTMLCode();
+            } else if (currentTab === 'css') {
+                codeOutput.textContent = generateCSSCode();
+            } else {
+                codeOutput.textContent = generateFullCode();
+            }
+
+            lblRadius.textContent = `${config.radius}px`;
+        }
+
+        // Sync Input Handlers
+        function bindInputEvents() {
+            inputs.url.addEventListener('input', (e) => { config.url = e.target.value; updateUI(); });
+            inputs.title.addEventListener('input', (e) => { config.title = e.target.value; updateUI(); });
+            inputs.desc.addEventListener('input', (e) => { config.desc = e.target.value; updateUI(); });
+            inputs.icon.addEventListener('input', (e) => { config.icon = e.target.value; updateUI(); });
+            inputs.btnText.addEventListener('input', (e) => { config.btnText = e.target.value; updateUI(); });
+            
+            // Background 1
+            inputs.bg1.addEventListener('input', (e) => { 
+                config.bg1 = e.target.value; 
+                inputs.bg1Hex.value = e.target.value;
+                updateUI(); 
+            });
+            inputs.bg1Hex.addEventListener('input', (e) => { 
+                config.bg1 = e.target.value; 
+                inputs.bg1.value = e.target.value;
+                updateUI(); 
+            });
+
+            // Background 2
+            inputs.bg2.addEventListener('input', (e) => { 
+                config.bg2 = e.target.value; 
+                inputs.bg2Hex.value = e.target.value;
+                updateUI(); 
+            });
+            inputs.bg2Hex.addEventListener('input', (e) => { 
+                config.bg2 = e.target.value; 
+                inputs.bg2.value = e.target.value;
+                updateUI(); 
+            });
+
+            // Text Color
+            inputs.textColor.addEventListener('input', (e) => { 
+                config.textColor = e.target.value; 
+                inputs.textColorHex.value = e.target.value;
+                updateUI(); 
+            });
+            inputs.textColorHex.addEventListener('input', (e) => { 
+                config.textColor = e.target.value; 
+                inputs.textColor.value = e.target.value;
+                updateUI(); 
+            });
+
+            // Button Bg
+            inputs.btnBg.addEventListener('input', (e) => { 
+                config.btnBg = e.target.value; 
+                inputs.btnBgHex.value = e.target.value;
+                updateUI(); 
+            });
+            inputs.btnBgHex.addEventListener('input', (e) => { 
+                config.btnBg = e.target.value; 
+                inputs.btnBg.value = e.target.value;
+                updateUI(); 
+            });
+
+            // Border & Shadow
+            inputs.radius.addEventListener('input', (e) => { config.radius = e.target.value; updateUI(); });
+            inputs.borderColor.addEventListener('input', (e) => { 
+                config.borderColor = e.target.value; 
+                inputs.borderColorHex.value = e.target.value;
+                updateUI(); 
+            });
+            inputs.borderColorHex.addEventListener('input', (e) => { 
+                config.borderColor = e.target.value; 
+                inputs.borderColor.value = e.target.value;
+                updateUI(); 
+            });
+            inputs.borderWidth.addEventListener('change', (e) => { config.borderWidth = e.target.value; updateUI(); });
+            inputs.shadow.addEventListener('change', (e) => { config.shadow = e.target.value; updateUI(); });
+
+            // Preset Buttons
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const presetKey = btn.getAttribute('data-preset');
+                    if (presets[presetKey]) {
+                        Object.assign(config, presets[presetKey]);
+                        syncInputsWithConfig();
+                        updateUI();
+                    }
+                });
+            });
+
+            // Tab Switching
+            document.getElementById('tab-btn-html').addEventListener('click', (e) => switchTab('html', e.target));
+            document.getElementById('tab-btn-css').addEventListener('click', (e) => switchTab('css', e.target));
+            document.getElementById('tab-btn-full').addEventListener('click', (e) => switchTab('full', e.target));
+
+            // Copy Button
+            document.getElementById('btn-copy').addEventListener('click', copyToClipboard);
+
+            // Fullscreen Modal Toggle
+            document.getElementById('btn-fullscreen').addEventListener('click', () => {
+                document.getElementById('modal-fullscreen').classList.remove('hidden');
+                document.getElementById('modal-fullscreen').classList.add('flex');
+            });
+            document.getElementById('btn-close-modal').addEventListener('click', () => {
+                document.getElementById('modal-fullscreen').classList.add('hidden');
+                document.getElementById('modal-fullscreen').classList.remove('flex');
+            });
+
+            // Reset Button
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                Object.assign(config, presets.darkneon);
+                syncInputsWithConfig();
+                updateUI();
+            });
+        }
+
+        function switchTab(tab, element) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'text-indigo-400', 'border-b-2', 'border-indigo-500');
+                btn.classList.add('text-slate-400');
+            });
+            element.classList.add('active', 'text-indigo-400', 'border-b-2', 'border-indigo-500');
+            element.classList.remove('text-slate-400');
+            updateUI();
+        }
+
+        function syncInputsWithConfig() {
+            inputs.bg1.value = config.bg1;
+            inputs.bg1Hex.value = config.bg1;
+            inputs.bg2.value = config.bg2;
+            inputs.bg2Hex.value = config.bg2;
+            inputs.textColor.value = config.textColor;
+            inputs.textColorHex.value = config.textColor;
+            inputs.btnBg.value = config.btnBg;
+            inputs.btnBgHex.value = config.btnBg;
+            inputs.radius.value = config.radius;
+            inputs.borderColor.value = config.borderColor;
+            inputs.borderColorHex.value = config.borderColor;
+            inputs.borderWidth.value = config.borderWidth;
+            inputs.shadow.value = config.shadow;
+        }
+
+        function copyToClipboard() {
+            let contentToCopy = '';
+            if (currentTab === 'html') contentToCopy = generateHTMLCode();
+            else if (currentTab === 'css') contentToCopy = generateCSSCode();
+            else contentToCopy = generateFullCode();
+
+            // Using execCommand as fallback for iFrame compatibility
+            const textarea = document.createElement('textarea');
+            textarea.value = contentToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast();
+            } catch (err) {
+                console.error('Kopieren fehlgeschlagen:', err);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 2500);
+        }
+
+        // Initialize App
+        window.onload = function() {
+            lucide.createIcons();
+            bindInputEvents();
+            syncInputsWithConfig();
+            updateUI();
+        };
+    </script>
+</body>
+</html>

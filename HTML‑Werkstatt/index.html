@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML-Werkstatt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Fira+Code:wght@400;500&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ===== KOPFLEISTE ===== -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">&lt;/&gt;</span>
+      <h1>HTML‑Werkstatt</h1>
+    </div>
+<a href="https://juppijo.github.io/WRZT/WRZT4/HTML%E2%80%91Werkstatt/HTML-Tools/html_link_box_generator.html"target="_blank" rel="noopener noreferrer" aria-label="Links generator website in einem neuen Tab">Links</a>
+<a href="https://juppijo.github.io/WRZT/WRZT4/HTML%E2%80%91Werkstatt/HTML-Tools/Zaminia_HTML5_Studio.html"  target="_blank" rel="noopener noreferrer" aria-label="Öffnet eine KI Tools website in einem neuen Tab">Zami</a>
+<a href="https://juppijo.github.io/Dashboard/markdown-editor/index.html"  target="_blank" rel="noopener noreferrer" aria-label="Öffnet eine KI Tools website in einem neuen Tab">MD</a>
+    
+    <div class="toolbar">
+      <input type="file" id="fileInput" accept=".html,.htm" hidden>
+      <button class="btn" id="btnLoad" title="HTML-Datei laden (neuer Tab)">
+        <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+        <span>Laden</span>
+      </button>
+      <button class="btn" id="btnSave" title="Speichern">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+        <span>Speichern</span>
+      </button>
+      <button class="btn" id="btnSaveAs" title="Speichern unter …">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+        <span>Speichern unter</span>
+      </button>
+      <span class="sep"></span>
+      <button class="btn" id="btnSearch" title="Suchen &amp; Ersetzen (Strg+F)">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <span>Suchen</span>
+      </button>
+      <span class="sep"></span>
+      <button class="btn" id="btnMarkdown" title="Markdown einfügen">
+        <svg viewBox="0 0 24 24"><path d="M3 5h18v14H3z"/><path d="M6 15V9l3 3 3-3v6M17 9v6M14.5 12.5L17 15l2.5-2.5"/></svg>
+        <span>Markdown</span>
+      </button>
+      <button class="btn" id="btnScriptBtn" title="Script-Button einfügen">
+        <svg viewBox="0 0 24 24"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
+        <span>Script&#8209;Button</span>
+      </button>
+      <button class="btn" id="btnSnippets" title="Baustein einfügen">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span>Bausteine</span>
+      </button>
+      <button class="btn" id="btnFormat" title="Code formatieren">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"/></svg>
+        <span>Formatieren</span>
+      </button>
+      <button class="btn" id="btnStyles" title="Styles bearbeiten">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>
+        <span>Styles</span>
+      </button>
+      <span class="sep"></span>
+      <button class="btn" id="btnFont" title="Schrift &amp; Zoom">
+        <svg viewBox="0 0 24 24"><path d="M5 20L11 4h2l6 16M7.5 14h9"/></svg>
+        <span>Schrift</span>
+      </button>
+      <button class="btn active" id="btnSyncScroll" title="Editor &amp; Vorschau synchron scrollen">
+        <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v14a2 2 0 002 2h3M16 3h3a2 2 0 012 2v14a2 2 0 01-2 2h-3M9 11l3-3 3 3M9 13l3 3 3-3"/></svg>
+        <span>Sync</span>
+      </button>
+      <button class="btn" id="btnLayout" title="Ansicht wechseln">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="8" height="16"/><rect x="13" y="4" width="8" height="16"/></svg>
+        <span>Ansicht</span>
+      </button>
+      <button class="btn" id="btnFullscreen" title="Vollbild">
+        <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3M16 3h3a2 2 0 012 2v3M8 21H5a2 2 0 01-2-2v-3M16 21h3a2 2 0 002-2v-3"/></svg>
+        <span>Vollbild</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== SCHRIFT-POPOVER ===== -->
+  <div class="popover" id="fontPopover">
+    <div class="popover-row">
+      <label>Schriftart</label>
+      <select id="fontFamilySelect">
+        <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+        <option value="'Fira Code', monospace">Fira Code</option>
+        <option value="'Source Code Pro', monospace">Source Code Pro</option>
+        <option value="Consolas, Monaco, monospace">System Mono</option>
+      </select>
+    </div>
+    <div class="popover-row">
+      <label>Schriftgröße: <span id="fontSizeValue">14px</span></label>
+      <input type="range" id="fontSizeRange" min="11" max="22" value="14" step="1">
+    </div>
+    <div class="popover-row">
+      <label>Zeilenhöhe: <span id="lineHeightValue">1.55</span></label>
+      <input type="range" id="lineHeightRange" min="1.2" max="2" value="1.55" step="0.05">
+    </div>
+  </div>
+
+  <!-- ===== HAUPTBEREICH ===== -->
+  <main class="workspace" id="workspace">
+    <section class="pane pane-editor" id="paneEditor">
+      <div class="tab-bar" id="tabBar">
+        <div class="tabs-scroll" id="tabsScroll"></div>
+        <button class="tab-add" id="btnNewTab" title="Neuer Tab">+</button>
+      </div>
+      <div class="search-bar" id="searchBar">
+        <svg viewBox="0 0 24 24" class="search-icon"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" id="searchInput" placeholder="Suchen …">
+        <span class="search-count" id="searchCount"></span>
+        <button class="btn-icon small" id="searchPrev" title="Vorheriger Treffer">&uarr;</button>
+        <button class="btn-icon small" id="searchNext" title="Nächster Treffer">&darr;</button>
+        <span class="search-divider"></span>
+        <input type="text" id="replaceInput" placeholder="Ersetzen durch …">
+        <button class="btn-ghost small" id="btnReplaceOne">Ersetzen</button>
+        <button class="btn-ghost small" id="btnReplaceAll">Alle ersetzen</button>
+        <button class="btn-icon" id="searchClose" title="Schließen">&times;</button>
+      </div>
+      <div class="editor-host" id="editorHost"></div>
+    </section>
+
+    <div class="resizer" id="resizer"></div>
+
+    <section class="pane pane-preview" id="panePreview">
+      <div class="pane-head">
+        <span class="pane-title">Vorschau</span>
+        <button class="btn-ghost" id="btnInspector" title="Elemente anklicken &amp; Style bearbeiten">
+          <svg viewBox="0 0 24 24"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51z"/></svg>
+        </button>
+        <div class="device-switch" id="deviceSwitch">
+          <button class="device-btn active" data-device="desktop" title="Desktop">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20h8M12 16v4"/></svg>
+          </button>
+          <button class="device-btn" data-device="tablet" title="Tablet">
+            <svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 19h2"/></svg>
+          </button>
+          <button class="device-btn" data-device="mobile" title="Mobil">
+            <svg viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="20" rx="1.5"/><path d="M11 19h2"/></svg>
+          </button>
+        </div>
+        <button class="btn-ghost" id="btnRefreshPreview" title="Vorschau aktualisieren">
+          <svg viewBox="0 0 24 24"><path d="M4 4v6h6M20 20v-6h-6"/><path d="M5.5 9a7 7 0 0113-3M18.5 15a7 7 0 01-13 3"/></svg>
+        </button>
+      </div>
+      <div class="preview-wrap device-desktop" id="previewWrap">
+        <iframe id="previewFrame" class="preview-frame" title="Live-Vorschau" sandbox="allow-scripts allow-same-origin allow-modals allow-forms"></iframe>
+      </div>
+      <div class="inspector-panel" id="inspectorPanel">
+        <div class="inspector-head">
+          <span id="inspectorTarget">Kein Element ausgewählt</span>
+          <button class="btn-icon" id="inspectorDeselect" title="Auswahl aufheben">&times;</button>
+        </div>
+        <div class="inspector-body" id="inspectorBody">
+          <div class="insp-row">
+            <label>Textfarbe</label>
+            <div class="insp-color-group">
+              <input type="color" id="inspColor">
+              <button class="btn-icon small" id="inspColorReset" title="Zurücksetzen">&#8635;</button>
+            </div>
+          </div>
+          <div class="insp-row">
+            <label>Hintergrund</label>
+            <div class="insp-color-group">
+              <input type="color" id="inspBg">
+              <button class="btn-icon small" id="inspBgReset" title="Zurücksetzen">&#8635;</button>
+            </div>
+          </div>
+          <div class="insp-row">
+            <label>Schriftgröße</label>
+            <div class="insp-inline-group">
+              <input type="number" id="inspFontSize" min="1" placeholder="—">
+              <select id="inspFontUnit"><option value="px">px</option><option value="rem">rem</option><option value="em">em</option><option value="%">%</option></select>
+            </div>
+          </div>
+          <div class="insp-row">
+            <label>Schriftschnitt</label>
+            <div class="insp-btn-group">
+              <button class="insp-toggle" id="inspBold" title="Fett"><b>F</b></button>
+              <button class="insp-toggle" id="inspItalic" title="Kursiv"><i>K</i></button>
+            </div>
+          </div>
+          <div class="insp-row">
+            <label>Ausrichtung</label>
+            <div class="insp-btn-group">
+              <button class="insp-toggle" data-align="left" title="Links">L</button>
+              <button class="insp-toggle" data-align="center" title="Mitte">M</button>
+              <button class="insp-toggle" data-align="right" title="Rechts">R</button>
+            </div>
+          </div>
+          <div class="insp-row">
+            <label>Innenabstand</label>
+            <div class="insp-inline-group">
+              <input type="number" id="inspPadding" min="0" placeholder="—">
+              <select id="inspPaddingUnit"><option value="px">px</option><option value="rem">rem</option><option value="%">%</option></select>
+            </div>
+          </div>
+          <div class="insp-row">
+            <label>Außenabstand</label>
+            <div class="insp-inline-group">
+              <input type="number" id="inspMargin" min="0" placeholder="—">
+              <select id="inspMarginUnit"><option value="px">px</option><option value="rem">rem</option><option value="%">%</option></select>
+            </div>
+          </div>
+          <div class="insp-row">
+            <label>Rahmenradius</label>
+            <div class="insp-inline-group">
+              <input type="number" id="inspRadius" min="0" placeholder="—">
+              <select id="inspRadiusUnit"><option value="px">px</option><option value="%">%</option></select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="statusbar">
+    <span id="statusMsg">Bereit.</span>
+    <span class="status-right" id="cursorPos">Zeile 1, Spalte 1</span>
+  </footer>
+</div>
+
+<!-- ===== SEITENPANEL: STYLES ===== -->
+<aside class="side-panel" id="panelStyles">
+  <div class="side-panel-head">
+    <h2>Styles bearbeiten</h2>
+    <button class="btn-icon" id="closeStyles">&times;</button>
+  </div>
+  <div class="side-panel-body">
+    <div class="swatch-row" id="colorSwatches">
+      <p class="hint">Im Dokument gefundene Farben – Klick zum Ändern.</p>
+    </div>
+    <div class="style-editor-head">
+      <span>&lt;style&gt;-Inhalt</span>
+      <button class="btn-ghost small" id="btnApplyStyles">Anwenden</button>
+    </div>
+    <div class="editor-host" id="styleEditorHost"></div>
+  </div>
+</aside>
+
+<!-- ===== MODAL: MARKDOWN ===== -->
+<div class="modal-overlay" id="modalMarkdown">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Markdown einfügen</h2>
+      <button class="btn-icon" data-close-modal>&times;</button>
+    </div>
+    <div class="modal-body two-col">
+      <div class="modal-col">
+        <label>Markdown</label>
+        <textarea id="markdownInput" placeholder="# Überschrift&#10;&#10;Ein **fetter** Text mit *Betonung* und einer [Verlinkung](https://example.com).&#10;&#10;- Punkt eins&#10;- Punkt zwei"></textarea>
+      </div>
+      <div class="modal-col">
+        <label>Vorschau (HTML)</label>
+        <div class="md-preview" id="markdownPreview"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-close-modal>Abbrechen</button>
+      <button class="btn btn-gold" id="btnInsertMarkdown">An Cursor einfügen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: SCRIPT-BUTTON ===== -->
+<div class="modal-overlay" id="modalScriptBtn">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Script-Button einfügen</h2>
+      <button class="btn-icon" data-close-modal>&times;</button>
+    </div>
+    <div class="modal-body">
+      <label>Beschriftung</label>
+      <input type="text" id="scriptBtnLabel" placeholder="z. B. Aktualisieren">
+      <label>Button-Stil</label>
+      <select id="scriptBtnStyle">
+        <option value="gold">Gold (Akzent)</option>
+        <option value="ghost">Ghost (dezent)</option>
+        <option value="plain">Ohne Klasse</option>
+      </select>
+      <label>JavaScript-Code (wird beim Klick ausgeführt)</label>
+      <textarea id="scriptBtnCode" class="code-textarea" placeholder="alert('Hallo!');"></textarea>
+      <p class="hint">Es wird ein &lt;button&gt; mit onclick-Handler sowie bei Bedarf ein passender &lt;style&gt;-Block an der Cursorposition eingefügt.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-close-modal>Abbrechen</button>
+      <button class="btn btn-gold" id="btnInsertScriptBtn">An Cursor einfügen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: SNIPPET-BIBLIOTHEK ===== -->
+<div class="modal-overlay" id="modalSnippets">
+  <div class="modal wide">
+    <div class="modal-head">
+      <h2>Baustein einfügen</h2>
+      <button class="btn-icon" data-close-modal>&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="hint">Klick auf einen Baustein fügt ihn an der aktuellen Cursorposition ein.</p>
+      <div class="snippet-grid" id="snippetGrid"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-close-modal>Schließen</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closetag.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-html.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

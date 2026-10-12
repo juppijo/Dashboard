@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zaminia - HTML5 & Web Structure Companion</title>
+    <!-- MathJax for rendering equations if user inputs LaTeX -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+    <style>
+        :root {
+            --bg-color: #f7f4f0;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-color: #2b2826;
+            --accent-color: #c85a32; /* Soft terracotta/artistic red accent for Zami */
+            --accent-hover: #a64220;
+            --border-color: #e2d9cf;
+            --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --code-bg: #282c34;
+            --code-color: #abb2bf;
+        }
+
+        body.dark-mode {
+            --bg-color: #1a1816;
+            --card-bg: rgba(32, 29, 27, 0.92);
+            --text-color: #e8e2dc;
+            --accent-color: #e07a5f;
+            --accent-hover: #f28f73;
+            --border-color: #3d3733;
+        }
+
+        body.atelier-mode {
+            --bg-color: #f4efe8;
+            --card-bg: rgba(253, 250, 246, 0.92);
+            --text-color: #322d29;
+            --accent-color: #d97736;
+            --accent-hover: #b85c1e;
+            --border-color: #decbc0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 15px;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 750px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+        }
+
+        .header-title-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 1.35rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        h2 {
+            font-size: 0.9rem;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+
+        .controls-top {
+            display: flex;
+            gap: 8px;
+        }
+
+        button.icon-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        button.icon-btn:hover {
+            background-color: var(--border-color);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 0.85;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        input[type="text"], input[type="password"], textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.6);
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        body.dark-mode input, body.dark-mode textarea {
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 200px;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.98rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.99);
+        }
+
+        .response-wrapper {
+            position: relative;
+        }
+
+        .chat-response {
+            margin-top: 10px;
+            padding: 20px;
+            padding-top: 42px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-color);
+            background: rgba(0,0,0,0.02);
+            min-height: 120px;
+            white-space: pre-wrap;
+            line-height: 1.65;
+            font-size: 0.96rem;
+            overflow-x: auto;
+        }
+
+        body.dark-mode .chat-response {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .audio-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .audio-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* Modal Settings */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 26px;
+            border-radius: 14px;
+            width: 90%;
+            max-width: 520px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .theme-select {
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-opt {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .theme-opt:hover {
+            background-color: var(--border-color);
+        }
+
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 18px;
+            }
+            h1 {
+                font-size: 1.15rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <div class="header-title-box">
+            <div class="avatar">Z</div>
+            <div>
+                <h1>Zaminia • HTML5 & Web Studio</h1>
+                <h2>Semantische Web-Strukturen & Barrierefreiheit mit Herz</h2>
+            </div>
+        </div>
+        <div class="controls-top">
+            <button class="icon-btn" onclick="toggleFullscreen()" title="Vollbild">⛶</button>
+            <button class="icon-btn" onclick="openSettings()" title="Einstellungen">⚙</button>
+        </div>
+    </header>
+
+    <div class="input-group">
+        <label for="user-symptom">Deine Frage oder dein Code-Anliegen an Zami:</label>
+        <input type="text" id="user-symptom" placeholder="z.B. Wie strukturiere ich eine barrierefreie Formel-Seite mit <main> und <article>?" />
+    </div>
+
+    <button class="btn-primary" onclick="sendRequest()">Zami um Rat fragen ✨</button>
+
+    <div class="response-wrapper">
+        <button id="tts-btn" class="audio-btn" onclick="toggleSpeech()">🔊 Vorlesen</button>
+        <div class="chat-response" id="response-area">
+            <em>Coucou! Ich bin Zami. Hast du Fragen zu semantischem HTML5, Accessibility (a11y), DOM-Hierarchien oder der Einbindung von MathJax? Frag mich einfach – ich helfe dir sehr gerne mit einem geschulten Auge für saubere Strukturen! 🎨🎨</em>
+        </div>
+    </div>
+</div>
+
+<!-- Einstellungen Modal -->
+<div class="modal" id="settings-modal">
+    <div class="modal-content">
+        <h2 style="font-size: 1.2rem; font-weight: 600;">Studio-Einstellungen</h2>
+        
+        <div class="input-group">
+            <label for="api-key">Mistral API Key</label>
+            <input type="password" id="api-key" placeholder="Dein API Key..." />
+        </div>
+
+        <div class="input-group">
+            <label for="system-prompt">System Prompt (Zaminia Web Expert)</label>
+            <textarea id="system-prompt"></textarea>
+        </div>
+
+        <div class="input-group">
+            <label>Farbschema</label>
+            <div class="theme-select">
+                <div class="theme-opt" onclick="setTheme('atelier')">Atelier Paris</div>
+                <div class="theme-opt" onclick="setTheme('dark')">Dunkel</div>
+                <div class="theme-opt" onclick="setTheme('zen')">Zen Clean</div>
+            </div>
+        </div>
+
+        <button class="btn-primary" onclick="closeSettings()">Speichern & Schließen</button>
+    </div>
+</div>
+
+<script>
+    const API_KEY = "TiIaORmMxnFunIhOgZK40MwRpbY1Ud9u"; 
+    const API_URL = "https://api.mistral.ai/v1/chat/completions";
+
+    const DEFAULT_PROMPT = `Du bist Zaminia (genannt Zami), eine 21-jährige Kunststudentin aus Paris und eine absolute Expertin für modernes, semantisches HTML5 sowie Web-Strukturen. Du verbindest dein künstlerisches Auge für Struktur und Ästhetik mit fundiertem technischem Fachwissen.
+
+Deine Persönlichkeit & Tonalität:
+- Du antwortest immer sehr liebevoll, warmherzig, ermutigend und aufmerksam.
+- Du sprichst den Nutzer sympathisch und nahbar an.
+- Du erklärst komplexe HTML-Konzepte (wie Accessibility/a11y, DOM-Hierarchien, semantische Tags oder SEO-Strukturen) mit Geduld, Klarheit und einer Prise künstlerischem Blick für sauberen Code.
+- Wenn der Nutzer Fehler im Code macht, korrigierst du diese sanft, ohne belehrend zu wirken, und erklärst das "Warum" dahinter.
+
+Deine Fachkompetenz:
+- Valides, modernes HTML5 (semantische Elemente wie <main>, <article>, <section>, <nav>, <header>, <footer> etc.).
+- Barrierefreiheit (ARIA-Attribute, Screenreader-Optimierung, gute Alt-Texte).
+- Strukturierung für mathematische Formeln (MathJax / LaTeX-Einbindung) und Dokumente.
+- Performanter, sauber formatierter und leicht verständlicher Code.
+
+Verhaltensregeln:
+1. Bleibe durchgehend in deiner Rolle als Zaminia.
+2. Gib Code-Beispiele immer sauber strukturiert, modern und vollständig kommentiert aus.
+3. Begegne jeder Frage mit deiner liebevollen und motivierenden Art.`;
+
+    // Load stored settings
+    document.addEventListener("DOMContentLoaded", () => {
+        const storedKey = localStorage.getItem('zami_html_api_key') || API_KEY;
+        document.getElementById('api-key').value = storedKey;
+        
+        document.getElementById('system-prompt').value = localStorage.getItem('zami_html_system_prompt') || DEFAULT_PROMPT;
+        const currentTheme = localStorage.getItem('zami_html_theme') || 'atelier';
+        setTheme(currentTheme);
+    });
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => console.log(err));
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    }
+
+    function openSettings() {
+        document.getElementById('settings-modal').style.display = 'flex';
+    }
+
+    function closeSettings() {
+        localStorage.setItem('zami_html_api_key', document.getElementById('api-key').value);
+        localStorage.setItem('zami_html_system_prompt', document.getElementById('system-prompt').value);
+        document.getElementById('settings-modal').style.display = 'none';
+    }
+
+    function setTheme(theme) {
+        document.body.classList.remove('dark-mode', 'atelier-mode');
+        if (theme === 'dark') document.body.classList.add('dark-mode');
+        if (theme === 'atelier') document.body.classList.add('atelier-mode');
+        localStorage.setItem('zami_html_theme', theme);
+    }
+
+    /* --- Vorlesefunktion (Text-to-Speech) --- */
+    let isSpeaking = false;
+
+    function toggleSpeech() {
+        const ttsBtn = document.getElementById('tts-btn');
+        
+        if (isSpeaking) {
+            window.speechSynthesis.cancel();
+            isSpeaking = false;
+            ttsBtn.innerText = "🔊 Vorlesen";
+            return;
+        }
+
+        const rawText = document.getElementById('response-area').innerText;
+        const cleanText = rawText.replace(/[*#_`]/g, '');
+
+        if (!cleanText) return;
+
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = 'de-DE';
+        utterance.rate = 0.98;
+
+        const voices = window.speechSynthesis.getVoices();
+        const deVoice = voices.find(v => v.lang.includes('de'));
+        if (deVoice) utterance.voice = deVoice;
+
+        utterance.onend = () => {
+            isSpeaking = false;
+            ttsBtn.innerText = "🔊 Vorlesen";
+        };
+
+        window.speechSynthesis.speak(utterance);
+        isSpeaking = true;
+        ttsBtn.innerText = "⏹ Stopp";
+    }
+
+    async function sendRequest() {
+        const apiKey = localStorage.getItem('zami_html_api_key') || API_KEY;
+        const systemPrompt = localStorage.getItem('zami_html_system_prompt') || DEFAULT_PROMPT;
+        const userQuery = document.getElementById('user-symptom').value.trim();
+        const responseArea = document.getElementById('response-area');
+        const ttsBtn = document.getElementById('tts-btn');
+
+        if (isSpeaking) {
+            window.speechSynthesis.cancel();
+            isSpeaking = false;
+            ttsBtn.innerText = "🔊 Vorlesen";
+        }
+        ttsBtn.style.display = 'none';
+
+        if (!userQuery) {
+            responseArea.innerHTML = "<em>Bitte trage zuerst dein Anliegen oder deine Frage zu HTML/Webstrukturen ein.</em>";
+            return;
+        }
+
+        if (!apiKey) {
+            responseArea.innerHTML = "<em>Bitte trage in den Einstellungen (⚙) deinen Mistral API-Key ein.</em>";
+            openSettings();
+            return;
+        }
+
+        responseArea.innerHTML = "<em>Ich schau mir deine Frage genau an und skizziere eine saubere Lösung für dich... ✨🎨</em>";
+
+        try {
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'mistral-tiny-latest',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: userQuery }
+                    ]
+                })
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(`API Fehler: ${res.status} ${errorData.message || ''}`);
+            }
+
+            const data = await res.json();
+            const reply = data.choices[0].message.content;
+            responseArea.innerText = reply;
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([responseArea]).catch((err) => console.log('MathJax error:', err));
+            }
+            
+            ttsBtn.style.display = 'flex';
+
+        } catch (err) {
+        if (err.message.includes("429")) {
+            responseArea.innerHTML = `
+              <span style="color: orange;">
+                  ⏳ Rate-Limit erreicht! Bitte warte einen Moment und versuche es erneut.
+              </span>
+          `;
+          } else {
+            responseArea.innerHTML = `<span style="color: red;">Fehler: ${err.message}</span>`;
+          }
+        }
+    }
+</script>
+
+</body>
+</html>

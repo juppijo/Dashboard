@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Allgemeiner Bild-Resizer (JPG Konverter)</title>
+  <style>
+    /* CSS Variablen für Themes */
+    :root[data-theme="dark"] {
+      --bg-color: #121214;
+      --card-bg: #1e1e24;
+      --text-color: #e4e4e7;
+      --text-muted: #a1a1aa;
+      --border-color: #3f3f46;
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --btn-bg: #27272a;
+      --btn-hover: #3f3f46;
+      --canvas-bg: #09090b;
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    }
+
+    :root[data-theme="light"] {
+      --bg-color: #f4f4f5;
+      --card-bg: #ffffff;
+      --text-color: #18181b;
+      --text-muted: #71717a;
+      --border-color: #e4e4e7;
+      --accent-color: #4f46e5;
+      --accent-hover: #4338ca;
+      --btn-bg: #e4e4e7;
+      --btn-hover: #d4d4d8;
+      --canvas-bg: #e4e4e7;
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .nav-controls {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Main Layout */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1.5rem;
+      padding: 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Sidebar Panel */
+    .panel {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      align-self: start;
+      position: sticky;
+      top: 80px;
+    }
+
+    @media (max-width: 900px) {
+      .panel {
+        position: static;
+      }
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .range-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .range-value {
+      font-weight: 600;
+      color: var(--accent-color);
+      font-variant-numeric: tabular-nums;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent-color);
+      cursor: pointer;
+    }
+
+    /* Buttons */
+    .btn {
+      background-color: var(--btn-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn:hover {
+      background-color: var(--btn-hover);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-color);
+      color: #ffffff;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    /* Preview Area */
+    .preview-container {
+      background-color: var(--canvas-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      min-height: 400px;
+      position: relative;
+    }
+
+    .preview-box {
+      max-width: 100%;
+      max-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas {
+      max-width: 100%;
+      max-height: 80vh; /* Verhindert, dass das Bild zu hoch wird */
+      height: auto;
+      border-radius: 4px;
+      box-shadow: var(--shadow);
+    }
+
+    .info-badge {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      text-align: center;
+      background-color: var(--btn-bg);
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      display: inline-block;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      max-width: 300px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Bild-Skalierer</h1>
+    <div class="nav-controls">
+      <button class="btn" id="themeToggle" title="Design wechseln">🌙 Dark</button>
+      <button class="btn" id="fullscreenToggle" title="Vollbild umschalten">⛶ Vollbild</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="panel">
+      <div class="control-group">
+        <label>1. Beliebiges Bild auswählen</label>
+        <div class="file-input-wrapper">
+          <button class="btn btn-primary" style="width: 100%;">📁 Bild laden...</button>
+          <!-- Akzeptiert jetzt alle gängigen Bildtypen -->
+          <input type="file" id="imageInput" accept="image/jpeg, image/jpg, image/png, image/webp, image/gif, image/bmp">
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">(PNG, WEBP, JPG, GIF...)</div>
+      </div>
+
+      <div class="control-group">
+        <div class="range-header">
+          <label for="scaleRange">2. Neue Größe festlegen</label>
+          <span class="range-value" id="scaleValue">100%</span>
+        </div>
+        <input type="range" id="scaleRange" min="5" max="100" value="100" disabled>
+      </div>
+
+      <div class="control-group">
+        <div class="range-header">
+          <label for="qualityRange">3. Speicher-Qualität (JPG)</label>
+          <span class="range-value" id="qualityValue">90%</span>
+        </div>
+        <input type="range" id="qualityRange" min="10" max="100" value="90" disabled>
+      </div>
+
+      <button class="btn btn-primary" id="downloadBtn" disabled>💾 Als JPG speichern</button>
+
+      <div style="text-align: center;">
+        <div class="info-badge" id="imageDetails" style="display: none;">Kein Bild geladen</div>
+      </div>
+    </div>
+
+    <div class="preview-container">
+      <div class="empty-state" id="emptyState">
+        <p>Lade ein beliebiges Bild hoch (z.B. PNG, PNG), um die Live-Vorschau und Verkleinerung zu starten.</p>
+      </div>
+      <div class="preview-box">
+        <canvas id="previewCanvas" style="display: none;"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const themeToggle = document.getElementById('themeToggle');
+    const fullscreenToggle = document.getElementById('fullscreenToggle');
+    const imageInput = document.getElementById('imageInput');
+    const scaleRange = document.getElementById('scaleRange');
+    const scaleValue = document.getElementById('scaleValue');
+    const qualityRange = document.getElementById('qualityRange');
+    const qualityValue = document.getElementById('qualityValue');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const previewCanvas = document.getElementById('previewCanvas');
+    const emptyState = document.getElementById('emptyState');
+    const imageDetails = document.getElementById('imageDetails');
+    const ctx = previewCanvas.getContext('2d');
+
+    let loadedImage = null;
+    let originalFilename = "skaliertes-bild";
+
+    // Theme Switcher
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      themeToggle.textContent = newTheme === 'dark' ? '🌙 Dark' : '☀️ Light';
+    });
+
+    // Fullscreen Toggle
+    fullscreenToggle.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    });
+
+    // Image Load
+    imageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Dateinamen ohne Endung merken
+      originalFilename = file.name.substring(0, file.name.lastIndexOf('.')) || "skaliertes-bild";
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          loadedImage = img;
+          scaleRange.disabled = false;
+          qualityRange.disabled = false;
+          downloadBtn.disabled = false;
+          emptyState.style.display = 'none';
+          previewCanvas.style.display = 'block';
+          imageDetails.style.display = 'inline-block';
+          updatePreview();
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Scale Controls
+    scaleRange.addEventListener('input', () => {
+      scaleValue.textContent = `${scaleRange.value}%`;
+      updatePreview();
+    });
+
+    qualityRange.addEventListener('input', () => {
+      qualityValue.textContent = `${qualityRange.value}%`;
+    });
+
+    // Kernfunktion: Bild auf Canvas zeichnen und skalieren
+    function updatePreview() {
+      if (!loadedImage) return;
+
+      // Zielgröße berechnen (proportional)
+      const scale = scaleRange.value / 100;
+      const targetWidth = Math.max(1, Math.round(loadedImage.width * scale));
+      const targetHeight = Math.max(1, Math.round(loadedImage.height * scale));
+
+      previewCanvas.width = targetWidth;
+      previewCanvas.height = targetHeight;
+
+      // Bessere Bildqualität beim Skalieren aktivieren
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      
+      // Canvas leeren (wichtig falls Transparenz im Spiel ist)
+      ctx.clearRect(0, 0, targetWidth, targetHeight);
+      
+      // Wenn das Originalbild Transparenz hat (PNG/WEBP) und wir als JPG speichern,
+      // brauchen wir einen weißen Hintergrund.
+      ctx.fillStyle = "#FFFFFF"; // Weißer Hintergrund für Transparenz-Konvertierung
+      ctx.fillRect(0, 0, targetWidth, targetHeight);
+
+      // Bild auf den weißen Hintergrund zeichnen
+      ctx.drawImage(loadedImage, 0, 0, targetWidth, targetHeight);
+
+      // Details updaten
+      imageDetails.textContent = `Original: ${loadedImage.width}×${loadedImage.height} | Neu: ${targetWidth}×${targetHeight} px`;
+    }
+
+    // Download als JPG
+    downloadBtn.addEventListener('click', () => {
+      if (!loadedImage) return;
+
+      const quality = qualityRange.value / 100;
+      
+      // Das Canvas wird hier explizit als 'image/jpeg' exportiert
+      const dataUrl = previewCanvas.toDataURL('image/jpeg', quality);
+
+      const link = document.createElement('a');
+      link.download = `${originalFilename}_scaled.jpg`; // Immer Endung .jpg
+      link.href = dataUrl;
+      link.click();
+    });
+  </script>
+</body>
+</html>

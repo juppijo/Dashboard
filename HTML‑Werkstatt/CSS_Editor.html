@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profi CSS Style Studio mit Syntax-Highlighting</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --border-color: #334155;
+            --text-color: #f8fafc;
+            --accent-color: #6366f1;
+            --accent-hover: #4f46e5;
+            --code-bg: #090d16;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #818cf8;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Main Layout */
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            flex: 1;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+        }
+
+        @media (max-width: 900px) {
+            .workspace {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+        }
+
+        .pane {
+            display: flex;
+            flex-direction: column;
+            background-color: var(--panel-bg);
+            border-right: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .pane:last-child {
+            border-right: none;
+        }
+
+        .pane-header {
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        /* Editor Area mit korrigiertem Scrolling */
+        .editor-container {
+            flex: 1;
+            position: relative;
+            background-color: var(--code-bg);
+            display: flex;
+            overflow: hidden;
+        }
+
+        .editor-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* Haupt-Scrollcontainer */
+        }
+
+        textarea, pre {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            min-height: 100%;
+            margin: 0;
+            padding: 15px;
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            tab-size: 4;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: none;
+        }
+
+        textarea {
+            background: transparent;
+            color: transparent;
+            caret-color: #38bdf8;
+            outline: none;
+            resize: none;
+            z-index: 2;
+            overflow: hidden; /* Textarea selbst scrollt nicht mehr, der Wrapper übernimmt es */
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: #f8fafc;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        /* Syntax Highlight Colors */
+        .token-comment { color: #64748b; font-style: italic; }
+        .token-selector { color: #38bdf8; font-weight: bold; }
+        .token-property { color: #f472b6; }
+        .token-value { color: #a78bfa; }
+        .token-punctuation { color: #94a3b8; }
+        .token-number { color: #fbbf24; }
+        .token-color { color: #34d399; }
+
+        /* Preview Area */
+        .preview-container {
+            flex: 1;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            overflow: auto;
+            position: relative;
+        }
+
+        /* Buttons & Toolbar */
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: background 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn:hover { background-color: var(--accent-hover); }
+        .btn:active { transform: scale(0.97); }
+        .btn-secondary { background-color: #334155; color: #cbd5e1; }
+        .btn-secondary:hover { background-color: #475569; }
+        .btn-success { background-color: #059669; }
+        .btn-success:hover { background-color: #047857; }
+
+        .toolbar-presets {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        /* Vorschau-Element */
+        .preview-target-wrapper {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .card-preview {
+            background: #1e293b;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .card-preview h3 {
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+
+        .card-preview p {
+            color: #94a3b8;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .preview-btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .preview-btn:hover { opacity: 0.9; }
+
+        .status-msg {
+            font-size: 0.75rem;
+            color: #34d399;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: 500;
+        }
+        .status-msg.show { opacity: 1; }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000; opacity: 0; pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            width: 90%; max-width: 400px; padding: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .modal h3 { margin-bottom: 15px; font-size: 1.1rem; }
+        .modal input {
+            width: 100%; padding: 10px;
+            background: var(--code-bg); border: 1px solid var(--border-color);
+            color: var(--text-color); border-radius: 6px; margin-bottom: 15px; outline: none;
+        }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+        .saved-list {
+            max-height: 200px; overflow-y: auto; margin-bottom: 15px;
+            border: 1px solid var(--border-color); border-radius: 6px; background: var(--code-bg);
+        }
+        .saved-item {
+            padding: 10px 12px; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+        }
+        .saved-item:last-child { border-bottom: none; }
+        .saved-item:hover { background: rgba(99, 102, 241, 0.1); }
+        .delete-btn { background: transparent; border: none; color: #ef4444; cursor: pointer; padding: 4px; }
+    </style>
+    <style id="live-styles"></style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+            CSS Style Studio
+        </div>
+        <div class="header-actions">
+            <span id="status-msg" class="status-msg">Gespeichert!</span>
+            <button class="btn btn-success" onclick="openSaveModal()">Speichern</button>
+            <button class="btn btn-secondary" onclick="openLoadModal()">Laden</button>
+            <button class="btn btn-secondary" onclick="triggerFileUpload()">Upload</button>
+            <input type="file" id="file-upload" accept=".css,.txt" style="display: none;" onchange="handleFileUpload(event)">
+            <button class="btn btn-secondary" onclick="exportCSSFile()">Exportieren (.css)</button>
+            <button class="btn btn-secondary" onclick="copyCSS()">Code kopieren</button>
+            <button class="btn" id="fullscreen-btn" onclick="toggleFullScreen()">Vollbild</button>
+        </div>
+    </header>
+
+    <div class="workspace">
+        <!-- Editor Spalte -->
+        <div class="pane">
+            <div class="pane-header">
+                <span>CSS Code Editor (Farb-Text-Style)</span>
+                <div class="toolbar-presets">
+                    <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 0.75rem;" onclick="loadPreset('cyberpunk')">Cyberpunk</button>
+                    <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 0.75rem;" onclick="loadPreset('glass')">Glass</button>
+                    <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 0.75rem;" onclick="loadPreset('neumorphism')">Neumorphism</button>
+                </div>
+            </div>
+            <div class="editor-container">
+                <div class="editor-wrapper" id="editorWrapper">
+                    <pre id="highlighting"><code id="highlighting-content"></code></pre>
+                    <textarea id="css-input" placeholder="Schreibe dein CSS..." spellcheck="false"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vorschau Spalte -->
+        <div class="pane">
+            <div class="pane-header">
+                <span>Live Vorschau Element</span>
+                <span style="font-size: 0.75rem; color: #64748b;">Ziel: <code>.card-preview</code></span>
+            </div>
+            <div class="preview-container">
+                <div class="preview-target-wrapper">
+                    <div class="card-preview" id="previewCard">
+                        <h3>Karten-Titel</h3>
+                        <p>Dies ist ein interaktives Vorschau-Element. Passe links das CSS an, um Effekte in Echtzeit zu sehen!</p>
+                        <button class="preview-btn" id="previewBtn">Interaktiver Button</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="saveModal">
+        <div class="modal">
+            <h3>Design lokal speichern</h3>
+            <input type="text" id="saveNameInput" placeholder="Name für dein Design...">
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModals()">Abbrechen</button>
+                <button class="btn" onclick="saveStyleToStorage()">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="loadModal">
+        <div class="modal">
+            <h3>Gespeicherte Styles laden</h3>
+            <div class="saved-list" id="savedListContainer"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModals()">Schließen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cssInput = document.getElementById('css-input');
+        const highlightingContent = document.getElementById('highlighting-content');
+        const liveStyles = document.getElementById('live-styles');
+        const statusMsg = document.getElementById('status-msg');
+        const editorWrapper = document.getElementById('editorWrapper');
+
+        const defaultCSS = `/* Gestalte deine .card-preview nach Herzenslust! */
+.card-preview {
+    background: linear-gradient(135deg, #1e1b4b 0%, #311042 100%);
+    border: 2px solid #a855f7;
+    border-radius: 20px;
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.4);
+    color: #f3e8ff;
+    transform: perspective(1000px) rotateX(2deg);
+}
+
+.card-preview h3 {
+    color: #e879f9;
+    font-family: monospace;
+    letter-spacing: 1px;
+}
+
+.card-preview .preview-btn {
+    background: linear-gradient(90deg, #ec4899, #8b5cf6);
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+    border-radius: 30px;
+    width: 100%;
+}`;
+
+        const presets = {
+            cyberpunk: `/* Cyberpunk Neon Preset */
+.card-preview {
+    background: #05050a;
+    border: 2px solid #00ffcc;
+    border-radius: 4px;
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+    color: #00ffcc;
+}
+.card-preview h3 {
+    text-shadow: 0 0 8px rgba(0, 255, 204, 0.8);
+}
+.card-preview .preview-btn {
+    background: #00ffcc;
+    color: #05050a;
+    font-weight: bold;
+    border-radius: 0;
+}`,
+            glass: `/* Glassmorphism Preset */
+.card-preview {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    color: #ffffff;
+}
+.card-preview .preview-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+}`,
+            neumorphism: `/* Neumorphism Preset */
+.card-preview {
+    background: #e0e5ec;
+    border: none;
+    border-radius: 30px;
+    box-shadow: 20px 20px 60px #bec3c9, -20px -20px 60px #ffffff;
+    color: #4a5568;
+}
+.card-preview p {
+    color: #718096;
+}
+.card-preview .preview-btn {
+    background: #e0e5ec;
+    color: #4a5568;
+    box-shadow: 6px 6px 12px #bec3c9, -6px -6px 12px #ffffff;
+    border-radius: 15px;
+}`
+        };
+
+        function syntaxHighlight(text) {
+            text = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            return text
+                .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="token-comment">$1</span>')
+                .replace(/([a-zA-Z0-9_\-\.\#\s>:]+)(?=\s*\{)/g, '<span class="token-selector">$1</span>')
+                .replace(/([a-zA-Z\-]+)(?=\s*:)/g, '<span class="token-property">$1</span>')
+                .replace(/(:\s*)([^;\}]+)(;?)/g, '$1<span class="token-value">$2</span>$3')
+                .replace(/(#[0-9a-fA-F]{3,8})/g, '<span class="token-color">$1</span>')
+                .replace(/([0-9]+(\.[0-9]+)?(px|rem|em|deg|s|ms|%))/g, '<span class="token-number">$1</span>');
+        }
+
+        function updateEditor() {
+            const code = cssInput.value;
+            highlightingContent.innerHTML = syntaxHighlight(code);
+            liveStyles.textContent = code;
+        }
+
+        cssInput.addEventListener('input', () => {
+            updateEditor();
+            localStorage.setItem('css_editor_last_code', cssInput.value);
+        });
+
+        // Mausrad-Fix: Leitet Mausrad-Events vom Textfeld direkt an den Scroll-Container weiter
+        cssInput.addEventListener('wheel', (e) => {
+            editorWrapper.scrollTop += e.deltaY;
+            editorWrapper.scrollLeft += e.deltaX;
+        }, { passive: true });
+
+        function loadPreset(name) {
+            if (presets[name]) {
+                cssInput.value = presets[name];
+                updateEditor();
+            }
+        }
+
+        const savedLast = localStorage.getItem('css_editor_last_code');
+        cssInput.value = savedLast !== null ? savedLast : defaultCSS;
+        updateEditor();
+
+        function showStatus(text = "Erfolgreich!") {
+            statusMsg.textContent = text;
+            statusMsg.classList.add('show');
+            setTimeout(() => statusMsg.classList.remove('show'), 2000);
+        }
+
+        function copyCSS() {
+            navigator.clipboard.writeText(cssInput.value).then(() => showStatus("Kopiert!"));
+        }
+
+        function openSaveModal() {
+            document.getElementById('saveNameInput').value = "Design " + new Date().toLocaleDateString();
+            document.getElementById('saveModal').classList.add('active');
+            document.getElementById('saveNameInput').focus();
+        }
+
+        function openLoadModal() {
+            renderSavedList();
+            document.getElementById('loadModal').classList.add('active');
+        }
+
+        function closeModals() {
+            document.getElementById('saveModal').classList.remove('active');
+            document.getElementById('loadModal').classList.remove('active');
+        }
+
+        function saveStyleToStorage() {
+            const name = document.getElementById('saveNameInput').value.trim();
+            if (!name) return alert("Bitte Name angeben!");
+            let saved = JSON.parse(localStorage.getItem('css_editor_collection') || '{}');
+            saved[name] = cssInput.value;
+            localStorage.setItem('css_editor_collection', JSON.stringify(saved));
+            closeModals();
+            showStatus("Gespeichert!");
+        }
+
+        function renderSavedList() {
+            const container = document.getElementById('savedListContainer');
+            let saved = JSON.parse(localStorage.getItem('css_editor_collection') || '{}');
+            const keys = Object.keys(saved);
+            if (keys.length === 0) {
+                container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b; font-size: 0.85rem;">Keine gespeicherten Styles.</div>`;
+                return;
+            }
+            container.innerHTML = '';
+            keys.forEach(key => {
+                const item = document.createElement('div');
+                item.className = 'saved-item';
+                item.innerHTML = `<span>${key}</span>`;
+                item.onclick = () => {
+                    cssInput.value = saved[key];
+                    updateEditor();
+                    closeModals();
+                    showStatus(`"${key}" geladen!`);
+                };
+                const delBtn = document.createElement('button');
+                delBtn.className = 'delete-btn';
+                delBtn.innerHTML = '✕';
+                delBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm(`Löschen?`)) {
+                        delete saved[key];
+                        localStorage.setItem('css_editor_collection', JSON.stringify(saved));
+                        renderSavedList();
+                    }
+                };
+                item.appendChild(delBtn);
+                container.appendChild(item);
+            });
+        }
+
+        function exportCSSFile() {
+            const blob = new Blob([cssInput.value], { type: 'text/css;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'custom-style.css';
+            a.click();
+            URL.revokeObjectURL(url);
+            showStatus("Exportiert!");
+        }
+
+        function triggerFileUpload() {
+            document.getElementById('file-upload').click();
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                cssInput.value = e.target.result;
+                updateEditor();
+                showStatus("Hochgeladen!");
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="gold">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CSS-Werkstatt</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#14110c;--panel:#1d1912;--panel2:#282217;--line:#3b3222;--tx:#f3ead7;--mut:#a39880;--ac:#d4a437;--ac2:#f0c75e;--on:#1a1305;--com:#7d745f;--str:#9ccf8a;--sel:#f0c75e;--prop:#8ec5e8;--num:#e8a07a;--at:#d99ae0;--warn:#e5714f;--split:50%}
+[data-theme=ice]{--bg:#0f1720;--panel:#162230;--panel2:#1d2d3e;--line:#2c4157;--tx:#e8f3fa;--mut:#8aa4b8;--ac:#22b8d4;--ac2:#67e0f2;--on:#04202a;--com:#5d7a90;--str:#9ccf8a;--sel:#67e0f2;--prop:#f0c75e;--num:#f0a27a;--at:#c9a6f0}
+[data-theme=light]{--bg:#fbf9f4;--panel:#efebe1;--panel2:#e4dfd0;--line:#cfc8b4;--tx:#2a251b;--mut:#706856;--ac:#9a6b00;--ac2:#7d5600;--on:#fff8e6;--com:#8d8570;--str:#3d7a2a;--sel:#8a5a00;--prop:#1b6a9c;--num:#b0481f;--at:#8a3fa8;--warn:#c0391b}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font:14px/1.4 Barlow,system-ui,sans-serif;background:var(--bg);color:var(--tx);display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden;height:100dvh;padding:0 env(safe-area-inset-right) 0 env(safe-area-inset-left)}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ac2);outline-offset:1px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--line)}
+.logo{font:27px/1 'Bebas Neue',Impact,sans-serif;letter-spacing:.06em;color:var(--ac);margin-right:8px}
+.btn{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 11px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--ac)}
+.btn.pri{background:var(--ac);color:var(--on);border-color:var(--ac);font-weight:600}
+.btn.on{border-color:var(--ac);color:var(--ac2)}
+input[type=text],select{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:5px 8px;min-width:0}
+.sp{flex:1}
+main{display:grid;grid-template-columns:var(--split) 6px minmax(0,1fr);grid-template-rows:minmax(0,1fr);min-height:0}
+.ed,.rp{display:flex;flex-direction:column;min-width:0;min-height:0}
+.rbar{display:flex;gap:6px;padding:6px 10px;background:var(--panel);border-bottom:1px solid var(--line);align-items:center}
+.rbar[hidden]{display:none}.rbar input{flex:1}
+.edbox{flex:1;min-height:0;display:flex}
+.gut{position:relative;flex:none;width:48px;overflow:hidden;background:var(--panel);color:var(--mut);text-align:right;font:13px/21px 'JetBrains Mono',ui-monospace,monospace;border-right:1px solid var(--line);user-select:none;white-space:pre}
+#gn{position:absolute;top:12px;right:9px}
+#hl{display:block;font:inherit}
+.code{position:relative;flex:1;min-width:0;overflow:hidden}
+.code pre,.code textarea{position:absolute;inset:0;margin:0;padding:12px;font:13px/21px 'JetBrains Mono',ui-monospace,monospace;tab-size:2;white-space:pre;border:0;letter-spacing:0}
+.code pre{pointer-events:none;overflow:hidden}
+.code textarea{width:100%;height:100%;background:transparent;color:transparent;caret-color:var(--ac2);resize:none;outline:0;overflow:auto}
+.code textarea::selection{background:rgba(212,164,55,.35)}
+#hl i{font-style:normal}.com{color:var(--com);font-style:italic!important}.str{color:var(--str)}.sel{color:var(--sel)}.prop{color:var(--prop)}.num,.hex{color:var(--num)}.at{color:var(--at)}.var{color:var(--ac2)}
+.spl{cursor:col-resize;background:var(--line)}.spl:hover{background:var(--ac)}
+.rp{border-left:1px solid var(--line)}
+.tabs{display:flex;background:var(--panel);border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{padding:9px 15px;background:none;border:0;border-bottom:2px solid transparent;color:var(--mut);cursor:pointer;white-space:nowrap}
+.tab.on{color:var(--ac2);border-color:var(--ac)}
+.pane{display:none;flex:1;min-height:0;flex-direction:column}.pane.on{display:flex}
+.tools{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line);align-items:center}
+.stage{flex:1;overflow:auto;padding:12px;display:flex;justify-content:center;background:var(--panel2)}
+#pv{border:1px solid var(--line);border-radius:4px;background:#fff;width:100%;height:100%;max-width:100%}
+.list{flex:1;overflow:auto;padding:10px;display:grid;gap:6px;align-content:start}
+.vrow{display:grid;grid-template-columns:36px minmax(70px,1fr) 1.4fr;gap:8px;align-items:center}
+.vrow code{font:12px 'JetBrains Mono',monospace;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vrow input[type=color]{width:36px;height:28px;padding:0;border:1px solid var(--line);border-radius:5px;background:none;cursor:pointer}
+.sw{width:36px;height:28px;border:1px solid var(--line);border-radius:5px}
+.rrow{display:flex;gap:10px;padding:6px 12px;border-bottom:1px solid var(--line);cursor:pointer;font:12.5px 'JetBrains Mono',monospace}
+.rrow:hover{background:var(--panel2)}.rrow b{color:var(--mut);font-weight:400;min-width:34px;text-align:right}.rrow.at{color:var(--at)}
+.empty{color:var(--mut);padding:14px}
+#hx{flex:1;width:100%;border:0;background:var(--bg);padding:12px;font:13px/1.55 'JetBrains Mono',monospace;resize:none;outline:0}
+.st{display:flex;flex-wrap:wrap;gap:18px;padding:5px 12px;background:var(--panel);border-top:1px solid var(--line);color:var(--mut);font-size:12.5px}
+.st .warn{color:var(--warn)}
+#toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:var(--ac);color:var(--on);padding:8px 16px;border-radius:8px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s;max-width:90vw;z-index:9}
+#toast.on{opacity:1}
+.drop{outline:2px dashed var(--ac2);outline-offset:-6px}
+@media(max-height:520px){.bar{flex-wrap:nowrap;overflow-x:auto;padding:4px 8px;gap:6px}.logo{display:none}.bar>*{flex:none}.btn{padding:4px 9px}.tab{padding:6px 12px}.tools{padding:4px 8px}.rbar{padding:4px 8px}.st{display:none}.stage{padding:6px}}
+@media(max-width:820px) and (orientation:portrait){main{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1fr)}.spl{display:none}.rp{border-left:0;border-top:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="logo">CSS-Werkstatt</span>
+  <input type="text" id="fn" value="style.css" size="16" aria-label="Dateiname">
+  <button class="btn pri" id="bLoad">Laden</button>
+  <button class="btn pri" id="bSave" title="Strg+S">Speichern</button>
+  <button class="btn" id="bNew">Neu</button>
+  <button class="btn" id="bFmt">Formatieren</button>
+  <button class="btn" id="bMin">Komprimieren</button>
+  <button class="btn" id="bCopy">Kopieren</button>
+  <button class="btn" id="bRep">Suchen &amp; Ersetzen</button>
+  <span class="sp"></span>
+  <select id="th" aria-label="Editor-Thema"><option value="gold">Gold dunkel</option><option value="ice">Eisblau</option><option value="light">Hell</option></select>
+  <button class="btn" id="fs">Vollbild</button>
+  <input type="file" id="fi" accept=".css,text/css,text/plain" hidden>
+  <input type="file" id="hf" accept=".html,.htm" hidden>
+</header>
+
+<main>
+  <section class="ed" id="ed">
+    <div class="rbar" id="rb" hidden><input type="text" id="sq" placeholder="Suchen"><input type="text" id="sr" placeholder="Ersetzen durch"><button class="btn" id="rall">Alle ersetzen</button><span id="rc"></span></div>
+    <div class="edbox">
+      <div class="gut" id="gut"><div id="gn">1</div></div>
+      <div class="code"><pre aria-hidden="true"><code id="hl"></code></pre><textarea id="ta" spellcheck="false" wrap="off" aria-label="CSS-Code"></textarea></div>
+    </div>
+  </section>
+  <div class="spl" id="spl" role="separator"></div>
+  <section class="rp">
+    <div class="tabs" role="tablist">
+      <button class="tab on" data-p="p1">Vorschau</button>
+      <button class="tab" data-p="p2">Variablen</button>
+      <button class="tab" data-p="p3">Regeln</button>
+      <button class="tab" data-p="p4">Beispiel-HTML</button>
+    </div>
+    <div class="pane on" id="p1">
+      <div class="tools">
+        <button class="btn on" data-w="">PC</button><button class="btn" data-w="820" data-h="1180">Tablet</button><button class="btn" data-w="390" data-h="844">Handy</button><button class="btn" id="bRot" title="Zwischen Hoch- und Querformat wechseln" hidden>Hochformat ⟳</button>
+        <select id="pt" aria-label="Theme-Klasse der Vorschau"></select>
+        <span class="sp"></span>
+        <button class="btn" id="bPick" title="Element anklicken, um die passende Regel zu finden">Element wählen</button>
+      </div>
+      <div class="stage"><iframe id="pv" title="Vorschau"></iframe></div>
+    </div>
+    <div class="pane" id="p2">
+      <div class="tools"><select id="scope" aria-label="Block"></select><input type="text" id="vf" placeholder="Filtern"><button class="btn" id="vAdd">Variable hinzufügen</button></div>
+      <div class="list" id="vlist"></div>
+    </div>
+    <div class="pane" id="p3">
+      <div class="tools"><input type="text" id="rf" placeholder="Selektor suchen" style="flex:1"></div>
+      <div class="list" id="rlist" style="padding:0;gap:0"></div>
+    </div>
+    <div class="pane" id="p4">
+      <div class="tools"><select id="ex"><option value="kegel">Beispiel: Kegelclub-App</option><option value="form">Beispiel: Text &amp; Formular</option></select><button class="btn" id="hLoad">HTML-Datei laden</button></div>
+      <textarea id="hx" spellcheck="false" aria-label="Beispiel-HTML"></textarea>
+    </div>
+  </section>
+</main>
+<footer class="st"><span id="s1"></span><span id="s2"></span><span id="s3"></span><span id="s4"></span></footer>
+<div id="toast" role="status"></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const ta=$('#ta'),hl=$('#hl'),pv=$('#pv'),hx=$('#hx'),LH=21;
+let ready=false,pick=false,t1,t2;
+
+const START=`/* Kegelclub – Beispiel-Stylesheet */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+:root {
+  --bg-main: #141b24;
+  --bg-card: #1f2a38;
+  --bg-input: #17202a;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --accent: #06b6d4;
+  --border: #334155;
+  --header-gradient: linear-gradient(135deg, #0f172a 0%, #0284c7 100%);
+}
+
+/* Themen-Varianten */
+.theme-classic {
+  --bg-main: #2c1d11;
+  --bg-card: #3e2a18;
+  --bg-input: #23160b;
+  --text-main: #fef3c7;
+  --text-muted: #d97706;
+  --accent: #f59e0b;
+  --border: #5f3f23;
+  --header-gradient: linear-gradient(135deg, #1c1107 0%, #7c2d12 100%);
+}
+
+.theme-neon {
+  --bg-main: #09090b;
+  --bg-card: #18181b;
+  --bg-input: #27272a;
+  --text-main: #fafafa;
+  --text-muted: #a1a1aa;
+  --accent: #ec4899;
+  --border: #3f3f46;
+  --header-gradient: linear-gradient(135deg, #000000 0%, #db2777 100%);
+}
+
+body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; padding-bottom: 50px; }
+header { background: var(--header-gradient); text-align: center; padding: 16px; color: #fff; }
+.header-container h1 { font-size: 1.8rem; }
+.menu-bar { display: flex; background: rgba(0, 0, 0, 0.25); border-bottom: 2px solid var(--border); }
+.menu-tab { flex: 1; padding: 12px; background: none; border: 0; color: var(--text-muted); font-weight: bold; cursor: pointer; }
+.menu-tab.active { color: var(--accent); background: var(--bg-card); border-bottom: 3px solid var(--accent); }
+.container { max-width: 900px; margin: 0 auto; padding: 14px; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.btn { padding: 8px 14px; border: 0; border-radius: 6px; font-weight: bold; cursor: pointer; }
+.btn-accent { background: var(--accent); color: #000; }
+.btn-info { background: var(--border); color: var(--text-main); }
+.badge-container { display: flex; flex-direction: column; gap: 6px; }
+.badge { display: flex; justify-content: space-between; padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 5px; }
+.btn-order { background: none; border: 0; color: var(--text-muted); cursor: pointer; }
+.table-responsive { overflow-x: auto; border: 1px solid var(--border); border-radius: 5px; }
+table { width: 100%; border-collapse: collapse; background: var(--bg-input); }
+th, td { padding: 10px; border-bottom: 1px solid var(--border); text-align: center; }
+th { background: rgba(0, 0, 0, 0.25); color: var(--accent); }
+td:first-child, th:first-child { text-align: left; font-weight: bold; }
+.winner-row { background: rgba(16, 185, 129, 0.15); }
+.rank-badge { display: inline-block; min-width: 28px; padding: 2px 8px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border); font-weight: bold; }
+.rank-1 { background: #f59e0b; color: #000; }
+.rank-2 { background: #cbd5e1; color: #000; }
+.rank-3 { background: #b45309; color: #fff; }
+.hint { color: var(--text-muted); margin: 8px 0; }
+.rules-card { background: var(--bg-input); border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 5px 5px 0; }
+.control-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+.control-item { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 4px; }
+label { color: var(--text-muted); font-weight: bold; font-size: 0.9rem; }
+select, input[type="text"] { padding: 8px 10px; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); border-radius: 6px; width: 100%; }
+blockquote { border-left: 3px solid var(--accent); padding: 4px 14px; margin: 12px 0; color: var(--text-muted); font-style: italic; }
+code { background: var(--bg-input); padding: 1px 6px; border-radius: 4px; }
+footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 8px; text-align: center; background: var(--bg-card); border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.85rem; }
+
+@media screen and (max-width: 768px) {
+  html { font-size: 14px; }
+  .card { padding: 10px; }
+  .header-container h1 { font-size: 1.3rem; }
+}
+`;
+
+const EX={
+kegel:`<header><div class="header-container"><h1>🎳 Kegelclub Master</h1><p>Spielabend am Freitag</p></div></header>
+<nav class="menu-bar"><button class="menu-tab active">Spieler</button><button class="menu-tab">Spiele</button><button class="menu-tab">Tabelle</button></nav>
+<div class="container">
+<div class="card"><div class="card-header"><h2>Spieler</h2><button class="btn btn-accent">Hinzufügen</button></div>
+<div class="badge-container">
+<div class="badge"><span>Anna</span><span><button class="btn-order">▲</button><button class="btn-order">▼</button></span></div>
+<div class="badge"><span>Ben</span><span><button class="btn-order">▲</button><button class="btn-order">▼</button></span></div>
+</div></div>
+<div class="card"><div class="card-header"><h2>Rangliste</h2><button class="btn btn-info">Zurücksetzen</button></div>
+<div class="table-responsive"><table><tr><th>Name</th><th>Punkte</th><th>Rang</th></tr>
+<tr class="winner-row"><td>Anna</td><td>142</td><td><span class="rank-badge rank-1">1</span></td></tr>
+<tr><td>Ben</td><td>131</td><td><span class="rank-badge rank-2">2</span></td></tr>
+<tr><td>Clara</td><td>118</td><td><span class="rank-badge rank-3">3</span></td></tr></table></div>
+<p class="hint">Tipp: Die Rangliste aktualisiert sich nach jeder Runde.</p>
+<div class="rules-card">Regel: Bei Gleichstand zählt die höhere Pudel-Zahl.</div></div>
+<div class="card"><div class="control-grid"><div class="control-item"><label>Spiel</label><select><option>Tannenbaum</option><option>Pudel</option></select></div><div class="control-item"><label>Name</label><input type="text" value="Anna"></div></div></div>
+</div>
+<footer>Kegelclub Master · Vorschau</footer>`,
+form:`<div class="container"><div class="card">
+<h2>Kontakt aufnehmen</h2>
+<p class="hint">Schreib uns kurz, worum es geht.</p>
+<blockquote>Gutes Design ist so wenig Design wie möglich.</blockquote>
+<p>Verwende <code>var(--accent)</code> für Hervorhebungen.</p><br>
+<div class="control-grid"><div class="control-item"><label>Name</label><input type="text" value="Max Muster"></div>
+<div class="control-item"><label>Thema</label><select><option>Frage</option><option>Feedback</option></select></div></div><br>
+<button class="btn btn-accent">Senden</button> <button class="btn btn-info">Abbrechen</button>
+</div></div>`};
+
+/* ---------- Syntax-Hervorhebung ---------- */
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),q=s=>esc(s).replace(/"/g,'&quot;');
+const RX=/(\/\*[\s\S]*?(?:\*\/|$))|("[^"\n]*"|'[^'\n]*')|(@[\w-]+[^{;]*)|([^{};\/@\s][^{};\/@]*(?=\{))|(#[0-9a-fA-F]{3,8}\b)|(--[\w-]+)|([\w-]+(?=\s*:))|(\b-?\d*\.?\d+(?:px|rem|em|%|vh|vw|s|ms|deg|fr)?)/g;
+function hi(t){let o='',i=0,m;RX.lastIndex=0;while((m=RX.exec(t))){o+=esc(t.slice(i,m.index));const k=m[1]?'com':m[2]?'str':m[3]?'at':m[4]?'sel':m[5]?'hex':m[6]?'var':m[7]?'prop':'num';o+=`<i class="${k}">${esc(m[0])}</i>`;i=RX.lastIndex}return o+esc(t.slice(i))}
+
+/* ---------- Hilfsfunktionen ---------- */
+let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),2200)}
+function setText(v){ta.focus();ta.select();if(!document.execCommand('insertText',false,v))ta.value=v;ta.scrollTop=0;ta.setSelectionRange(0,0);upd()}
+function sync(){$('#hl').style.transform=`translate(${-ta.scrollLeft}px,${-ta.scrollTop}px)`;$('#gn').style.transform=`translateY(${-ta.scrollTop}px)`}
+function jump(pos,len){ta.focus();ta.setSelectionRange(pos,pos+len);const l=ta.value.slice(0,pos).split('\n').length;ta.scrollTop=Math.max(0,(l-4)*LH);sync();stat()}
+
+/* ---------- Aktualisierung ---------- */
+function stat(){const v=ta.value,c=v.replace(/\/\*[\s\S]*?\*\//g,''),o=(c.match(/\{/g)||[]).length,e=(c.match(/\}/g)||[]).length,p=ta.selectionStart,ls=v.lastIndexOf('\n',p-1)+1;
+$('#s1').textContent=`Zeile ${v.slice(0,p).split('\n').length}, Spalte ${p-ls+1}`;$('#s2').textContent=`${v.split('\n').length} Zeilen · ${v.length} Zeichen`;$('#s3').textContent=`${o} Regeln`;
+const w=$('#s4');w.className=o===e?'':'warn';w.textContent=o===e?'Klammern ausgeglichen':`Achtung: ${o}× { und ${e}× }`}
+function upd(skipVars){hl.innerHTML=hi(ta.value)+'\n';$('#gn').textContent=Array.from({length:ta.value.split('\n').length},(_,i)=>i+1).join('\n');stat();sync();
+clearTimeout(t1);t1=setTimeout(()=>{const s=ready&&pv.contentDocument.getElementById('u');s?s.textContent=ta.value:build()},150);
+clearTimeout(t2);t2=setTimeout(()=>{themes();drawRules();if(!skipVars)drawScopes();try{localStorage.setItem('cssw',JSON.stringify({t:ta.value,n:$('#fn').value}))}catch(e){}},400)}
+ta.addEventListener('input',()=>upd());
+ta.addEventListener('scroll',sync);
+['keyup','click','select'].forEach(n=>ta.addEventListener(n,stat));
+ta.addEventListener('keydown',e=>{
+ if(e.key==='Tab'){e.preventDefault();document.execCommand('insertText',false,'  ')}
+ else if(e.key==='Enter'){const v=ta.value,p=ta.selectionStart,ls=v.lastIndexOf('\n',p-1)+1,ind=v.slice(ls,p).match(/^\s*/)[0];e.preventDefault();document.execCommand('insertText',false,'\n'+ind+(v[p-1]==='{'?'  ':''))}});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();save()}});
+
+/* ---------- Vorschau ---------- */
+function build(){ready=false;pv.srcdoc=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style id="u">${ta.value}</style></head><body class="${$('#pt').value}">${hx.value}</body></html>`}
+pv.onload=()=>{ready=true;try{attach()}catch(e){}};
+function attach(){pv.contentDocument.addEventListener('click',e=>{if(!pick)return;e.preventDefault();e.stopPropagation();const el=e.target;let hit=null;
+ rules().filter(r=>!r.at).forEach(r=>{try{if(el.matches(r.s))hit=r}catch(x){}});
+ const old=el.style.outline;el.style.outline='2px dashed #f0c75e';setTimeout(()=>el.style.outline=old,900);
+ if(hit){jump(hit.pos,hit.s.length);toast(`${el.tagName.toLowerCase()} → ${hit.s.slice(0,50)} (Zeile ${hit.line})`)}else toast('Keine passende Regel gefunden')},true)}
+$('#bPick').onclick=function(){pick=!pick;this.classList.toggle('on',pick);toast(pick?'Klicke ein Element in der Vorschau':'Element-Wahl aus')};
+let dev={w:0,h:0,land:false};
+function applyDev(){const r=$('#bRot');r.hidden=!dev.w;r.textContent=dev.land?'Querformat ⟳':'Hochformat ⟳';
+ if(!dev.w){pv.style.width=pv.style.height='100%';return}
+ const w=dev.land?dev.h:dev.w,h=dev.land?dev.w:dev.h;pv.style.width=`min(${w}px,100%)`;pv.style.height=`min(${h}px,100%)`;pv.title=`Vorschau ${w} × ${h}`}
+$$('[data-w]').forEach(b=>b.onclick=()=>{$$('[data-w]').forEach(x=>x.classList.toggle('on',x===b));dev={w:+b.dataset.w||0,h:+b.dataset.h||0,land:dev.land};applyDev()});
+$('#bRot').onclick=()=>{dev.land=!dev.land;applyDev();toast(dev.land?`Querformat: ${dev.h} × ${dev.w}`:`Hochformat: ${dev.w} × ${dev.h}`)};
+function themes(){const s=$('#pt'),cur=s.value,set=[...new Set([...ta.value.matchAll(/\.(theme-[\w-]+)/g)].map(m=>m[1]))];
+ const h='<option value="">Standard (ohne Theme)</option>'+set.map(n=>`<option>${n}</option>`).join('');if(s.innerHTML!==h){s.innerHTML=h;s.value=set.includes(cur)?cur:''}}
+$('#pt').onchange=()=>{ready?pv.contentDocument.body.className=$('#pt').value:build()};
+$('#ex').onchange=()=>{hx.value=EX[$('#ex').value];build()};
+hx.addEventListener('input',()=>{clearTimeout(t1);t1=setTimeout(build,300)});
+$('#hLoad').onclick=()=>$('#hf').click();
+$('#hf').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const d=new DOMParser().parseFromString(r.result,'text/html');d.querySelectorAll('script').forEach(s=>s.remove());hx.value=d.body.innerHTML;build();toast(`Beispiel aus „${f.name}" übernommen`)};r.readAsText(f);e.target.value=''};
+
+/* ---------- Variablen ---------- */
+function blocks(){const re=/(:root|\.theme-[\w-]+)\s*\{([^}]*)\}/g,r=[];let m;while((m=re.exec(ta.value)))r.push({sel:m[1],start:m.index+m[0].indexOf('{')+1,body:m[2]});return r}
+function drawScopes(){const bs=blocks(),sc=$('#scope'),cur=sc.value;sc.innerHTML=bs.map((b,i)=>`<option value="${i}">${esc(b.sel)}</option>`).join('');if(bs[cur])sc.value=cur;drawVars()}
+const long=v=>v.length===4?'#'+[...v.slice(1)].map(c=>c+c).join(''):v;
+function drawVars(){const b=blocks()[+$('#scope').value],L=$('#vlist');if(!b){L.innerHTML='<p class="empty">Keine Variablen gefunden. Lege einen :root-Block mit --name: wert; an.</p>';return}
+ const f=$('#vf').value.toLowerCase(),re=/(--[\w-]+)\s*:\s*([^;}]+)/g;let m,h='';
+ while((m=re.exec(b.body))){const n=m[1],v=m[2].trim();if(f&&!n.includes(f))continue;const hex=/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v);
+ h+=`<div class="vrow">${hex?`<input type="color" value="${long(v)}" data-n="${n}">`:`<span class="sw" style="background:${q(v)}"></span>`}<code title="${n}">${n}</code><input type="text" value="${q(v)}" data-n="${n}"></div>`}
+ L.innerHTML=h||'<p class="empty">Keine Treffer.</p>'}
+function setVar(n,v){const b=blocks()[+$('#scope').value];if(!b)return;const nb=b.body.replace(new RegExp('('+n+'\\s*:\\s*)([^;}]*)'),(m,a)=>a+v);ta.setRangeText(nb,b.start,b.start+b.body.length,'preserve');upd(true)}
+$('#vlist').addEventListener('input',e=>{const t=e.target,n=t.dataset.n;if(!n)return;setVar(n,t.value);const row=t.parentNode;
+ if(t.type==='color')row.querySelector('[type=text]').value=t.value;else{const c=row.querySelector('[type=color]');if(c&&/^#[0-9a-f]{6}$/i.test(t.value))c.value=t.value;const s=row.querySelector('.sw');if(s)s.style.background=t.value}});
+$('#scope').onchange=drawVars;$('#vf').oninput=drawVars;
+$('#vAdd').onclick=()=>{const b=blocks()[+$('#scope').value];if(!b)return toast('Zuerst einen :root-Block anlegen');const n=(prompt('Name der Variable (ohne --)')||'').trim().replace(/[^\w-]/g,'');if(!n)return;const v=prompt('Wert','#d4a437');if(v===null)return;
+ const end=b.start+b.body.length;ta.setRangeText((b.body.endsWith('\n')?'':'\n')+`  --${n}: ${v};\n`,end,end,'end');upd();toast(`--${n} hinzugefügt`)};
+
+/* ---------- Regeln ---------- */
+function rules(){const t=ta.value.replace(/\/\*[\s\S]*?\*\//g,m=>m.replace(/[^\n]/g,' ')),re=/([^{};]+)\{/g,r=[];let m;
+ while((m=re.exec(t))){const s=m[1].trim();if(!s)continue;const pos=m.index+m[0].indexOf(s);r.push({s:s.replace(/\s+/g,' '),pos,line:t.slice(0,pos).split('\n').length,at:s[0]==='@'})}return r}
+function drawRules(){const f=$('#rf').value.toLowerCase(),rs=rules().filter(r=>r.s.toLowerCase().includes(f));
+ $('#rlist').innerHTML=rs.map((r,i)=>`<div class="rrow${r.at?' at':''}" data-i="${r.pos}" data-l="${r.s.length}"><b>${r.line}</b><span>${esc(r.s)}</span></div>`).join('')||'<p class="empty">Keine Regeln gefunden.</p>'}
+$('#rf').oninput=drawRules;
+$('#rlist').onclick=e=>{const r=e.target.closest('.rrow');if(r)jump(+r.dataset.i,+r.dataset.l)};
+
+/* ---------- Datei, Format, Tools ---------- */
+function loadFile(f){if(!f)return;const r=new FileReader();r.onload=()=>{$('#fn').value=f.name;setText(r.result);toast(`„${f.name}" geladen`)};r.readAsText(f)}
+$('#bLoad').onclick=()=>$('#fi').click();
+$('#fi').onchange=e=>{loadFile(e.target.files[0]);e.target.value=''};
+const ed=$('#ed');
+ed.addEventListener('dragover',e=>{e.preventDefault();ed.classList.add('drop')});
+ed.addEventListener('dragleave',()=>ed.classList.remove('drop'));
+ed.addEventListener('drop',e=>{e.preventDefault();ed.classList.remove('drop');loadFile(e.dataTransfer.files[0])});
+function save(){const n=($('#fn').value.trim()||'style.css').replace(/[\\/]/g,'_'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([ta.value],{type:'text/css'}));a.download=n;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);toast(`„${n}" gespeichert`)}
+$('#bSave').onclick=save;
+$('#bNew').onclick=()=>{if(confirm('Aktuellen Inhalt verwerfen und mit dem Beispiel-Stylesheet neu beginnen?')){$('#fn').value='style.css';setText(START)}};
+function pretty(s){let d=0,o='',cur='';const P=()=>'  '.repeat(d),T=()=>cur.trim().replace(/\s+/g,' ');
+ s.split(/(\/\*[\s\S]*?\*\/|"[^"]*"|'[^']*'|[{};])/).forEach(t=>{
+  if(t==='{'){o+=P()+T()+' {\n';cur='';d++}
+  else if(t==='}'){if(T()){o+=P()+T()+';\n';cur=''}d=Math.max(0,d-1);o+=P()+'}\n'+(d?'':'\n')}
+  else if(t===';'){o+=P()+T()+';\n';cur=''}
+  else if(/^\/\*/.test(t)){if(T())cur+=t;else o+=P()+t+'\n'}
+  else cur+=t});
+ if(T())o+=T();return o.replace(/\n{3,}/g,'\n\n').trim()+'\n'}
+$('#bFmt').onclick=()=>{setText(pretty(ta.value));toast('Formatiert')};
+$('#bMin').onclick=()=>{const b=ta.value.length;setText(ta.value.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\s+/g,' ').replace(/\s*([{};,>])\s*/g,'$1').replace(/;}/g,'}').trim());toast(`Komprimiert: ${b} → ${ta.value.length} Zeichen`)};
+$('#bCopy').onclick=async()=>{try{await navigator.clipboard.writeText(ta.value)}catch(e){ta.select();document.execCommand('copy')}toast('In die Zwischenablage kopiert')};
+$('#bRep').onclick=()=>{const r=$('#rb');r.hidden=!r.hidden;if(!r.hidden)$('#sq').focus()};
+$('#sq').oninput=()=>{const a=$('#sq').value;$('#rc').textContent=a?`${ta.value.split(a).length-1} Treffer`:''};
+$('#rall').onclick=()=>{const a=$('#sq').value;if(!a)return;const n=ta.value.split(a).length-1;if(!n)return toast('Nichts gefunden');setText(ta.value.split(a).join($('#sr').value));toast(`${n} Ersetzungen`)};
+
+/* ---------- Tabs, Splitter, Vollbild, Thema ---------- */
+$$('.tab').forEach(b=>b.onclick=()=>{$$('.tab').forEach(x=>x.classList.toggle('on',x===b));$$('.pane').forEach(p=>p.classList.toggle('on',p.id===b.dataset.p))});
+const spl=$('#spl');spl.onpointerdown=e=>{spl.setPointerCapture(e.pointerId);spl.onpointermove=ev=>{const r=$('main').getBoundingClientRect();document.documentElement.style.setProperty('--split',Math.min(80,Math.max(20,(ev.clientX-r.left)/r.width*100))+'%')};spl.onpointerup=()=>spl.onpointermove=null};
+$('#fs').onclick=async()=>{try{document.fullscreenElement?await document.exitFullscreen():await document.documentElement.requestFullscreen()}catch(e){toast('Vollbild wird in dieser Umgebung nicht unterstützt')}};
+document.addEventListener('fullscreenchange',()=>{const f=!!document.fullscreenElement;$('#fs').classList.toggle('on',f);$('#fs').textContent=f?'Vollbild beenden':'Vollbild'});
+$('#th').onchange=()=>{document.documentElement.dataset.theme=$('#th').value;try{localStorage.setItem('cssw-th',$('#th').value)}catch(e){}};
+
+/* ---------- Start ---------- */
+let saved=null,th=null;try{saved=JSON.parse(localStorage.getItem('cssw'));th=localStorage.getItem('cssw-th')}catch(e){}
+if(th){$('#th').value=th;document.documentElement.dataset.theme=th}
+ta.value=saved&&saved.t?saved.t:START;if(saved&&saved.n)$('#fn').value=saved.n;
+hx.value=EX.kegel;themes();upd();drawScopes();drawRules();build();
+</script>
+</body>
+</html>
