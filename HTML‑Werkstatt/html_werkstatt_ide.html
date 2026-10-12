@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zaminia HTML-Werkstatt IDE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        zaminia: {
+                            50: '#fdf2f2',
+                            100: '#fde8e8',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c',
+                            800: '#991b1b',
+                            900: '#7f1d1d',
+                            950: '#450a0a',
+                        },
+                        darkbase: {
+                            900: '#0f0a0a',
+                            800: '#181111',
+                            700: '#261b1b',
+                            600: '#3a2727',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #181111;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3a2727;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #dc2626;
+        }
+        .code-textarea {
+            tab-size: 4;
+            font-family: 'Fira Code', Menlo, Monaco, Consolas, 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body class="bg-darkbase-900 text-gray-100 h-screen w-screen overflow-hidden flex flex-col font-sans select-none">
+
+    <header class="bg-darkbase-800 border-b border-darkbase-700 h-14 flex items-center justify-between px-4 shrink-0 shadow-lg z-20">
+        <div class="flex items-center space-x-3">
+            <div class="bg-zaminia-700 text-white p-2 rounded-xl shadow-md shadow-zaminia-900/50 flex items-center justify-center w-9 h-9">
+                <i class="fa-solid fa-code text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold tracking-wide text-sm md:text-base text-gray-100 flex items-center gap-2">
+                    Zaminia Werkstatt <span class="text-xs bg-zaminia-900/60 text-zaminia-400 border border-zaminia-700/50 px-2 py-0.5 rounded-full font-mono">IDE v3.1</span>
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-2 md:space-x-3">
+            <button onclick="saveProjectToLocalStorage()" title="Projekt lokal speichern (Ctrl+S)" class="flex items-center space-x-1.5 px-3 py-1.5 bg-darkbase-700 hover:bg-darkbase-600 border border-darkbase-600 text-xs font-medium rounded-lg transition-all shadow-sm">
+                <i class="fa-solid fa-floppy-disk text-zaminia-400"></i>
+                <span class="hidden sm:inline">Speichern</span>
+            </button>
+            <button onclick="exportProjectZip()" title="Als ZIP herunterladen" class="flex items-center space-x-1.5 px-3 py-1.5 bg-darkbase-700 hover:bg-darkbase-600 border border-darkbase-600 text-xs font-medium rounded-lg transition-all shadow-sm">
+                <i class="fa-solid fa-file-zipper text-emerald-400"></i>
+                <span class="hidden sm:inline">Export ZIP</span>
+            </button>
+            <label title="Projekt importieren" class="cursor-pointer flex items-center space-x-1.5 px-3 py-1.5 bg-darkbase-700 hover:bg-darkbase-600 border border-darkbase-600 text-xs font-medium rounded-lg transition-all shadow-sm">
+                <i class="fa-solid fa-folder-open text-amber-400"></i>
+                <span class="hidden sm:inline">Importieren</span>
+                <input type="file" id="importFile" onchange="importProject(event)" class="hidden" accept=".zip">
+            </label>
+
+            <div class="h-5 w-[1px] bg-darkbase-600 mx-1"></div>
+
+            <button onclick="toggleLayout('split')" id="btnSplit" title="Geteilte Ansicht" class="p-2 bg-darkbase-600 text-zaminia-400 rounded-lg text-xs transition-all">
+                <i class="fa-solid fa-columns"></i>
+            </button>
+            <button onclick="toggleLayout('code')" id="btnCodeOnly" title="Nur Code" class="p-2 bg-darkbase-700 hover:bg-darkbase-600 text-gray-300 rounded-lg text-xs transition-all">
+                <i class="fa-solid fa-file-code"></i>
+            </button>
+            <button onclick="toggleLayout('preview')" id="btnPreviewOnly" title="Nur Vorschau" class="p-2 bg-darkbase-700 hover:bg-darkbase-600 text-gray-300 rounded-lg text-xs transition-all">
+                <i class="fa-solid fa-eye"></i>
+            </button>
+
+            <div class="h-5 w-[1px] bg-darkbase-600 mx-1"></div>
+
+            <button onclick="toggleFullScreen()" title="Vollbildmodus" class="flex items-center justify-center w-8 h-8 bg-zaminia-600 hover:bg-zaminia-700 text-white rounded-lg text-xs transition-all shadow-md shadow-zaminia-900/40">
+                <i class="fa-solid fa-expand" id="fsIcon"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden relative" id="workspaceContainer">
+        
+        <!-- Sidebar: File Manager -->
+        <div id="sidebar" class="w-64 bg-darkbase-800/90 border-r border-darkbase-700 flex flex-col shrink-0 select-none transition-all duration-300">
+            <div class="p-3 border-b border-darkbase-700 flex items-center justify-between text-xs font-semibold tracking-wider text-gray-400 uppercase">
+                <span><i class="fa-solid fa-folder-tree mr-1.5 text-zaminia-500"></i> Dateien</span>
+                <div class="flex items-center space-x-1">
+                    <button onclick="openNewFileDialog()" title="Neue Datei" class="p-1.5 hover:bg-darkbase-600 text-gray-300 hover:text-white rounded transition">
+                        <i class="fa-solid fa-file-circle-plus text-zaminia-400"></i>
+                    </button>
+                    <button onclick="openUploadFileDialog()" title="Datei hochladen" class="p-1.5 hover:bg-darkbase-600 text-gray-300 hover:text-white rounded transition">
+                        <i class="fa-solid fa-upload"></i>
+                    </button>
+                    <input type="file" id="singleFileUpload" class="hidden" onchange="uploadSingleFile(event)">
+                </div>
+            </div>
+
+            <div id="fileList" class="flex-1 overflow-y-auto p-2 space-y-1">
+                <!-- Populated via JavaScript -->
+            </div>
+
+            <div class="p-3 border-t border-darkbase-700 bg-darkbase-900/50">
+                <div class="text-[11px] text-gray-400 mb-2 font-medium">Schnellvorlage laden:</div>
+                <div class="grid grid-cols-2 gap-1.5">
+                    <button onclick="loadTemplate('landing')" class="px-2 py-1 bg-darkbase-700 hover:bg-zaminia-900/40 hover:border-zaminia-600 border border-darkbase-600 rounded text-xs text-left transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-globe text-zaminia-400"></i>
+                        <span class="truncate">Landingpage</span>
+                    </button>
+                    <button onclick="loadTemplate('game')" class="px-2 py-1 bg-darkbase-700 hover:bg-zaminia-900/40 hover:border-zaminia-600 border border-darkbase-600 rounded text-xs text-left transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-gamepad text-emerald-400"></i>
+                        <span class="truncate">Mini-Game</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Editor Area -->
+        <div id="editorPane" class="flex-1 flex flex-col bg-darkbase-900 overflow-hidden relative">
+            <div id="tabBar" class="bg-darkbase-800 border-b border-darkbase-700 flex items-center overflow-x-auto shrink-0 h-10 px-2 space-x-1">
+                <!-- Tabs populated via JS -->
+            </div>
+
+            <div class="flex-1 relative flex flex-col">
+                <div class="absolute top-2 right-4 z-10 bg-darkbase-800/80 backdrop-blur border border-darkbase-700 rounded-lg px-2.5 py-1 text-[11px] text-gray-400 flex items-center space-x-2 pointer-events-none shadow">
+                    <span id="activeFileLang" class="font-mono text-zaminia-400 uppercase font-semibold">HTML</span>
+                    <span class="text-darkbase-600">|</span>
+                    <span id="cursorPosition">Ln 1, Col 1</span>
+                </div>
+                
+                <textarea id="codeEditor" 
+                    class="code-textarea flex-1 bg-darkbase-900 text-gray-200 p-4 resize-none outline-none text-sm leading-relaxed"
+                    placeholder="Wähle eine Datei aus oder erstelle eine neue..."
+                    oninput="handleCodeInput(event)"
+                    onkeydown="handleKeyDown(event)"
+                    onkeyup="updateCursorPosition()"
+                    onclick="updateCursorPosition()"
+                    spellcheck="false"></textarea>
+            </div>
+
+            <div class="bg-darkbase-800 border-t border-darkbase-700 px-3 py-1.5 text-xs text-gray-400 flex items-center justify-between shrink-0">
+                <div class="flex items-center space-x-3">
+                    <span class="flex items-center space-x-1.5 text-emerald-400">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span id="statusMessage">Bereit</span>
+                    </span>
+                </div>
+                <div class="flex items-center space-x-3 text-gray-400">
+                    <button onclick="triggerRun()" class="hover:text-white flex items-center space-x-1 text-zaminia-400 hover:text-zaminia-300 font-medium">
+                        <i class="fa-solid fa-play"></i>
+                        <span>Vorschau aktualisieren</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Preview Pane -->
+        <div id="previewPane" class="w-1/2 flex flex-col bg-white border-l border-darkbase-700 shrink-0 relative transition-all duration-300">
+            <div class="bg-darkbase-800 border-b border-darkbase-700 h-10 px-3 flex items-center justify-between shrink-0 text-xs text-gray-300">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-desktop text-zaminia-400"></i>
+                    <span class="font-semibold">Live-Vorschau mit verknüpften Dateien</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="triggerRun()" title="Aktualisieren" class="p-1.5 hover:bg-darkbase-700 rounded transition text-gray-300 hover:text-white">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                    <button onclick="openPreviewInNewTab()" title="In neuem Tab öffnen" class="p-1.5 hover:bg-darkbase-700 rounded transition text-gray-300 hover:text-white">
+                        <i class="fa-solid fa-external-link-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <iframe id="previewFrame" class="w-full flex-1 border-0 bg-white" sandbox="allow-scripts allow-modals allow-same-origin allow-forms"></iframe>
+        </div>
+
+    </div>
+
+    <div id="modalOverlay" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div id="newFileModal" class="bg-darkbase-800 border border-darkbase-700 rounded-2xl w-full max-w-md p-6 shadow-2xl hidden">
+            <h3 class="text-lg font-bold text-gray-100 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-file-circle-plus text-zaminia-500"></i> Neue Datei erstellen
+            </h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Dateiname (z.B. style.css, script.js)</label>
+                    <input type="text" id="newFileNameInput" class="w-full bg-darkbase-900 border border-darkbase-700 rounded-lg px-3 py-2 text-sm text-gray-200 outline-none focus:border-zaminia-500 transition" placeholder="dateiname.html">
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button onclick="closeModal()" class="px-4 py-2 bg-darkbase-700 hover:bg-darkbase-600 rounded-lg text-sm text-gray-300 transition">Abbrechen</button>
+                    <button onclick="confirmCreateFile()" class="px-4 py-2 bg-zaminia-600 hover:bg-zaminia-700 text-white rounded-lg text-sm font-medium transition shadow-lg shadow-zaminia-900/50">Erstellen</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="messageModal" class="bg-darkbase-800 border border-darkbase-700 rounded-2xl w-full max-w-sm p-6 shadow-2xl hidden">
+            <h3 id="modalTitle" class="text-lg font-bold text-gray-100 mb-2">Hinweis</h3>
+            <p id="modalText" class="text-sm text-gray-300 mb-6"></p>
+            <div class="flex justify-end">
+                <button onclick="closeModal()" class="px-5 py-2 bg-zaminia-600 hover:bg-zaminia-700 text-white rounded-lg text-sm font-medium transition shadow-md">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const defaultFiles = {
+            "index.html": {
+                content: `<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zaminia Web-Projekt</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="container">
+    <div class="card">
+        <h1>✨ Hallo aus style.css!</h1>
+        <p>Diese Vorschau bindet <code>style.css</code> und <code>script.js</code> über echte relative Pfade ein.</p>
+        <button onclick="triggerAction()">Klick mich</button>
+    </div>
+    <script src="script.js"><\\/script>
+</body>
+</html>`,
+                language: "html"
+            },
+            "style.css": {
+                content: `body.container {
+    background: linear-gradient(135deg, #0f172a, #1e1b4b);
+    color: #f8fafc;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+.card {
+    background: rgba(30, 41, 59, 0.85);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    text-align: center;
+    max-width: 400px;
+}
+h1 {
+    color: #f87171;
+    margin-top: 0;
+}
+button {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 15px;
+}
+button:hover {
+    background: #dc2626;
+}`,
+                language: "css"
+            },
+            "script.js": {
+                content: `function triggerAction() {
+    alert("Skript aus script.js wurde erfolgreich ausgeführt!");
+}`,
+                language: "javascript"
+            }
+        };
+
+        let projectFiles = {};
+        let openTabs = [];
+        let activeFile = "index.html";
+        let autoRunTimer = null;
+
+        window.onload = function() {
+            loadSavedProject();
+            renderFileList();
+            renderTabs();
+            openFile(activeFile);
+            triggerRun();
+        };
+
+        function loadSavedProject() {
+            const saved = localStorage.getItem("zaminia_ide_project_v3");
+            if (saved) {
+                try {
+                    projectFiles = JSON.parse(saved);
+                    openTabs = JSON.parse(localStorage.getItem("zaminia_ide_tabs_v3")) || ["index.html"];
+                    activeFile = localStorage.getItem("zaminia_ide_active_v3") || "index.html";
+                    if (!projectFiles[activeFile]) activeFile = Object.keys(projectFiles)[0];
+                } catch(e) {
+                    projectFiles = JSON.parse(JSON.stringify(defaultFiles));
+                    openTabs = ["index.html", "style.css", "script.js"];
+                    activeFile = "index.html";
+                }
+            } else {
+                projectFiles = JSON.parse(JSON.stringify(defaultFiles));
+                openTabs = ["index.html", "style.css", "script.js"];
+                activeFile = "index.html";
+            }
+        }
+
+        function saveProjectToLocalStorage() {
+            localStorage.setItem("zaminia_ide_project_v3", JSON.stringify(projectFiles));
+            localStorage.setItem("zaminia_ide_tabs_v3", JSON.stringify(openTabs));
+            localStorage.setItem("zaminia_ide_active_v3", activeFile);
+            showNotification("Projekt erfolgreich gespeichert!");
+        }
+
+        function renderFileList() {
+            const container = document.getElementById("fileList");
+            container.innerHTML = "";
+
+            Object.keys(projectFiles).forEach(filename => {
+                const isActive = filename === activeFile;
+                const ext = filename.split('.').pop().toLowerCase();
+                let icon = "fa-file-lines text-gray-400";
+                if(ext === 'html') icon = "fa-file-code text-zaminia-400";
+                if(ext === 'css') icon = "fa-file-css text-sky-400";
+                if(ext === 'js') icon = "fa-file-js text-amber-400";
+
+                const div = document.createElement("div");
+                div.className = `group flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs cursor-pointer transition ${isActive ? 'bg-zaminia-900/50 text-white font-medium border border-zaminia-700/50' : 'text-gray-300 hover:bg-darkbase-700'}`;
+                
+                div.innerHTML = `
+                    <div class="flex items-center space-x-2 truncate flex-1" onclick="openFile('${filename}')">
+                        <i class="fa-solid ${icon}"></i>
+                        <span class="truncate">${filename}</span>
+                    </div>
+                    <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition">
+                        ${Object.keys(projectFiles).length > 1 ? `<button onclick="deleteFile('${filename}', event)" title="Löschen" class="p-1 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderTabs() {
+            const tabBar = document.getElementById("tabBar");
+            tabBar.innerHTML = "";
+
+            openTabs.forEach(filename => {
+                const isActive = filename === activeFile;
+                const tab = document.createElement("div");
+                tab.className = `flex items-center space-x-2 px-3 py-1.5 rounded-t-lg text-xs cursor-pointer border-t-2 transition ${isActive ? 'bg-darkbase-900 border-zaminia-500 text-white font-medium' : 'bg-darkbase-800/60 border-transparent text-gray-400 hover:text-gray-200'}`;
+                
+                tab.innerHTML = `
+                    <span onclick="openFile('${filename}')">${filename}</span>
+                    <button onclick="closeTab('${filename}', event)" class="hover:text-red-400 p-0.5 rounded transition"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+                `;
+                tabBar.appendChild(tab);
+            });
+        }
+
+        function openFile(filename) {
+            if (!projectFiles[filename]) return;
+            activeFile = filename;
+            if (!openTabs.includes(filename)) {
+                openTabs.push(filename);
+            }
+            const editor = document.getElementById("codeEditor");
+            editor.value = projectFiles[filename].content;
+            
+            document.getElementById("activeFileLang").innerText = projectFiles[filename].language || 'text';
+            renderFileList();
+            renderTabs();
+            updateCursorPosition();
+        }
+
+        function closeTab(filename, event) {
+            event.stopPropagation();
+            openTabs = openTabs.filter(t => t !== filename);
+            if (openTabs.length === 0) {
+                openTabs = [Object.keys(projectFiles)[0]];
+            }
+            if (activeFile === filename) {
+                openFile(openTabs[openTabs.length - 1]);
+            } else {
+                renderTabs();
+            }
+        }
+
+        function openNewFileDialog() {
+            document.getElementById("modalOverlay").classList.remove("hidden");
+            document.getElementById("newFileModal").classList.remove("hidden");
+            document.getElementById("messageModal").classList.add("hidden");
+            document.getElementById("newFileNameInput").value = "";
+            document.getElementById("newFileNameInput").focus();
+        }
+
+        function closeModal() {
+            document.getElementById("modalOverlay").classList.add("hidden");
+            document.getElementById("newFileModal").classList.add("hidden");
+            document.getElementById("messageModal").classList.add("hidden");
+        }
+
+        function confirmCreateFile() {
+            let name = document.getElementById("newFileNameInput").value.trim();
+            if (!name) return;
+            if (projectFiles[name]) {
+                alertCustom("Diese Datei existiert bereits!");
+                return;
+            }
+            const ext = name.split('.').pop().toLowerCase();
+            let lang = "text";
+            if(ext === 'html') lang = "html";
+            if(ext === 'css') lang = "css";
+            if(ext === 'js') lang = "javascript";
+
+            projectFiles[name] = { content: "", language: lang };
+            closeModal();
+            openFile(name);
+            renderFileList();
+            saveProjectToLocalStorage();
+        }
+
+        function deleteFile(filename, event) {
+            event.stopPropagation();
+            if (Object.keys(projectFiles).length <= 1) {
+                alertCustom("Das Projekt muss mindestens eine Datei enthalten.");
+                return;
+            }
+            delete projectFiles[filename];
+            openTabs = openTabs.filter(t => t !== filename);
+            if (activeFile === filename) {
+                activeFile = Object.keys(projectFiles)[0];
+            }
+            openFile(activeFile);
+            renderFileList();
+            renderTabs();
+            saveProjectToLocalStorage();
+        }
+
+        function openUploadFileDialog() {
+            document.getElementById("singleFileUpload").click();
+        }
+
+        function uploadSingleFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const name = file.name;
+                const ext = name.split('.').pop().toLowerCase();
+                let lang = "text";
+                if(ext === 'html') lang = "html";
+                if(ext === 'css') lang = "css";
+                if(ext === 'js') lang = "javascript";
+
+                projectFiles[name] = { content, language: lang };
+                openFile(name);
+                renderFileList();
+                saveProjectToLocalStorage();
+                showNotification(`Datei "${name}" hochgeladen.`);
+            };
+            reader.readAsText(file);
+        }
+
+        function handleCodeInput(event) {
+            projectFiles[activeFile].content = event.target.value;
+            
+            clearTimeout(autoRunTimer);
+            autoRunTimer = setTimeout(() => {
+                triggerRun();
+                saveProjectToLocalStorage();
+            }, 500);
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Tab') {
+                event.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+                handleCodeInput({ target: this });
+            }
+            if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+                event.preventDefault();
+                saveProjectToLocalStorage();
+            }
+        }
+
+        function updateCursorPosition() {
+            const editor = document.getElementById("codeEditor");
+            const pos = editor.selectionStart;
+            const textBefore = editor.value.substring(0, pos);
+            const lines = textBefore.split('\n');
+            const line = lines.length;
+            const col = lines[lines.length - 1].length + 1;
+            document.getElementById("cursorPosition").innerText = `Ln ${line}, Col ${col}`;
+        }
+
+        function triggerRun() {
+            const frame = document.getElementById("previewFrame");
+            let htmlContent = "";
+
+            if (projectFiles["index.html"]) {
+                htmlContent = projectFiles["index.html"].content;
+            } else {
+                const firstHtml = Object.keys(projectFiles).find(k => k.endsWith('.html'));
+                if (firstHtml) {
+                    htmlContent = projectFiles[firstHtml].content;
+                } else {
+                    htmlContent = "<html><body style='font-family:sans-serif;padding:20px;text-align:center;'><h2>Keine index.html gefunden</h2><p>Bitte erstellen Sie eine HTML-Datei.</p></body></html>";
+                }
+            }
+
+            const blobUrls = {};
+            Object.keys(projectFiles).forEach(filename => {
+                const file = projectFiles[filename];
+                let mime = "text/plain";
+                if(filename.endsWith('.html')) mime = "text/html";
+                if(filename.endsWith('.css')) mime = "text/css";
+                if(filename.endsWith('.js')) mime = "application/javascript";
+                if(filename.endsWith('.png')) mime = "image/png";
+                if(filename.endsWith('.jpg') || filename.endsWith('.jpeg')) mime = "image/jpeg";
+
+                const blob = new Blob([file.content], { type: mime });
+                blobUrls[filename] = URL.createObjectURL(blob);
+            });
+
+            let processedHtml = htmlContent;
+            Object.keys(projectFiles).forEach(filename => {
+                const url = blobUrls[filename];
+                processedHtml = processedHtml.split(`"${filename}"`).join(`"${url}"`);
+                processedHtml = processedHtml.split(`'${filename}'`).join(`'${url}'`);
+                processedHtml = processedHtml.split(`"./${filename}"`).join(`"${url}"`);
+                processedHtml = processedHtml.split(`'./${filename}'`).join(`'${url}'`);
+            });
+
+            // Inject custom alert handler into preview iframe wrapper script
+            const alertOverrideScript = `
+                <script>
+                    window.alert = function(msg) {
+                        window.parent.windowAlert(msg);
+                    };
+                <\/script>
+            `;
+            if (processedHtml.includes('</head>')) {
+                processedHtml = processedHtml.replace('</head>', alertOverrideScript + '</head>');
+            } else {
+                processedHtml = alertOverrideScript + processedHtml;
+            }
+
+            const finalBlob = new Blob([processedHtml], { type: "text/html" });
+            frame.src = URL.createObjectURL(finalBlob);
+            
+            document.getElementById("statusMessage").innerText = "Vorschau aktualisiert";
+            setTimeout(() => {
+                document.getElementById("statusMessage").innerText = "Bereit";
+            }, 2000);
+        }
+
+        function openPreviewInNewTab() {
+            const frame = document.getElementById("previewFrame");
+            if (frame.src) {
+                window.open(frame.src, '_blank');
+            }
+        }
+
+        function exportProjectZip() {
+            const zip = new JSZip();
+            Object.keys(projectFiles).forEach(filename => {
+                zip.file(filename, projectFiles[filename].content);
+            });
+            zip.generateAsync({ type: "blob" }).then(function(content) {
+                saveAs(content, "zaminia-web-projekt.zip");
+                showNotification("Projekt als ZIP exportiert!");
+            });
+        }
+
+        function importProject(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.name.endsWith('.zip')) {
+                JSZip.loadAsync(file).then(function(zip) {
+                    projectFiles = {};
+                    let promises = [];
+                    zip.forEach(function (relativePath, zipEntry) {
+                        if (!zipEntry.dir && !relativePath.startsWith('__MACOSX')) {
+                            const p = zipEntry.async("string").then(function(content) {
+                                const ext = relativePath.split('.').pop().toLowerCase();
+                                let lang = "text";
+                                if(ext === 'html') lang = "html";
+                                if(ext === 'css') lang = "css";
+                                if(ext === 'js') lang = "javascript";
+                                projectFiles[relativePath] = { content, language: lang };
+                            });
+                            promises.push(p);
+                        }
+                    });
+                    Promise.all(promises).then(() => {
+                        openTabs = Object.keys(projectFiles);
+                        activeFile = openTabs[0] || "index.html";
+                        openFile(activeFile);
+                        renderFileList();
+                        renderTabs();
+                        saveProjectToLocalStorage();
+                        showNotification("ZIP Projekt erfolgreich importiert!");
+                    });
+                });
+            }
+        }
+
+        function loadTemplate(type) {
+            if (type === 'landing') {
+                projectFiles = {
+                    "index.html": {
+                        content: `<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zaminia Landingpage</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Zaminia Werkstatt</h1>
+        <p>Erstellen Sie blitzschnell moderne Webanwendungen.</p>
+    </header>
+    <main>
+        <button onclick="greet()">Begrüßung anzeigen</button>
+    </main>
+    <script src="script.js"><\\/script>
+</body>
+</html>`, language: "html"
+                    },
+                    "style.css": {
+                        content: `body {
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family: system-ui, sans-serif;
+    text-align: center;
+    padding: 60px;
+}
+header h1 {
+    color: #ef4444;
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+button {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 20px;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+button:hover { background: #dc2626; }`, language: "css"
+                    },
+                    "script.js": {
+                        content: `function greet() {
+    alert("Willkommen in Ihrer professionellen Web-Werkstatt!");
+}`, language: "javascript"
+                    }
+                };
+            } else if (type === 'game') {
+                projectFiles = {
+                    "index.html": {
+                        content: `<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Zaminia Clicker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="box">
+        <h2>🔴 Zaminia Clicker</h2>
+        <p>Punkte: <span id="points">0</span></p>
+        <button onclick="addScore()">Klicken!</button>
+    </div>
+    <script src="script.js"><\\/script>
+</body>
+</html>`, language: "html"
+                    },
+                    "style.css": {
+                        content: `body {
+    background: #09090b;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: sans-serif;
+}
+.box {
+    background: #18181b;
+    padding: 40px;
+    border-radius: 16px;
+    border: 1px solid #27272a;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+h2 { color: #f87171; }
+button {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+button:hover { background: #b91c1c; }`, language: "css"
+                    },
+                    "script.js": {
+                        content: `let score = 0;
+function addScore() {
+    score++;
+    document.getElementById("points").innerText = score;
+}`, language: "javascript"
+                    }
+                };
+            }
+            openTabs = Object.keys(projectFiles);
+            activeFile = "index.html";
+            openFile(activeFile);
+            renderFileList();
+            renderTabs();
+            triggerRun();
+            saveProjectToLocalStorage();
+            showNotification("Vorlage erfolgreich geladen!");
+        }
+
+        function toggleLayout(mode) {
+            const editorPane = document.getElementById("editorPane");
+            const previewPane = document.getElementById("previewPane");
+            
+            document.getElementById("btnSplit").className = "p-2 bg-darkbase-700 hover:bg-darkbase-600 text-gray-300 rounded-lg text-xs transition-all";
+            document.getElementById("btnCodeOnly").className = "p-2 bg-darkbase-700 hover:bg-darkbase-600 text-gray-300 rounded-lg text-xs transition-all";
+            document.getElementById("btnPreviewOnly").className = "p-2 bg-darkbase-700 hover:bg-darkbase-600 text-gray-300 rounded-lg text-xs transition-all";
+
+            if (mode === 'split') {
+                document.getElementById("btnSplit").className = "p-2 bg-darkbase-600 text-zaminia-400 rounded-lg text-xs transition-all";
+                editorPane.style.display = "flex";
+                previewPane.style.display = "flex";
+                previewPane.style.width = "50%";
+            } else if (mode === 'code') {
+                document.getElementById("btnCodeOnly").className = "p-2 bg-darkbase-600 text-zaminia-400 rounded-lg text-xs transition-all";
+                editorPane.style.display = "flex";
+                previewPane.style.display = "none";
+            } else if (mode === 'preview') {
+                document.getElementById("btnPreviewOnly").className = "p-2 bg-darkbase-600 text-zaminia-400 rounded-lg text-xs transition-all";
+                editorPane.style.display = "none";
+                previewPane.style.display = "flex";
+                previewPane.style.width = "100%";
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alertCustom(`Fehler beim Vollbildmodus: ${err.message}`);
+                });
+                document.getElementById("fsIcon").className = "fa-solid fa-compress";
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+                document.getElementById("fsIcon").className = "fa-solid fa-expand";
+            }
+        }
+
+        function alertCustom(message) {
+            document.getElementById("modalOverlay").classList.remove("hidden");
+            document.getElementById("newFileModal").classList.add("hidden");
+            document.getElementById("messageModal").classList.remove("hidden");
+            document.getElementById("modalTitle").innerText = "Meldung";
+            document.getElementById("modalText").innerText = message;
+        }
+
+        function windowAlert(msg) {
+            alertCustom(msg);
+        }
+
+        function showNotification(text) {
+            const status = document.getElementById("statusMessage");
+            status.innerText = text;
+            setTimeout(() => {
+                status.innerText = "Bereit";
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
