@@ -4,10 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zaminia HTML-Werkstatt IDE</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- JSZip & FileSaver -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+    <!-- Prism.js Syntax Highlighting & Dark Theme -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -17,6 +28,7 @@
                         zaminia: {
                             50: '#fdf2f2',
                             100: '#fde8e8',
+                            400: '#f87171',
                             500: '#ef4444',
                             600: '#dc2626',
                             700: '#b91c1c',
@@ -50,14 +62,75 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #dc2626;
         }
-        .code-textarea {
-            tab-size: 4;
-            font-family: 'Fira Code', Menlo, Monaco, Consolas, 'Courier New', monospace;
+
+        /* Editor Overlay Styles for Syntax Highlighting */
+        .editor-container {
+            position: relative;
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0f0a0a;
         }
+
+        .editor-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 1rem;
+            margin: 0;
+            border: 0;
+            font-family: 'Fira Code', Menlo, Monaco, Consolas, 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            tab-size: 4;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: auto;
+            box-sizing: border-box;
+        }
+
+        #codeEditor {
+            color: transparent;
+            background: transparent;
+            caret-color: #f87171;
+            z-index: 2;
+            resize: none;
+            outline: none;
+        }
+
+        #highlightDisplay {
+            z-index: 1;
+            pointer-events: none;
+            background: #0f0a0a;
+        }
+
+        /* Prism Theme Custom Overrides for Zaminia Dark UI */
+        code[class*="language-"], pre[class*="language-"] {
+            font-family: 'Fira Code', Menlo, Monaco, Consolas, 'Courier New', monospace !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+            text-shadow: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #7c7c7c; font-style: italic; }
+        .token.punctuation { color: #a3a3a3; }
+        .token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted { color: #f87171; }
+        .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted { color: #34d399; }
+        .token.operator, .token.entity, .token.url, .language-css .token.string, .style .token.string { color: #fbbf24; }
+        .token.atrule, .token.attr-value, .token.keyword { color: #60a5fa; }
+        .token.function, .token.class-name { color: #c084fc; }
+        .token.regex, .token.important, .token.variable { color: #f472b6; }
     </style>
 </head>
 <body class="bg-darkbase-900 text-gray-100 h-screen w-screen overflow-hidden flex flex-col font-sans select-none">
 
+    <!-- Top Navigation Bar -->
     <header class="bg-darkbase-800 border-b border-darkbase-700 h-14 flex items-center justify-between px-4 shrink-0 shadow-lg z-20">
         <div class="flex items-center space-x-3">
             <div class="bg-zaminia-700 text-white p-2 rounded-xl shadow-md shadow-zaminia-900/50 flex items-center justify-center w-9 h-9">
@@ -65,7 +138,7 @@
             </div>
             <div>
                 <h1 class="font-bold tracking-wide text-sm md:text-base text-gray-100 flex items-center gap-2">
-                    Zaminia Werkstatt <span class="text-xs bg-zaminia-900/60 text-zaminia-400 border border-zaminia-700/50 px-2 py-0.5 rounded-full font-mono">IDE v3.1</span>
+                    Zaminia Werkstatt <span class="text-xs bg-zaminia-900/60 text-zaminia-400 border border-zaminia-700/50 px-2 py-0.5 rounded-full font-mono">IDE v3.2 (Color Edition)</span>
                 </h1>
             </div>
         </div>
@@ -143,27 +216,49 @@
 
         <!-- Center Editor Area -->
         <div id="editorPane" class="flex-1 flex flex-col bg-darkbase-900 overflow-hidden relative">
-            <div id="tabBar" class="bg-darkbase-800 border-b border-darkbase-700 flex items-center overflow-x-auto shrink-0 h-10 px-2 space-x-1">
-                <!-- Tabs populated via JS -->
+            
+            <!-- Editor Top Toolbar & Tabs -->
+            <div class="bg-darkbase-800 border-b border-darkbase-700 flex items-center justify-between shrink-0 h-10 px-2">
+                <div id="tabBar" class="flex items-center overflow-x-auto space-x-1 flex-1">
+                    <!-- Tabs populated via JS -->
+                </div>
+
+                <!-- Color Picker & Quick Palette Toolbar -->
+                <div class="flex items-center space-x-2 pl-2 border-l border-darkbase-700">
+                    <div class="flex items-center space-x-1 bg-darkbase-900 px-2 py-1 rounded-lg border border-darkbase-700">
+                        <i class="fa-solid fa-palette text-xs text-zaminia-400" title="Text- / Farb-Werkzeug"></i>
+                        <input type="color" id="colorPicker" value="#ef4444" onchange="insertColorCode(this.value)" class="w-5 h-5 bg-transparent cursor-pointer border-0 p-0 rounded" title="Farbe wählen & an Cursor-Position einfügen">
+                        <span id="colorHexText" class="text-[11px] font-mono text-gray-300">#ef4444</span>
+                        <button onclick="insertColorCode(document.getElementById('colorPicker').value)" class="text-[10px] bg-zaminia-700 hover:bg-zaminia-600 text-white px-1.5 py-0.5 rounded transition ml-1" title="Code einfügen">
+                            Einfügen
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <div class="flex-1 relative flex flex-col">
+            <!-- Code Editor Container with Syntax Highlighting Overlay -->
+            <div class="flex-1 relative flex flex-col overflow-hidden">
                 <div class="absolute top-2 right-4 z-10 bg-darkbase-800/80 backdrop-blur border border-darkbase-700 rounded-lg px-2.5 py-1 text-[11px] text-gray-400 flex items-center space-x-2 pointer-events-none shadow">
                     <span id="activeFileLang" class="font-mono text-zaminia-400 uppercase font-semibold">HTML</span>
                     <span class="text-darkbase-600">|</span>
                     <span id="cursorPosition">Ln 1, Col 1</span>
                 </div>
-                
-                <textarea id="codeEditor" 
-                    class="code-textarea flex-1 bg-darkbase-900 text-gray-200 p-4 resize-none outline-none text-sm leading-relaxed"
-                    placeholder="Wähle eine Datei aus oder erstelle eine neue..."
-                    oninput="handleCodeInput(event)"
-                    onkeydown="handleKeyDown(event)"
-                    onkeyup="updateCursorPosition()"
-                    onclick="updateCursorPosition()"
-                    spellcheck="false"></textarea>
+
+                <div class="editor-container">
+                    <pre id="highlightDisplay" class="editor-layer"><code id="highlightCode" class="language-html"></code></pre>
+                    <textarea id="codeEditor" 
+                        class="editor-layer"
+                        placeholder="Wähle eine Datei aus oder erstelle eine neue..."
+                        oninput="handleCodeInput(event)"
+                        onkeydown="handleKeyDown(event)"
+                        onkeyup="updateCursorPosition()"
+                        onclick="updateCursorPosition()"
+                        onscroll="syncScroll()"
+                        spellcheck="false"></textarea>
+                </div>
             </div>
 
+            <!-- Editor Status Footer -->
             <div class="bg-darkbase-800 border-t border-darkbase-700 px-3 py-1.5 text-xs text-gray-400 flex items-center justify-between shrink-0">
                 <div class="flex items-center space-x-3">
                     <span class="flex items-center space-x-1.5 text-emerald-400">
@@ -270,7 +365,7 @@
     max-width: 400px;
 }
 h1 {
-    color: #f87171;
+    color: #ef4444;
     margin-top: 0;
 }
 button {
@@ -309,6 +404,11 @@ button:hover {
             renderTabs();
             openFile(activeFile);
             triggerRun();
+
+            // Color picker updates label preview
+            document.getElementById("colorPicker").addEventListener("input", function(e) {
+                document.getElementById("colorHexText").innerText = e.target.value;
+            });
         };
 
         function loadSavedProject() {
@@ -392,10 +492,61 @@ button:hover {
             const editor = document.getElementById("codeEditor");
             editor.value = projectFiles[filename].content;
             
-            document.getElementById("activeFileLang").innerText = projectFiles[filename].language || 'text';
+            const lang = projectFiles[filename].language || 'html';
+            document.getElementById("activeFileLang").innerText = lang;
+            
             renderFileList();
             renderTabs();
+            updateHighlighting();
             updateCursorPosition();
+        }
+
+        function updateHighlighting() {
+            const editor = document.getElementById("codeEditor");
+            const highlightCode = document.getElementById("highlightCode");
+            const lang = projectFiles[activeFile]?.language || 'html';
+
+            let prismLang = Prism.languages.markup;
+            let langClass = "language-html";
+
+            if (lang === 'css') {
+                prismLang = Prism.languages.css;
+                langClass = "language-css";
+            } else if (lang === 'javascript' || lang === 'js') {
+                prismLang = Prism.languages.javascript;
+                langClass = "language-javascript";
+            }
+
+            highlightCode.className = langClass;
+            
+            // Add trailing space for smoother newline renders in textarea
+            let text = editor.value;
+            if (text.endsWith("\n")) {
+                text += " ";
+            }
+            
+            highlightCode.innerHTML = Prism.highlight(text, prismLang, lang);
+            syncScroll();
+        }
+
+        function syncScroll() {
+            const editor = document.getElementById("codeEditor");
+            const highlightDisplay = document.getElementById("highlightDisplay");
+            highlightDisplay.scrollTop = editor.scrollTop;
+            highlightDisplay.scrollLeft = editor.scrollLeft;
+        }
+
+        function insertColorCode(hex) {
+            const editor = document.getElementById("codeEditor");
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const text = editor.value;
+
+            editor.value = text.substring(0, start) + hex + text.substring(end);
+            editor.selectionStart = editor.selectionEnd = start + hex.length;
+            
+            handleCodeInput({ target: editor });
+            showNotification(`Farbe ${hex} eingefügt.`);
         }
 
         function closeTab(filename, event) {
@@ -490,6 +641,7 @@ button:hover {
 
         function handleCodeInput(event) {
             projectFiles[activeFile].content = event.target.value;
+            updateHighlighting();
             
             clearTimeout(autoRunTimer);
             autoRunTimer = setTimeout(() => {
@@ -501,11 +653,11 @@ button:hover {
         function handleKeyDown(event) {
             if (event.key === 'Tab') {
                 event.preventDefault();
-                const start = this.selectionStart;
-                const end = this.selectionEnd;
-                this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
-                this.selectionStart = this.selectionEnd = start + 4;
-                handleCodeInput({ target: this });
+                const start = event.target.selectionStart;
+                const end = event.target.selectionEnd;
+                event.target.value = event.target.value.substring(0, start) + "    " + event.target.value.substring(end);
+                event.target.selectionStart = event.target.selectionEnd = start + 4;
+                handleCodeInput({ target: event.target });
             }
             if ((event.ctrlKey || event.metaKey) && event.key === 's') {
                 event.preventDefault();
@@ -561,7 +713,7 @@ button:hover {
                 processedHtml = processedHtml.split(`'./${filename}'`).join(`'${url}'`);
             });
 
-            // Inject custom alert handler into preview iframe wrapper script
+            // Custom alert wrapper
             const alertOverrideScript = `
                 <script>
                     window.alert = function(msg) {
@@ -651,7 +803,7 @@ button:hover {
 <body>
     <header>
         <h1>Zaminia Werkstatt</h1>
-        <p>Erstellen Sie blitzschnell moderne Webanwendungen.</p>
+        <p>Erstellen Sie blitzschnell moderne Webanwendungen mit Textfarben.</p>
     </header>
     <main>
         <button onclick="greet()">Begrüßung anzeigen</button>
@@ -715,7 +867,7 @@ button:hover { background: #dc2626; }`, language: "css"
                     "style.css": {
                         content: `body {
     background: #09090b;
-    color: white;
+    color: #ffffff;
     display: flex;
     justify-content: center;
     align-items: center;
