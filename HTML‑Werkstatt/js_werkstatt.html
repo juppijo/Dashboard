@@ -7,6 +7,10 @@
     <!-- CodeMirror für Syntax-Highlighting -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+    <!-- CodeMirror Addon für Dialoge (Suchen/Ersetzen) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.css">
+    
     <style>
         * {
             box-sizing: border-box;
@@ -167,7 +171,6 @@
             color: #50fa7b;
         }
 
-        /* Hidden File Input */
         #file-input {
             display: none;
         }
@@ -178,21 +181,21 @@
     <header>
         <h1>⚡ JS Werkstatt</h1>
         <div class="toolbar">
-            <!-- Unsichtbares File-Input Element zum Öffnen von Dateien -->
             <input type="file" id="file-input" accept=".js,.txt,.html,.json" onchange="openFile(event)">
             
-            <button onclick="document.getElementById('file-input').click()">📂 Datei öffnen</button>
+            <button onclick="document.getElementById('file-input').click()">📂 Öffnen</button>
             <button onclick="saveFile()">💾 Speichern</button>
+            <button onclick="openSearch()">🔍 Suchen</button>
 
             <select id="template-select" onchange="loadTemplate()">
-                <option value="" disabled selected>Vorlagen wählen...</option>
+                <option value="" disabled selected>Vorlagen...</option>
                 <option value="hello">Hallo Welt</option>
                 <option value="loop">Schleife & Array</option>
-                <option value="dom">DOM / HTML Generator</option>
-                <option value="canvas">Mini Animation (Canvas)</option>
+                <option value="dom">DOM / HTML</option>
+                <option value="canvas">Canvas Animation</option>
             </select>
             <button onclick="clearConsole()">Konsole leeren</button>
-            <button class="run-btn" onclick="runCode()">▶ Ausführen (Ctrl+Enter)</button>
+            <button class="run-btn" onclick="runCode()">▶ Ausführen</button>
             <button onclick="toggleFullscreen()">⛶ Vollbild</button>
         </div>
     </header>
@@ -217,9 +220,13 @@
         </div>
     </div>
 
-    <!-- CodeMirror Scripts -->
+    <!-- CodeMirror Core & Addons für Suche -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/jump-to-line.min.js"></script>
 
     <script>
         let currentFileName = "skript.js";
@@ -236,7 +243,7 @@
             lineWrapping: true
         });
 
-        // Standard-Code beim Start einfügen
+        // Standard-Code beim Start
         editor.setValue(`// Willkommen in deiner JS Werkstatt!
 console.log("System gestartet...");
 
@@ -248,13 +255,13 @@ let zahl = 5;
 console.log("Das Quadrat von " + zahl + " ist: " + berechneQuadrat(zahl));
 `);
 
-        // Zeichenzähler aktualisieren
+        // Zeichenzähler
         editor.on("change", () => {
             const content = editor.getValue();
             document.getElementById("char-count").innerText = content.length + " Zeichen";
         });
 
-        // Tastenkombination Strg + Enter zum Ausführen & Strg + S zum Speichern
+        // Tastenkombinationen
         window.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                 e.preventDefault();
@@ -266,7 +273,13 @@ console.log("Das Quadrat von " + zahl + " ist: " + berechneQuadrat(zahl));
             }
         });
 
-        // Vollbild-Funktion
+        // Such-Dialog öffnen (über Button oder Strg+F / Strg+H)
+        function openSearch() {
+            // CodeMirror bringt standardmäßig den Befehl 'find' mit
+            editor.execCommand('find');
+        }
+
+        // Vollbild
         function toggleFullscreen() {
             const wrapper = document.getElementById('editor-wrapper');
             if (!document.fullscreenElement) {
@@ -280,7 +293,7 @@ console.log("Das Quadrat von " + zahl + " ist: " + berechneQuadrat(zahl));
             }
         }
 
-        // Datei öffnen (Ladefunktion)
+        // Datei öffnen
         function openFile(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -291,7 +304,6 @@ console.log("Das Quadrat von " + zahl + " ist: " + berechneQuadrat(zahl));
             const reader = new FileReader();
             reader.onload = function(e) {
                 editor.setValue(e.target.result);
-                // Input zurücksetzen, damit dieselbe Datei nochmal ausgewählt werden kann
                 event.target.value = '';
             };
             reader.readAsText(file);
@@ -309,7 +321,7 @@ console.log("Das Quadrat von " + zahl + " ist: " + berechneQuadrat(zahl));
             URL.revokeObjectURL(url);
         }
 
-        // Als neue Datei speichern (Sicherungsdialog erzwingen)
+        // Als neue Datei speichern
         function downloadCodeAsNew() {
             const filename = prompt("Dateinamen eingeben:", currentFileName);
             if (filename) {
@@ -324,19 +336,16 @@ console.log("Das Quadrat von " + zahl + " ist: " + berechneQuadrat(zahl));
             document.getElementById("output-container").innerHTML = '<span class="log-info">Konsole geleert.</span>';
         }
 
-        // Code ausführen und console.log abfangen
+        // Code ausführen
         function runCode() {
             const outputContainer = document.getElementById("output-container");
-            outputContainer.innerHTML = ""; // Vorherige Ausgabe leeren
+            outputContainer.innerHTML = "";
 
             const code = editor.getValue();
-
-            // Originale console-Methoden sichern
             const oldLog = console.log;
             const oldError = console.error;
             const oldWarn = console.warn;
 
-            // Hilfsfunktion zum Schreiben in die UI-Konsole
             const appendToConsole = (message, type = 'log') => {
                 const div = document.createElement('div');
                 div.className = 'log-item';
@@ -357,7 +366,6 @@ console.log("Das Quadrat von " + zahl + " ist: " + berechneQuadrat(zahl));
                 outputContainer.scrollTop = outputContainer.scrollHeight;
             };
 
-            // console überschreiben
             console.log = (...args) => {
                 oldLog.apply(console, args);
                 args.forEach(arg => appendToConsole(arg, 'log'));
@@ -395,9 +403,9 @@ console.log("Das Quadrat von " + zahl + " ist: " + berechneQuadrat(zahl));
             } else if (val === 'loop') {
                 code = `let farben = ["Rot", "Grün", "Blau", "Gelb"];\n\nfor (let i = 0; i < farben.length; i++) {\n    console.log("Farbe " + (i + 1) + ": " + farben[i]);\n}`;
             } else if (val === 'dom') {
-                code = `// Erstelle ein Element dynamisch\nlet div = document.createElement('div');\ndiv.innerHTML = "<h3 style='color: #50fa7b;'>Hallo aus dem JS-Skript!</h3><p>Dieses Element wurde per JavaScript erzeugt.</p>";\ndiv.style.padding = "10px";\ndiv.style.background = "#282a36";\ndiv.style.borderRadius = "8px";\n\ndocument.getElementById('output-container').appendChild(div);`;
+                code = `let div = document.createElement('div');\ndiv.innerHTML = "<h3 style='color: #50fa7b;'>Hallo aus dem JS-Skript!</h3>";\ndocument.getElementById('output-container').appendChild(div);`;
             } else if (val === 'canvas') {
-                code = `// Zeichne etwas auf ein Canvas\nlet canvas = document.createElement('canvas');\ncanvas.width = 300;\ncanvas.height = 150;\nlet ctx = canvas.getContext('2d');\n\nctx.fillStyle = '#ff79c6';\nctx.fillRect(20, 20, 100, 100);\n\nctx.beginPath();\nctx.arc(200, 70, 50, 0, Math.PI * 2);\nctx.fillStyle = '#8be9fd';\nctx.fill();\n\ndocument.getElementById('output-container').appendChild(canvas);`;
+                code = `let canvas = document.createElement('canvas');\ncanvas.width = 300;\ncanvas.height = 150;\nlet ctx = canvas.getContext('2d');\nctx.fillStyle = '#ff79c6';\nctx.fillRect(20, 20, 100, 100);\ndocument.getElementById('output-container').appendChild(canvas);`;
             }
 
             if (code) {
