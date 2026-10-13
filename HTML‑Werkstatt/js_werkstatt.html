@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Werkstatt & Editor</title>
+    <!-- CodeMirror für Syntax-Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e2f;
+            color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #282a36;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #44475a;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            color: #ff79c6;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background-color: #6272a4;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            background-color: #ff79c6;
+            color: #282a36;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        button.run-btn {
+            background-color: #50fa7b;
+            color: #282a36;
+        }
+
+        button.run-btn:hover {
+            background-color: #69ff94;
+        }
+
+        select {
+            background-color: #44475a;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+        }
+
+        .pane {
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid #44475a;
+            overflow: hidden;
+        }
+
+        .pane:last-child {
+            border-right: none;
+        }
+
+        .pane-header {
+            background-color: #21222c;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8be9fd;
+            border-bottom: 1px solid #44475a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .CodeMirror {
+            flex: 1;
+            height: auto !important;
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        #output-container {
+            flex: 1;
+            background-color: #1e1e2f;
+            color: #f8f8f2;
+            padding: 16px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .log-item {
+            margin-bottom: 6px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            padding-bottom: 4px;
+        }
+
+        .log-error {
+            color: #ff5555;
+        }
+
+        .log-info {
+            color: #8be9fd;
+        }
+
+        .log-success {
+            color: #50fa7b;
+        }
+
+        /* Hidden File Input */
+        #file-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>⚡ JS Werkstatt</h1>
+        <div class="toolbar">
+            <!-- Unsichtbares File-Input Element zum Öffnen von Dateien -->
+            <input type="file" id="file-input" accept=".js,.txt,.html,.json" onchange="openFile(event)">
+            
+            <button onclick="document.getElementById('file-input').click()">📂 Datei öffnen</button>
+            <button onclick="saveFile()">💾 Speichern</button>
+
+            <select id="template-select" onchange="loadTemplate()">
+                <option value="" disabled selected>Vorlagen wählen...</option>
+                <option value="hello">Hallo Welt</option>
+                <option value="loop">Schleife & Array</option>
+                <option value="dom">DOM / HTML Generator</option>
+                <option value="canvas">Mini Animation (Canvas)</option>
+            </select>
+            <button onclick="clearConsole()">Konsole leeren</button>
+            <button class="run-btn" onclick="runCode()">▶ Ausführen (Ctrl+Enter)</button>
+            <button onclick="toggleFullscreen()">⛶ Vollbild</button>
+        </div>
+    </header>
+
+    <div class="main-container" id="editor-wrapper">
+        <!-- Editor Spalte -->
+        <div class="pane">
+            <div class="pane-header">
+                <span id="file-title">Code-Editor (Unbenannt.js)</span>
+                <span id="char-count">0 Zeichen</span>
+            </div>
+            <textarea id="code-editor"></textarea>
+        </div>
+
+        <!-- Ausgabe / Konsolen Spalte -->
+        <div class="pane">
+            <div class="pane-header">
+                <span>Ausgabe / Konsole</span>
+                <button onclick="downloadCodeAsNew()" style="padding: 2px 8px; font-size: 0.75rem;">💾 Als neue Datei...</button>
+            </div>
+            <div id="output-container">Bereit zum Ausführen... Klicke auf "▶ Ausführen".</div>
+        </div>
+    </div>
+
+    <!-- CodeMirror Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+
+    <script>
+        let currentFileName = "skript.js";
+
+        // Editor initialisieren
+        const editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
+            mode: "javascript",
+            theme: "dracula",
+            lineNumbers: true,
+            autoCloseBrackets: true,
+            matchBrackets: true,
+            indentUnit: 4,
+            tabSize: 4,
+            lineWrapping: true
+        });
+
+        // Standard-Code beim Start einfügen
+        editor.setValue(`// Willkommen in deiner JS Werkstatt!
+console.log("System gestartet...");
+
+function berechneQuadrat(n) {
+    return n * n;
+}
+
+let zahl = 5;
+console.log("Das Quadrat von " + zahl + " ist: " + berechneQuadrat(zahl));
+`);
+
+        // Zeichenzähler aktualisieren
+        editor.on("change", () => {
+            const content = editor.getValue();
+            document.getElementById("char-count").innerText = content.length + " Zeichen";
+        });
+
+        // Tastenkombination Strg + Enter zum Ausführen & Strg + S zum Speichern
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                runCode();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                saveFile();
+            }
+        });
+
+        // Vollbild-Funktion
+        function toggleFullscreen() {
+            const wrapper = document.getElementById('editor-wrapper');
+            if (!document.fullscreenElement) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Datei öffnen (Ladefunktion)
+        function openFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            currentFileName = file.name;
+            document.getElementById('file-title').innerText = `Code-Editor (${currentFileName})`;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                editor.setValue(e.target.result);
+                // Input zurücksetzen, damit dieselbe Datei nochmal ausgewählt werden kann
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // Datei speichern
+        function saveFile() {
+            const code = editor.getValue();
+            const blob = new Blob([code], { type: 'text/javascript;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = currentFileName;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Als neue Datei speichern (Sicherungsdialog erzwingen)
+        function downloadCodeAsNew() {
+            const filename = prompt("Dateinamen eingeben:", currentFileName);
+            if (filename) {
+                currentFileName = filename;
+                document.getElementById('file-title').innerText = `Code-Editor (${currentFileName})`;
+                saveFile();
+            }
+        }
+
+        // Konsole leeren
+        function clearConsole() {
+            document.getElementById("output-container").innerHTML = '<span class="log-info">Konsole geleert.</span>';
+        }
+
+        // Code ausführen und console.log abfangen
+        function runCode() {
+            const outputContainer = document.getElementById("output-container");
+            outputContainer.innerHTML = ""; // Vorherige Ausgabe leeren
+
+            const code = editor.getValue();
+
+            // Originale console-Methoden sichern
+            const oldLog = console.log;
+            const oldError = console.error;
+            const oldWarn = console.warn;
+
+            // Hilfsfunktion zum Schreiben in die UI-Konsole
+            const appendToConsole = (message, type = 'log') => {
+                const div = document.createElement('div');
+                div.className = 'log-item';
+                if (type === 'error') div.classList.add('log-error');
+                if (type === 'warn') div.classList.add('log-info');
+                
+                if (typeof message === 'object') {
+                    try {
+                        div.innerText = JSON.stringify(message, null, 2);
+                    } catch (e) {
+                        div.innerText = String(message);
+                    }
+                } else {
+                    div.innerText = String(message);
+                }
+                
+                outputContainer.appendChild(div);
+                outputContainer.scrollTop = outputContainer.scrollHeight;
+            };
+
+            // console überschreiben
+            console.log = (...args) => {
+                oldLog.apply(console, args);
+                args.forEach(arg => appendToConsole(arg, 'log'));
+            };
+            console.error = (...args) => {
+                oldError.apply(console, args);
+                args.forEach(arg => appendToConsole(arg, 'error'));
+            };
+            console.warn = (...args) => {
+                oldWarn.apply(console, args);
+                args.forEach(arg => appendToConsole(arg, 'warn'));
+            };
+
+            try {
+                const runFunction = new Function(code);
+                runFunction();
+                appendToConsole("✔ Ausführung erfolgreich abgeschlossen.", "success");
+            } catch (err) {
+                appendToConsole("❌ Fehler: " + err.message, "error");
+            } finally {
+                console.log = oldLog;
+                console.error = oldError;
+                console.warn = oldWarn;
+            }
+        }
+
+        // Vorlagen laden
+        function loadTemplate() {
+            const select = document.getElementById('template-select');
+            const val = select.value;
+            let code = "";
+
+            if (val === 'hello') {
+                code = `console.log("Hallo Welt aus der Werkstatt!");\nlet name = "Zami";\nconsole.log("Schön dich zu sehen, " + name + "!");`;
+            } else if (val === 'loop') {
+                code = `let farben = ["Rot", "Grün", "Blau", "Gelb"];\n\nfor (let i = 0; i < farben.length; i++) {\n    console.log("Farbe " + (i + 1) + ": " + farben[i]);\n}`;
+            } else if (val === 'dom') {
+                code = `// Erstelle ein Element dynamisch\nlet div = document.createElement('div');\ndiv.innerHTML = "<h3 style='color: #50fa7b;'>Hallo aus dem JS-Skript!</h3><p>Dieses Element wurde per JavaScript erzeugt.</p>";\ndiv.style.padding = "10px";\ndiv.style.background = "#282a36";\ndiv.style.borderRadius = "8px";\n\ndocument.getElementById('output-container').appendChild(div);`;
+            } else if (val === 'canvas') {
+                code = `// Zeichne etwas auf ein Canvas\nlet canvas = document.createElement('canvas');\ncanvas.width = 300;\ncanvas.height = 150;\nlet ctx = canvas.getContext('2d');\n\nctx.fillStyle = '#ff79c6';\nctx.fillRect(20, 20, 100, 100);\n\nctx.beginPath();\nctx.arc(200, 70, 50, 0, Math.PI * 2);\nctx.fillStyle = '#8be9fd';\nctx.fill();\n\ndocument.getElementById('output-container').appendChild(canvas);`;
+            }
+
+            if (code) {
+                editor.setValue(code);
+                select.selectedIndex = 0;
+            }
+        }
+    </script>
+</body>
+</html>
