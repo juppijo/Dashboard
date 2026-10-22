@@ -42,13 +42,6 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(100, 116, 139, 0.8);
         }
-        /* Theme specific custom styles */
-        .theme-cyber {
-            --bg-main: #0f172a;
-            --card-bg: #1e293b;
-            --accent: #06b6d4;
-            color: #22d3ee;
-        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200" id="appBody">
@@ -58,12 +51,12 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center space-x-3">
                 <div class="p-2 bg-emerald-600 text-white rounded-lg shadow-md">
-                    <i class="fa-solid me-0 fa-boxes-stacked text-xl"></i>
+                    <i class="fa-solid fa-boxes-stacked text-xl"></i>
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
                         Krims & Kram Inventar
-                        <span class="text-xs font-normal bg-emerald-900/60 text-emerald-300 border border-emerald-700/50 px-2 py-0.5 rounded-full">v2.0</span>
+                        <span class="text-xs font-normal bg-emerald-900/60 text-emerald-300 border border-emerald-700/50 px-2 py-0.5 rounded-full">v2.1</span>
                     </h1>
                     <p class="text-xs text-gray-400">Elektronik, Bauteile & Werkzeuge übersichtlich sortiert</p>
                 </div>
@@ -71,22 +64,37 @@
 
             <!-- Toolbar Controls -->
             <div class="flex items-center gap-2 flex-wrap">
-                <!-- Theme Switcher -->
-                <button id="themeToggleBtn" onclick="toggleTheme()" class="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm font-medium rounded-lg flex items-center gap-2 transition border border-gray-600 shadow-sm">
-                    <i class="fa-solid fa-moon text-amber-400" id="themeIcon"></i>
-                    <span id="themeLabel">Dark Mode</span>
+                <!-- Hidden File Input for JSON Import -->
+                <input type="file" id="jsonFileInput" accept=".json" class="hidden" onchange="importJSON(event)">
+
+                <!-- Import JSON Button -->
+                <button onclick="document.getElementById('jsonFileInput').click()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg flex items-center gap-2 transition shadow-sm" title="JSON-Datei laden">
+                    <i class="fa-solid fa-file-import"></i>
+                    <span class="hidden sm:inline">JSON Laden</span>
                 </button>
 
-                <!-- Fullscreen Toggle -->
-                <button onclick="toggleFullscreen()" class="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm font-medium rounded-lg flex items-center gap-2 transition border border-gray-600 shadow-sm" title="Vollbild umschalten">
-                    <i class="fa-solid fa-expand text-blue-400" id="fullscreenIcon"></i>
-                    <span class="hidden sm:inline">Vollbild</span>
+                <!-- Export JSON Button -->
+                <button onclick="exportJSON()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium rounded-lg flex items-center gap-2 transition shadow-sm" title="Als JSON-Datei speichern">
+                    <i class="fa-solid fa-file-export"></i>
+                    <span class="hidden sm:inline">JSON Speichern</span>
                 </button>
 
                 <!-- Export CSV -->
                 <button onclick="exportCSV()" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white text-sm font-medium rounded-lg flex items-center gap-2 transition shadow-sm">
                     <i class="fa-solid fa-file-csv"></i>
                     <span class="hidden sm:inline">CSV Export</span>
+                </button>
+
+                <!-- Theme Switcher -->
+                <button id="themeToggleBtn" onclick="toggleTheme()" class="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm font-medium rounded-lg flex items-center gap-2 transition border border-gray-600 shadow-sm">
+                    <i class="fa-solid fa-moon text-amber-400" id="themeIcon"></i>
+                    <span id="themeLabel" class="hidden md:inline">Dark Mode</span>
+                </button>
+
+                <!-- Fullscreen Toggle -->
+                <button onclick="toggleFullscreen()" class="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm font-medium rounded-lg flex items-center gap-2 transition border border-gray-600 shadow-sm" title="Vollbild umschalten">
+                    <i class="fa-solid fa-expand text-blue-400" id="fullscreenIcon"></i>
+                    <span class="hidden sm:inline">Vollbild</span>
                 </button>
             </div>
         </div>
@@ -230,13 +238,13 @@
 
     <!-- Footer -->
     <footer class="bg-gray-800 border-t border-gray-700 py-4 text-center text-xs text-gray-500 mt-auto">
-        <p>Krims & Kram Inventar-App &bull; Daten aus Electro_Teile_2.ods &bull; Vollständig Lokal & Interaktiv</p>
+        <p>Krims & Kram Inventar-App &bull; JSON Import & Export Unterstützung &bull; Vollständig Lokal</p>
     </footer>
 
     <!-- JavaScript Application Logic -->
     <script>
-        // Data derived from the user's ODS spreadsheets
-        const partsData = [
+        // Initial Default Data Set
+        let partsData = [
             { id: "E-001", name: "Labor-Netzteil 30V 5A", category: "Stromversorgung", room: "Werkstatt", location: "Hauptregal R1", box: "Fach A1", qty: 1, notes: "Regelbar, CC/CV Modus" },
             { id: "E-002", name: "Stecknetzteil 12V 2A", category: "Stromversorgung", room: "Werkstatt", location: "Schrank S2", box: "Kiste K-03", qty: 3, notes: "Hohlstecker 5.5/2.1mm" },
             { id: "E-003", name: "USB-C Netzgerät 65W", category: "Stromversorgung", room: "Büro", location: "Schreibtisch", box: "Schublade 1", qty: 2, notes: "Power Delivery 3.0" },
@@ -259,7 +267,7 @@
             { id: "E-020", name: "NE555 Timer ICs", category: "Halbleiter", room: "Werkstatt", location: "Sortimenter-Wand", box: "Magazin M-5", qty: 15, notes: "DIP-8 Sockelgehäuse" }
         ];
 
-        const locationsData = [
+        let locationsData = [
             { room: "Werkstatt", location: "Hauptregal R1", boxes: "Fach A1, Fach A2, Fach A3", desc: "Schwerlastregal links am Fenster für Messgeräte & Netzteile" },
             { room: "Werkstatt", location: "Regal R2", boxes: "Kiste K-01 (Dev-Kits), Kiste K-02 (Kabel), Kiste K-03", desc: "Holzregal rechts für Zubehör & Kisten" },
             { room: "Werkstatt", location: "Sortimenter-Wand", boxes: "Magazin M-1 bis M-6", desc: "Kleinteile-Klemm-Magazine an der Hauptwand" },
@@ -269,7 +277,7 @@
             { room: "Keller", location: "Lagerkiste L1", boxes: "Großkiste Grau", desc: "Kabeltrommeln & Ersatzteile" }
         ];
 
-        const categoriesData = [
+        let categoriesData = [
             { name: "Stromversorgung", color: "#ef4444", desc: "Netzteile, Akkus, Spannungswandler" },
             { name: "Passive Bauteile", color: "#f59e0b", desc: "Widerstände, Kondensatoren, Spulen" },
             { name: "Optoelektronik", color: "#10b981", desc: "LEDs, Displays, Optokoppler" },
@@ -283,10 +291,11 @@
 
         // State variables
         let currentTab = 'all';
-        let currentTheme = 'dark'; // 'dark', 'light', 'cyber'
+        let currentTheme = 'dark';
 
         // DOM Loaded Init
         document.addEventListener('DOMContentLoaded', () => {
+            loadFromLocalStorage();
             initFilterOptions();
             renderTables();
         });
@@ -296,7 +305,9 @@
             const catFilter = document.getElementById('categoryFilter');
             const roomFilter = document.getElementById('roomFilter');
 
-            // Populate categories
+            catFilter.innerHTML = '<option value="">Alle Kategorien</option>';
+            roomFilter.innerHTML = '<option value="">Alle Räume</option>';
+
             categoriesData.forEach(cat => {
                 const opt = document.createElement('option');
                 opt.value = cat.name;
@@ -304,7 +315,6 @@
                 catFilter.appendChild(opt);
             });
 
-            // Populate unique rooms
             const rooms = [...new Set(locationsData.map(l => l.room))];
             rooms.forEach(room => {
                 const opt = document.createElement('option');
@@ -326,13 +336,13 @@
             
             let filteredParts = partsData.filter(item => {
                 const matchesSearch = !search || 
-                    item.name.toLowerCase().includes(search) ||
-                    item.id.toLowerCase().includes(search) ||
-                    item.category.toLowerCase().includes(search) ||
-                    item.room.toLowerCase().includes(search) ||
-                    item.location.toLowerCase().includes(search) ||
-                    item.box.toLowerCase().includes(search) ||
-                    item.notes.toLowerCase().includes(search);
+                    (item.name && item.name.toLowerCase().includes(search)) ||
+                    (item.id && item.id.toLowerCase().includes(search)) ||
+                    (item.category && item.category.toLowerCase().includes(search)) ||
+                    (item.room && item.room.toLowerCase().includes(search)) ||
+                    (item.location && item.location.toLowerCase().includes(search)) ||
+                    (item.box && item.box.toLowerCase().includes(search)) ||
+                    (item.notes && item.notes.toLowerCase().includes(search));
                 
                 const matchesCat = !catVal || item.category === catVal;
                 const matchesRoom = !roomVal || item.room === roomVal;
@@ -347,17 +357,17 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-700/40 transition-colors";
                 tr.innerHTML = `
-                    <td class="px-4 py-3 font-mono text-xs text-gray-400">${item.id}</td>
-                    <td class="px-4 py-3 font-medium text-gray-100">${item.name}</td>
+                    <td class="px-4 py-3 font-mono text-xs text-gray-400">${item.id || '-'}</td>
+                    <td class="px-4 py-3 font-medium text-gray-100">${item.name || '-'}</td>
                     <td class="px-4 py-3">
                         <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold text-white shadow-sm" style="background-color: ${color}">
-                            ${item.category}
+                            ${item.category || '-'}
                         </span>
                     </td>
-                    <td class="px-4 py-3 text-gray-300"><i class="fa-solid fa-door-open mr-1 text-gray-500"></i>${item.room}</td>
-                    <td class="px-4 py-3 text-gray-300"><i class="fa-solid fa-box-archive mr-1 text-gray-500"></i>${item.location}</td>
-                    <td class="px-4 py-3 text-gray-300"><i class="fa-solid fa-inbox mr-1 text-gray-500"></i>${item.box}</td>
-                    <td class="px-4 py-3 text-right font-bold text-emerald-400">${item.qty}</td>
+                    <td class="px-4 py-3 text-gray-300"><i class="fa-solid fa-door-open mr-1 text-gray-500"></i>${item.room || '-'}</td>
+                    <td class="px-4 py-3 text-gray-300"><i class="fa-solid fa-box-archive mr-1 text-gray-500"></i>${item.location || '-'}</td>
+                    <td class="px-4 py-3 text-gray-300"><i class="fa-solid fa-inbox mr-1 text-gray-500"></i>${item.box || '-'}</td>
+                    <td class="px-4 py-3 text-right font-bold text-emerald-400">${item.qty ?? 1}</td>
                     <td class="px-4 py-3 text-gray-400 text-xs italic">${item.notes || '-'}</td>
                 `;
                 partsBody.appendChild(tr);
@@ -369,10 +379,10 @@
 
             let filteredLocs = locationsData.filter(item => {
                 const matchesSearch = !search || 
-                    item.room.toLowerCase().includes(search) ||
-                    item.location.toLowerCase().includes(search) ||
-                    item.boxes.toLowerCase().includes(search) ||
-                    item.desc.toLowerCase().includes(search);
+                    (item.room && item.room.toLowerCase().includes(search)) ||
+                    (item.location && item.location.toLowerCase().includes(search)) ||
+                    (item.boxes && item.boxes.toLowerCase().includes(search)) ||
+                    (item.desc && item.desc.toLowerCase().includes(search));
                 
                 const matchesRoom = !roomVal || item.room === roomVal;
 
@@ -383,10 +393,10 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-700/40 transition-colors";
                 tr.innerHTML = `
-                    <td class="px-4 py-3 font-semibold text-emerald-400">${item.room}</td>
-                    <td class="px-4 py-3 text-gray-100 font-medium">${item.location}</td>
-                    <td class="px-4 py-3 text-gray-300"><span class="bg-gray-900 border border-gray-700 px-2 py-1 rounded text-xs">${item.boxes}</span></td>
-                    <td class="px-4 py-3 text-gray-400 text-xs">${item.desc}</td>
+                    <td class="px-4 py-3 font-semibold text-emerald-400">${item.room || '-'}</td>
+                    <td class="px-4 py-3 text-gray-100 font-medium">${item.location || '-'}</td>
+                    <td class="px-4 py-3 text-gray-300"><span class="bg-gray-900 border border-gray-700 px-2 py-1 rounded text-xs">${item.boxes || '-'}</span></td>
+                    <td class="px-4 py-3 text-gray-400 text-xs">${item.desc || '-'}</td>
                 `;
                 locBody.appendChild(tr);
             });
@@ -397,8 +407,8 @@
 
             let filteredCats = categoriesData.filter(item => {
                 const matchesSearch = !search || 
-                    item.name.toLowerCase().includes(search) ||
-                    item.desc.toLowerCase().includes(search);
+                    (item.name && item.name.toLowerCase().includes(search)) ||
+                    (item.desc && item.desc.toLowerCase().includes(search));
                 
                 const matchesCat = !catVal || item.name === catVal;
 
@@ -410,16 +420,16 @@
                 tr.className = "hover:bg-gray-700/40 transition-colors";
                 tr.innerHTML = `
                     <td class="px-4 py-3 font-semibold text-gray-100 flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full inline-block" style="background-color: ${item.color}"></span>
-                        ${item.name}
+                        <span class="w-3 h-3 rounded-full inline-block" style="background-color: ${item.color || '#64748b'}"></span>
+                        ${item.name || '-'}
                     </td>
-                    <td class="px-4 py-3 font-mono text-xs text-gray-400">${item.color}</td>
-                    <td class="px-4 py-3 text-gray-300 text-xs">${item.desc}</td>
+                    <td class="px-4 py-3 font-mono text-xs text-gray-400">${item.color || '-'}</td>
+                    <td class="px-4 py-3 text-gray-300 text-xs">${item.desc || '-'}</td>
                 `;
                 catBody.appendChild(tr);
             });
 
-            // Update Counts and Badges
+            // Update Counts
             document.getElementById('countParts').textContent = filteredParts.length;
             document.getElementById('badgeParts').textContent = `${filteredParts.length} / ${partsData.length} Einträge`;
 
@@ -432,7 +442,6 @@
             document.getElementById('visibleCount').textContent = filteredParts.length + filteredLocs.length + filteredCats.length;
         }
 
-        // Apply filters callback
         function applyFilters() {
             renderTables();
         }
@@ -441,7 +450,6 @@
         function switchTab(tab) {
             currentTab = tab;
             
-            // Highlight buttons
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('bg-emerald-600', 'text-white');
                 btn.classList.add('text-gray-400');
@@ -452,7 +460,6 @@
                 activeBtn.classList.remove('text-gray-400');
             }
 
-            // Show/hide sections
             const sParts = document.getElementById('sectionParts');
             const sLocs = document.getElementById('sectionLocations');
             const sCats = document.getElementById('sectionCategories');
@@ -476,7 +483,7 @@
             }
         }
 
-        // Toggle Theme (Dark / Light / Cyberpunk)
+        // Toggle Theme (Dark / Light)
         function toggleTheme() {
             const body = document.getElementById('appBody');
             const icon = document.getElementById('themeIcon');
@@ -486,7 +493,6 @@
                 currentTheme = 'light';
                 body.className = 'bg-gray-100 text-gray-800 min-h-screen flex flex-col font-sans transition-colors duration-200';
                 
-                // Adjust header & cards for light theme
                 document.querySelectorAll('.bg-gray-800').forEach(el => {
                     el.classList.remove('bg-gray-800');
                     el.classList.add('bg-white');
@@ -532,6 +538,111 @@
             }
         }
 
+        // IMPORT JSON
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    if (data.elektronikteile || data.raeume_orte || data.kategorien) {
+                        // Standardized JSON format
+                        if (data.elektronikteile) {
+                            partsData = data.elektronikteile.map(item => ({
+                                id: item.id || '',
+                                name: item.bezeichnung || item.name || '',
+                                category: item.kategorie || item.category || '',
+                                room: item.raum || item.room || '',
+                                location: item.ort || item.location || '',
+                                box: item.kiste_fach || item.box || '',
+                                qty: item.anzahl !== undefined ? item.anzahl : (item.qty !== undefined ? item.qty : 1),
+                                notes: item.anmerkungen || item.notes || ''
+                            }));
+                        }
+                        if (data.raeume_orte) {
+                            locationsData = data.raeume_orte.map(item => ({
+                                room: item.raum || item.room || '',
+                                location: item.ort || item.location || '',
+                                boxes: item.kisten_faecher || item.boxes || '',
+                                desc: item.beschreibung || item.desc || ''
+                            }));
+                        }
+                        if (data.kategorien) {
+                            categoriesData = data.kategorien.map(item => ({
+                                name: item.kategorie || item.name || '',
+                                color: item.farb_code || item.color || '#64748b',
+                                desc: item.beschreibung || item.desc || ''
+                            }));
+                        }
+                    } else if (Array.isArray(data)) {
+                        // Simple array format for parts
+                        partsData = data.map(item => ({
+                            id: item.id || '',
+                            name: item.bezeichnung || item.name || '',
+                            category: item.kategorie || item.category || '',
+                            room: item.raum || item.room || '',
+                            location: item.ort || item.location || '',
+                            box: item.kiste_fach || item.box || '',
+                            qty: item.anzahl !== undefined ? item.anzahl : (item.qty !== undefined ? item.qty : 1),
+                            notes: item.anmerkungen || item.notes || ''
+                        }));
+                    }
+
+                    saveToLocalStorage();
+                    initFilterOptions();
+                    renderTables();
+                    alert("JSON-Daten erfolgreich importiert!");
+                } catch (err) {
+                    alert("Fehler beim Lesen der JSON-Datei: " + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Reset input
+        }
+
+        // EXPORT JSON
+        function exportJSON() {
+            const exportObject = {
+                metadata: {
+                    title: "Krims & Kram Inventar",
+                    exported_at: new Date().toISOString().split('T')[0],
+                    version: "2.1"
+                },
+                elektronikteile: partsData.map(item => ({
+                    id: item.id,
+                    bezeichnung: item.name,
+                    kategorie: item.category,
+                    raum: item.room,
+                    ort: item.location,
+                    kiste_fach: item.box,
+                    anzahl: item.qty,
+                    anmerkungen: item.notes
+                })),
+                raeume_orte: locationsData.map(item => ({
+                    raum: item.room,
+                    ort: item.location,
+                    kisten_faecher: item.boxes,
+                    beschreibung: item.desc
+                })),
+                kategorien: categoriesData.map(item => ({
+                    kategorie: item.name,
+                    farb_code: item.color,
+                    beschreibung: item.desc
+                }))
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObject, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `inventar_export_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
         // Export Data as CSV
         function exportCSV() {
             let csvContent = "data:text/csv;charset=utf-8,";
@@ -548,6 +659,23 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        // Local Storage Helpers
+        function saveToLocalStorage() {
+            localStorage.setItem('krimskram_partsData', JSON.stringify(partsData));
+            localStorage.setItem('krimskram_locationsData', JSON.stringify(locationsData));
+            localStorage.setItem('krimskram_categoriesData', JSON.stringify(categoriesData));
+        }
+
+        function loadFromLocalStorage() {
+            const savedParts = localStorage.getItem('krimskram_partsData');
+            const savedLocations = localStorage.getItem('krimskram_locationsData');
+            const savedCategories = localStorage.getItem('krimskram_categoriesData');
+
+            if (savedParts) partsData = JSON.parse(savedParts);
+            if (savedLocations) locationsData = JSON.parse(savedLocations);
+            if (savedCategories) categoriesData = JSON.parse(savedCategories);
         }
     </script>
 </body>
