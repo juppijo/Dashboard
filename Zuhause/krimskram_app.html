@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krims & Kram Organizer</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="h-full bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+
+    <!-- TOP HEADER / NAVBAR -->
+    <header class="bg-white dark:bg-slate-800 shadow-md border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Logo & Title -->
+            <div class="flex items-center space-x-3">
+                <div class="bg-brand-500 text-white p-2.5 rounded-xl shadow-lg flex items-center justify-center">
+                    <i class="fa-solid fa-boxes-packing text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        Krims & Kram <span class="text-xs bg-brand-100 dark:bg-brand-900/60 text-brand-600 dark:text-brand-300 font-semibold px-2 py-0.5 rounded-full">Organizer</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Alles sortiert, geordnet & schnell gefunden</p>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex items-center space-x-2">
+                <!-- Add New Item Button -->
+                <button onclick="openModal()" class="bg-brand-600 hover:bg-brand-700 text-white px-3.5 py-2 rounded-xl text-sm font-medium transition-all shadow-sm flex items-center gap-2 active:scale-95">
+                    <i class="fa-solid fa-plus"></i>
+                    <span class="hidden md:inline">Neues Teil</span>
+                </button>
+
+                <div class="h-6 w-px bg-slate-300 dark:bg-slate-700 mx-1"></div>
+
+                <!-- Theme Switcher Button -->
+                <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors" title="Dunkel/Hell Modus umschalten">
+                    <i id="themeIcon" class="fa-solid fa-moon text-lg"></i>
+                </button>
+
+                <!-- Fullscreen Toggle Button -->
+                <button onclick="toggleFullscreen()" class="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors" title="Vollbild Modus">
+                    <i id="fullscreenIcon" class="fa-solid fa-expand text-lg"></i>
+                </button>
+
+                <!-- Settings / Data Menu Toggle -->
+                <div class="relative">
+                    <button onclick="toggleDataMenu()" class="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors" title="Daten Import/Export & Reset">
+                        <i class="fa-solid fa-ellipsis-vertical text-lg"></i>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div id="dataMenu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-1.5 z-50">
+                        <button onclick="exportJSON()" class="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2">
+                            <i class="fa-solid fa-file-export text-brand-500"></i> Daten Exportieren (JSON)
+                        </button>
+                        <label class="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-file-import text-emerald-500"></i> Daten Importieren
+                            <input type="file" id="importFileInput" accept=".json" onchange="importJSON(event)" class="hidden">
+                        </label>
+                        <hr class="my-1 border-slate-200 dark:border-slate-700">
+                        <button onclick="resetData()" class="w-full text-left px-4 py-2 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2">
+                            <i class="fa-solid fa-rotate-left"></i> Standard wiederherstellen
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6 overflow-hidden">
+
+        <!-- SEARCH AND FILTER BAR -->
+        <section class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col gap-4">
+            <!-- Search Field & Clear -->
+            <div class="relative w-full">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Suchen nach Name, Raum, Ort, Kiste, Kategorie, Notizen..." 
+                    class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white transition">
+                <button onclick="clearSearch()" id="clearSearchBtn" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Filters & Sorting Controls -->
+            <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <!-- Room Filter -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Raum</label>
+                    <select id="filterRoom" onchange="applyFilters()" class="w-full py-2 px-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="">Alle Räume</option>
+                    </select>
+                </div>
+
+                <!-- Category Filter -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Kategorie</label>
+                    <select id="filterCategory" onchange="applyFilters()" class="w-full py-2 px-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="">Alle Kategorien</option>
+                    </select>
+                </div>
+
+                <!-- Sort Field -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Sortieren nach</label>
+                    <select id="sortBy" onchange="applyFilters()" class="w-full py-2 px-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="name">Name (A-Z)</option>
+                        <option value="room">Raum</option>
+                        <option value="location">Ort / Möbelstück</option>
+                        <option value="box">Kiste / Fach</option>
+                        <option value="quantity">Menge</option>
+                        <option value="date">Zuletzt geändert</option>
+                    </select>
+                </div>
+
+                <!-- Quick Stats / Reset Filters -->
+                <div class="flex items-end justify-between gap-2">
+                    <button onclick="resetFilters()" class="w-full py-2 px-3 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-medium transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-filter-circle-xmark"></i> Filter zurücksetzen
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STATS & COUNTER STRIP -->
+        <div class="flex items-center justify-between text-xs sm:text-sm text-slate-500 dark:text-slate-400 px-1">
+            <div>
+                Zeige <span id="visibleCount" class="font-bold text-slate-800 dark:text-slate-200">0</span> von <span id="totalCount" class="font-bold text-slate-800 dark:text-slate-200">0</span> Gegenständen
+            </div>
+            <div id="activeFilterBadge" class="hidden text-brand-600 dark:text-brand-400 font-medium">
+                <i class="fa-solid fa-filter text-xs"></i> Filter aktiv
+            </div>
+        </div>
+
+        <!-- ITEMS DISPLAY CONTAINER -->
+        <section class="flex-1 overflow-y-auto pr-1">
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden flex-col items-center justify-center py-16 text-center">
+                <div class="w-20 h-20 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400 dark:text-slate-500 text-3xl mb-4">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-700 dark:text-slate-300">Keine Gegenstände gefunden</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 max-w-sm mt-1 mb-4">Passe deine Such- und Filterkriterien an oder füge ein neues Objekt hinzu.</p>
+                <button onclick="openModal()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm">
+                    <i class="fa-solid fa-plus mr-1"></i> Erstes Teil hinzufügen
+                </button>
+            </div>
+
+            <!-- Grid Container for Items -->
+            <div id="itemsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6">
+                <!-- Cards will be injected dynamically via JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL FORM FOR ADDING / EDITING ITEMS -->
+    <div id="itemModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-xl w-full border border-slate-200 dark:border-slate-700 overflow-hidden transform transition-all my-8">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <h2 id="modalTitle" class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-box-archive text-brand-500"></i> Neues Objekt hinzufügen
+                </h2>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg transition">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form -->
+            <form id="itemForm" onsubmit="saveItem(event)" class="p-6 space-y-4">
+                <input type="hidden" id="itemId">
+
+                <!-- Name / Beschreibung -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Name / Bezeichnung *</label>
+                    <input type="text" id="itemName" required placeholder="z.B. Digital-Multimeter, Widerstand 10k" 
+                        class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <!-- Location Hierarchy Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <!-- Raum -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Raum *</label>
+                        <input type="text" id="itemRoom" required list="roomSuggestions" placeholder="z.B. Werkstatt" 
+                            class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <datalist id="roomSuggestions"></datalist>
+                    </div>
+
+                    <!-- Ort / Möbelstück -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Ort / Möbel *</label>
+                        <input type="text" id="itemLocation" required list="locationSuggestions" placeholder="z.B. Schrank 1, Regal A" 
+                            class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <datalist id="locationSuggestions"></datalist>
+                    </div>
+
+                    <!-- Kiste / Fach / Behälter -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Kiste / Fach</label>
+                        <input type="text" id="itemBox" placeholder="z.B. Sortimentskasten 2" 
+                            class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+
+                <!-- Category, Quantity & Unit Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <!-- Kategorie -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Kategorie *</label>
+                        <input type="text" id="itemCategory" required list="categorySuggestions" placeholder="z.B. Werkzeug, Messgerät" 
+                            class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <datalist id="categorySuggestions"></datalist>
+                    </div>
+
+                    <!-- Menge -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Menge</label>
+                        <input type="number" id="itemQuantity" min="0" step="any" value="1" 
+                            class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+
+                    <!-- Einheit -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Einheit</label>
+                        <select id="itemUnit" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="Stück">Stück</option>
+                            <option value="Packung">Packung</option>
+                            <option value="Set">Set</option>
+                            <option value="Meter">Meter</option>
+                            <option value="Rolle">Rolle</option>
+                            <option value="Karton">Karton</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Notizen / Beschreibung -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Notizen / Bemerkungen</label>
+                    <textarea id="itemNotes" rows="3" placeholder="Spezifikationen, Zustand, Teilenummern..." 
+                        class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium transition">
+                        Abbrechen
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium transition shadow-md flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Speichern
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION TOAST -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-800 text-white dark:bg-white dark:text-slate-900 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-slate-700 dark:border-slate-200">
+            <span id="toastIcon" class="text-emerald-400 dark:text-emerald-600 text-lg"><i class="fa-solid fa-circle-check"></i></span>
+            <span id="toastMessage" class="text-sm font-medium">Aktion erfolgreich</span>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        // Default Dataset (electronics inventory requested)
+        const DEFAULT_ITEMS = [
+            {
+                id: "1",
+                name: "Labornetzgerät 0-30V / 0-5A",
+                room: "Werkstatt",
+                location: "Elektroniktisch",
+                box: "Oberes Regal",
+                category: "Mess- & Speisegeräte",
+                quantity: 1,
+                unit: "Stück",
+                notes: "Regelbares Netzteil mit Digitalanzeige, inklusive Laborleitungskabeln.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "2",
+                name: "Digital-Multimeter Auto-Range",
+                room: "Werkstatt",
+                location: "Elektroniktisch",
+                box: "Werkzeugständer",
+                category: "Mess- & Speisegeräte",
+                quantity: 1,
+                unit: "Stück",
+                notes: "Inklusive Messspitzen und Krokodilklemmen, True RMS.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "3",
+                name: "Lötkolben Station 60W ESD",
+                room: "Werkstatt",
+                location: "Lötplatz",
+                box: "Haupttisch",
+                category: "Löttechnik",
+                quantity: 1,
+                unit: "Stück",
+                notes: "Temperaturregelbar mit Schwammhalter und Ersatzspitzen.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "4",
+                name: "Entlötsaugpumpe & Entlötlitze",
+                room: "Werkstatt",
+                location: "Lötplatz",
+                box: "Schublade 1",
+                category: "Löttechnik",
+                quantity: 2,
+                unit: "Stück",
+                notes: "Aluminium-Entlötsaugpumpe + 2m Entlötlitze 2.5mm.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "5",
+                name: "Lötzinn Bleifrei Sn99.3Cu0.7 (100g)",
+                room: "Werkstatt",
+                location: "Lötplatz",
+                box: "Schublade 1",
+                category: "Löttechnik",
+                quantity: 1,
+                unit: "Rolle",
+                notes: "Durchmesser 0.8mm mit Flussmittelkern.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "6",
+                name: "Widerstände Sortiment 1/4W 1%",
+                room: "Werkstatt",
+                location: "Bauteileregal",
+                box: "Sortimentskasten A - Fach 1",
+                category: "Passive Bauteile",
+                quantity: 600,
+                unit: "Stück",
+                notes: "Metallfilmwiderstände von 10 Ohm bis 1 MOhm, 30 Werte je 20 Stk.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "7",
+                name: "Kondensatoren Keramik & Elko Sortiment",
+                room: "Werkstatt",
+                location: "Bauteileregal",
+                box: "Sortimentskasten A - Fach 2",
+                category: "Passive Bauteile",
+                quantity: 250,
+                unit: "Stück",
+                notes: "Keramikkondensatoren 10pF - 100nF, Elektrolytkondensatoren 1uF - 1000uF.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "8",
+                name: "LED Sortiment 5mm (Bunt)",
+                room: "Werkstatt",
+                location: "Bauteileregal",
+                box: "Sortimentskasten A - Fach 3",
+                category: "Optoelektronik",
+                quantity: 200,
+                unit: "Stück",
+                notes: "Rot, Grün, Gelb, Blau, Weiß diffuse LEDs mit Vorwiderständen.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "9",
+                name: "Transistoren BC547 / BC557 / 2N2222",
+                room: "Werkstatt",
+                location: "Bauteileregal",
+                box: "Sortimentskasten B - Fach 1",
+                category: "Halbleiter",
+                quantity: 80,
+                unit: "Stück",
+                notes: "NPN und PNP Universaltransistoren TO-92.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "10",
+                name: "Spannungsregler LM7805 / LM317",
+                room: "Werkstatt",
+                location: "Bauteileregal",
+                box: "Sortimentskasten B - Fach 2",
+                category: "Halbleiter",
+                quantity: 15,
+                unit: "Stück",
+                notes: "5V Festspannungsregler und einstellbare Regler TO-220 mit Kühlkörper.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "11",
+                name: "Timer ICs NE555 & OP-Amps LM358",
+                room: "Werkstatt",
+                location: "Bauteileregal",
+                box: "Sortimentskasten B - Fach 3",
+                category: "Integrierte Schaltungen (ICs)",
+                quantity: 25,
+                unit: "Stück",
+                notes: "DIP-8 Gehäuse inklusive IC-Sockel.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "12",
+                name: "Arduino Nano V3 (ATmega328P)",
+                room: "Büro",
+                location: "Schreibtisch",
+                box: "Mikrocontroller Box",
+                category: "Mikrocontroller & Module",
+                quantity: 4,
+                unit: "Stück",
+                notes: "CH340G USB Schnittstelle, ungelötet.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "13",
+                name: "Steckplatine / Breadboard 830 Kontakte",
+                room: "Büro",
+                location: "Schreibtisch",
+                box: "Prototyping Kiste",
+                category: "Prototyping & Zubehör",
+                quantity: 3,
+                unit: "Stück",
+                notes: "Solderless Breadboard mit Stromschienen.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "14",
+                name: "Jumper Wire Kabel-Set (M/M, M/F, F/F)",
+                room: "Büro",
+                location: "Schreibtisch",
+                box: "Prototyping Kiste",
+                category: "Kabel & Stecker",
+                quantity: 120,
+                unit: "Stück",
+                notes: "20cm Länge flexibel bunt für Steckplatine.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "15",
+                name: "Schrumpfschlauch Sortiment Bunt",
+                room: "Werkstatt",
+                location: "Schrank 2",
+                box: "Kabelbox",
+                category: "Isolierung & Zubehör",
+                quantity: 1,
+                unit: "Set",
+                notes: "Verschiedene Durchmesser 1mm bis 10mm, Schrumpfrate 2:1.",
+                updatedAt: new Date().toISOString()
+            }
+        ];
+
+        // State Management
+        let items = [];
+
+        // Initialize Application
+        window.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            loadData();
+            renderItems();
+            updateFilterOptions();
+
+            // Click outside to close Data Menu
+            document.addEventListener('click', (e) => {
+                const dataMenu = document.getElementById('dataMenu');
+                if (!e.target.closest('#dataMenu') && !e.target.closest('button[onclick="toggleDataMenu()"]')) {
+                    dataMenu.classList.add('hidden');
+                }
+            });
+        });
+
+        // Theme Switcher Logic
+        function initTheme() {
+            const savedTheme = localStorage.getItem('krimsKram_theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                updateThemeIcon(true);
+            } else {
+                document.documentElement.classList.remove('dark');
+                updateThemeIcon(false);
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('krimsKram_theme', isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
+            showToast(isDark ? 'Dunkelmodus aktiviert' : 'Hellmodus aktiviert', 'fa-moon');
+        }
+
+        function updateThemeIcon(isDark) {
+            const icon = document.getElementById('themeIcon');
+            if (isDark) {
+                icon.className = 'fa-solid fa-sun text-lg text-amber-400';
+            } else {
+                icon.className = 'fa-solid fa-moon text-lg';
+            }
+        }
+
+        // Fullscreen Toggle Logic
+        function toggleFullscreen() {
+            const icon = document.getElementById('fullscreenIcon');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    icon.className = 'fa-solid fa-compress text-lg';
+                    showToast('Vollbildmodus aktiviert', 'fa-expand');
+                }).catch(err => {
+                    showToast('Vollbild konnte nicht aktiviert werden', 'fa-triangle-exclamation');
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().then(() => {
+                        icon.className = 'fa-solid fa-expand text-lg';
+                        showToast('Vollbildmodus beendet', 'fa-compress');
+                    });
+                }
+            }
+        }
+
+        // Data Storage & Load
+        function loadData() {
+            const storedData = localStorage.getItem('krimsKram_items');
+            if (storedData) {
+                try {
+                    items = JSON.parse(storedData);
+                } catch(e) {
+                    items = [...DEFAULT_ITEMS];
+                    saveData();
+                }
+            } else {
+                items = [...DEFAULT_ITEMS];
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('krimsKram_items', JSON.stringify(items));
+            updateFilterOptions();
+        }
+
+        function resetData() {
+            if (confirm('Möchtest du wirklich alle Daten auf den ursprünglichen Standard mit den Elektronikbauteilen zurücksetzen? Eigen erstelle Gegenstände gehen dabei verloren!')) {
+                items = [...DEFAULT_ITEMS];
+                saveData();
+                applyFilters();
+                showToast('Standarddaten erfolgreich wiederhergestellt', 'fa-rotate-left');
+                toggleDataMenu();
+            }
+        }
+
+        function toggleDataMenu() {
+            const menu = document.getElementById('dataMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Export & Import JSON
+        function exportJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(items, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `krims_kram_inventar_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast('Inventar erfolgreich exportiert!', 'fa-file-export');
+            toggleDataMenu();
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        items = imported;
+                        saveData();
+                        applyFilters();
+                        showToast('Inventar erfolgreich importiert!', 'fa-file-import');
+                    } else {
+                        alert('Ungültiges Dateiformat. Es muss ein JSON-Array von Gegenständen sein.');
+                    }
+                } catch(err) {
+                    alert('Fehler beim Lesen der JSON Datei: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            toggleDataMenu();
+            event.target.value = ''; // Reset input
+        }
+
+        // Dynamic Filtering & Search Options
+        function updateFilterOptions() {
+            const roomSelect = document.getElementById('filterRoom');
+            const categorySelect = document.getElementById('filterCategory');
+
+            const currentRoom = roomSelect.value;
+            const currentCat = categorySelect.value;
+
+            // Extract unique rooms & categories
+            const rooms = [...new Set(items.map(i => i.room).filter(Boolean))].sort();
+            const categories = [...new Set(items.map(i => i.category).filter(Boolean))].sort();
+            const locations = [...new Set(items.map(i => i.location).filter(Boolean))].sort();
+
+            // Populate Filter Room Options
+            roomSelect.innerHTML = '<option value="">Alle Räume</option>' + 
+                rooms.map(r => `<option value="${escapeHtml(r)}" ${r === currentRoom ? 'selected' : ''}>${escapeHtml(r)}</option>`).join('');
+
+            // Populate Filter Category Options
+            categorySelect.innerHTML = '<option value="">Alle Kategorien</option>' + 
+                categories.map(c => `<option value="${escapeHtml(c)}" ${c === currentCat ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('');
+
+            // Datalists for Modal Inputs
+            document.getElementById('roomSuggestions').innerHTML = rooms.map(r => `<option value="${escapeHtml(r)}">`).join('');
+            document.getElementById('categorySuggestions').innerHTML = categories.map(c => `<option value="${escapeHtml(c)}">`).join('');
+            document.getElementById('locationSuggestions').innerHTML = locations.map(l => `<option value="${escapeHtml(l)}">`).join('');
+        }
+
+        function applyFilters() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const selectedRoom = document.getElementById('filterRoom').value;
+            const selectedCat = document.getElementById('filterCategory').value;
+            const sortBy = document.getElementById('sortBy').value;
+
+            // Show/Hide Clear Search Button
+            document.getElementById('clearSearchBtn').classList.toggle('hidden', query === '');
+
+            // Active Filter Badge visibility
+            const isFilterActive = query !== '' || selectedRoom !== '' || selectedCat !== '';
+            document.getElementById('activeFilterBadge').classList.toggle('hidden', !isFilterActive);
+
+            // Filter logic
+            let filtered = items.filter(item => {
+                const matchesSearch = query === '' || 
+                    (item.name && item.name.toLowerCase().includes(query)) ||
+                    (item.room && item.room.toLowerCase().includes(query)) ||
+                    (item.location && item.location.toLowerCase().includes(query)) ||
+                    (item.box && item.box.toLowerCase().includes(query)) ||
+                    (item.category && item.category.toLowerCase().includes(query)) ||
+                    (item.notes && item.notes.toLowerCase().includes(query));
+
+                const matchesRoom = selectedRoom === '' || item.room === selectedRoom;
+                const matchesCategory = selectedCat === '' || item.category === selectedCat;
+
+                return matchesSearch && matchesRoom && matchesCategory;
+            });
+
+            // Sorting logic
+            filtered.sort((a, b) => {
+                if (sortBy === 'name') return (a.name || '').localeCompare(b.name || '');
+                if (sortBy === 'room') return (a.room || '').localeCompare(b.room || '');
+                if (sortBy === 'location') return (a.location || '').localeCompare(b.location || '');
+                if (sortBy === 'box') return (a.box || '').localeCompare(b.box || '');
+                if (sortBy === 'quantity') return (b.quantity || 0) - (a.quantity || 0);
+                if (sortBy === 'date') return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0);
+                return 0;
+            });
+
+            renderItems(filtered);
+
+            // Update Counter
+            document.getElementById('visibleCount').textContent = filtered.length;
+            document.getElementById('totalCount').textContent = items.length;
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            applyFilters();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterRoom').value = '';
+            document.getElementById('filterCategory').value = '';
+            document.getElementById('sortBy').value = 'name';
+            applyFilters();
+        }
+
+        // Render Cards UI
+        function renderItems(itemsToRender = items) {
+            const grid = document.getElementById('itemsGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            if (itemsToRender.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+
+            grid.innerHTML = itemsToRender.map(item => {
+                return `
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all border border-slate-200 dark:border-slate-700/80 flex flex-col justify-between group">
+                    <div>
+                        <!-- Header / Category & Actions -->
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 dark:bg-brand-950/60 dark:text-brand-300 border border-brand-200 dark:border-brand-800/50">
+                                <i class="fa-solid fa-tag text-[10px] mr-1"></i> ${escapeHtml(item.category || 'Unkategorisiert')}
+                            </span>
+                            <div class="flex items-center space-x-1 opacity-80 group-hover:opacity-100 transition">
+                                <button onclick="editItem('${item.id}')" class="p-1.5 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Bearbeiten">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deleteItem('${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Löschen">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Item Name -->
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug mb-3">
+                            ${escapeHtml(item.name)}
+                        </h3>
+
+                        <!-- Location Breadcrumb Hierarchy -->
+                        <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3 border border-slate-100 dark:border-slate-700/50 space-y-1.5 text-xs text-slate-600 dark:text-slate-300 mb-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-house text-slate-400 w-4 text-center"></i>
+                                <span class="font-medium">Raum:</span>
+                                <span class="text-slate-900 dark:text-slate-100 font-semibold">${escapeHtml(item.room || '-')}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-map-pin text-slate-400 w-4 text-center"></i>
+                                <span class="font-medium">Ort:</span>
+                                <span class="text-slate-900 dark:text-slate-100 font-semibold">${escapeHtml(item.location || '-')}</span>
+                            </div>
+                            ${item.box ? `
+                            <div class="flex items-center gap-2 text-brand-600 dark:text-brand-400">
+                                <i class="fa-solid fa-box text-brand-500 w-4 text-center"></i>
+                                <span class="font-medium">Kiste/Fach:</span>
+                                <span class="font-semibold">${escapeHtml(item.box)}</span>
+                            </div>` : ''}
+                        </div>
+
+                        <!-- Notes section if present -->
+                        ${item.notes ? `
+                        <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 italic mb-3">
+                            "${escapeHtml(item.notes)}"
+                        </p>` : ''}
+                    </div>
+
+                    <!-- Footer / Quantity Badge -->
+                    <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
+                        <span class="text-slate-400 dark:text-slate-500">Menge:</span>
+                        <div class="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 dark:bg-slate-700/80 rounded-xl font-bold text-slate-800 dark:text-slate-100">
+                            <span>${item.quantity || 1}</span>
+                            <span class="text-[11px] font-normal text-slate-500 dark:text-slate-400">${escapeHtml(item.unit || 'Stück')}</span>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // Modal Controls & Form Logic
+        function openModal(editId = null) {
+            const modal = document.getElementById('itemModal');
+            const form = document.getElementById('itemForm');
+            const modalTitle = document.getElementById('modalTitle');
+
+            form.reset();
+
+            if (editId) {
+                const item = items.find(i => i.id === editId);
+                if (item) {
+                    document.getElementById('itemId').value = item.id;
+                    document.getElementById('itemName').value = item.name || '';
+                    document.getElementById('itemRoom').value = item.room || '';
+                    document.getElementById('itemLocation').value = item.location || '';
+                    document.getElementById('itemBox').value = item.box || '';
+                    document.getElementById('itemCategory').value = item.category || '';
+                    document.getElementById('itemQuantity').value = item.quantity !== undefined ? item.quantity : 1;
+                    document.getElementById('itemUnit').value = item.unit || 'Stück';
+                    document.getElementById('itemNotes').value = item.notes || '';
+
+                    modalTitle.innerHTML = `<i class="fa-solid fa-pen-to-square text-brand-500"></i> Gegenstand bearbeiten`;
+                }
+            } else {
+                document.getElementById('itemId').value = '';
+                modalTitle.innerHTML = `<i class="fa-solid fa-box-archive text-brand-500"></i> Neues Objekt hinzufügen`;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('itemModal').classList.add('hidden');
+        }
+
+        function saveItem(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('itemId').value;
+            const name = document.getElementById('itemName').value.trim();
+            const room = document.getElementById('itemRoom').value.trim();
+            const location = document.getElementById('itemLocation').value.trim();
+            const box = document.getElementById('itemBox').value.trim();
+            const category = document.getElementById('itemCategory').value.trim();
+            const quantity = parseFloat(document.getElementById('itemQuantity').value) || 1;
+            const unit = document.getElementById('itemUnit').value;
+            const notes = document.getElementById('itemNotes').value.trim();
+
+            if (!name || !room || !location || !category) {
+                alert('Bitte fülle alle erforderlichen Pflichtfelder (*) aus.');
+                return;
+            }
+
+            if (id) {
+                // Update Existing Item
+                const index = items.findIndex(i => i.id === id);
+                if (index !== -1) {
+                    items[index] = {
+                        ...items[index],
+                        name, room, location, box, category, quantity, unit, notes,
+                        updatedAt: new Date().toISOString()
+                    };
+                    showToast('Gegenstand erfolgreich aktualisiert', 'fa-pen-to-square');
+                }
+            } else {
+                // Create New Item
+                const newItem = {
+                    id: Date.now().toString(),
+                    name, room, location, box, category, quantity, unit, notes,
+                    updatedAt: new Date().toISOString()
+                };
+                items.unshift(newItem);
+                showToast('Neuer Gegenstand hinzugefügt', 'fa-circle-check');
+            }
+
+            saveData();
+            applyFilters();
+            closeModal();
+        }
+
+        function editItem(id) {
+            openModal(id);
+        }
+
+        function deleteItem(id) {
+            const item = items.find(i => i.id === id);
+            if (!item) return;
+
+            if (confirm(`Möchtest du "${item.name}" wirklich aus dem Inventar löschen?`)) {
+                items = items.filter(i => i.id !== id);
+                saveData();
+                applyFilters();
+                showToast('Gegenstand gelöscht', 'fa-trash-can');
+            }
+        }
+
+        // Helpers
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function showToast(message, iconClass = 'fa-circle-check') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMessage.textContent = message;
+            toastIcon.innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

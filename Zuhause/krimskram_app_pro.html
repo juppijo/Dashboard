@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krims & Kram - Sortier- & Inventar-App Pro</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom Theme Overrides */
+        body.theme-bunt {
+            background-color: #f0fdf4 !important;
+            color: #14532d !important;
+        }
+        .theme-bunt .bg-white {
+            background-color: #ffffff !important;
+        }
+        .theme-bunt .bg-slate-800 {
+            background-color: #064e3b !important;
+            color: #ecfdf5 !important;
+        }
+        .theme-bunt .border-slate-200 {
+            border-color: #bbf7d0 !important;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body id="appBody" class="h-full bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+
+    <!-- NAVIGATION BAR -->
+    <header class="bg-white dark:bg-slate-800 shadow-md border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+            <!-- Logo & Title -->
+            <div class="flex items-center space-x-3">
+                <div class="bg-brand-500 text-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
+                    <i class="fa-solid fa-boxes-packing text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        Krims & Kram <span class="text-xs bg-brand-100 dark:bg-brand-900/60 text-brand-600 dark:text-brand-300 font-semibold px-2 py-0.5 rounded-full">Pro</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Alles geordnet, kategorisiert &amp; schnell auffindbar</p>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex items-center space-x-2">
+                <!-- Manage Masters Button -->
+                <button onclick="openMasterModal('rooms')" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition flex items-center gap-1.5" title="Räume, Orte & Kategorien verwalten">
+                    <i class="fa-solid fa-sliders text-brand-500"></i>
+                    <span class="hidden md:inline">Stammdaten</span>
+                </button>
+
+                <!-- Add New Item Button -->
+                <button onclick="openItemModal()" class="bg-brand-600 hover:bg-brand-700 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition shadow-sm flex items-center gap-1.5 active:scale-95">
+                    <i class="fa-solid fa-plus"></i>
+                    <span class="hidden sm:inline">Neues Teil</span>
+                </button>
+
+                <div class="h-6 w-px bg-slate-300 dark:bg-slate-700 mx-1"></div>
+
+                <!-- Theme Switcher Button -->
+                <button onclick="cycleTheme()" class="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Theme / Farbschema wechseln">
+                    <i id="themeIcon" class="fa-solid fa-moon text-lg"></i>
+                </button>
+
+                <!-- Fullscreen Button -->
+                <button onclick="toggleFullscreen()" class="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Vollbild-Modus">
+                    <i id="fullscreenIcon" class="fa-solid fa-expand text-lg"></i>
+                </button>
+
+                <!-- Data Export/Import Dropdown Toggle -->
+                <div class="relative">
+                    <button onclick="toggleDataMenu()" class="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Daten-Optionen">
+                        <i class="fa-solid fa-ellipsis-vertical text-lg"></i>
+                    </button>
+                    <!-- Dropdown -->
+                    <div id="dataMenu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-1.5 z-50">
+                        <button onclick="exportJSON()" class="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2">
+                            <i class="fa-solid fa-file-export text-brand-500"></i> JSON Exportieren
+                        </button>
+                        <label class="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-file-import text-emerald-500"></i> JSON Importieren
+                            <input type="file" id="importFileInput" accept=".json" onchange="importJSON(event)" class="hidden">
+                        </label>
+                        <hr class="my-1 border-slate-200 dark:border-slate-700">
+                        <button onclick="resetToDefaultData()" class="w-full text-left px-4 py-2 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2">
+                            <i class="fa-solid fa-rotate-left"></i> Standard wiederherstellen
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6 overflow-hidden">
+
+        <!-- DASHBOARD STATS OVERVIEW -->
+        <section class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center gap-3">
+                <div class="p-3 bg-brand-50 dark:bg-brand-950 text-brand-600 dark:text-brand-400 rounded-xl">
+                    <i class="fa-solid fa-microchip text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Gegenstände</p>
+                    <h3 id="statTotalItems" class="text-xl font-bold text-slate-900 dark:text-white">0</h3>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center gap-3">
+                <div class="p-3 bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 rounded-xl">
+                    <i class="fa-solid fa-house text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Räume</p>
+                    <h3 id="statTotalRooms" class="text-xl font-bold text-slate-900 dark:text-white">0</h3>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center gap-3">
+                <div class="p-3 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded-xl">
+                    <i class="fa-solid fa-warehouse text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Orte / Schränke</p>
+                    <h3 id="statTotalLocations" class="text-xl font-bold text-slate-900 dark:text-white">0</h3>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center gap-3">
+                <div class="p-3 bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 rounded-xl">
+                    <i class="fa-solid fa-box-open text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Kisten / Fächer</p>
+                    <h3 id="statTotalBoxes" class="text-xl font-bold text-slate-900 dark:text-white">0</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEARCH AND FILTERS TOOLBAR -->
+        <section class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col gap-4">
+            <!-- Universal Search Field -->
+            <div class="relative w-full">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Suchbegriff eingeben (Sucht in Name, Raum, Ort, Kiste, Kategorie, Werte, Notizen...)" 
+                    class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white transition">
+                <button onclick="clearSearch()" id="clearSearchBtn" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <!-- Filter: Room -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Raum</label>
+                    <select id="filterRoom" onchange="onFilterRoomChange()" class="w-full py-2 px-3 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="">Alle Räume</option>
+                    </select>
+                </div>
+
+                <!-- Filter: Location -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Ort / Schrank</label>
+                    <select id="filterLocation" onchange="applyFilters()" class="w-full py-2 px-3 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="">Alle Orte</option>
+                    </select>
+                </div>
+
+                <!-- Filter: Category -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Kategorie</label>
+                    <select id="filterCategory" onchange="applyFilters()" class="w-full py-2 px-3 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="">Alle Kategorien</option>
+                    </select>
+                </div>
+
+                <!-- Sort Field -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Sortierung</label>
+                    <select id="sortBy" onchange="applyFilters()" class="w-full py-2 px-3 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="name">Name (A-Z)</option>
+                        <option value="room">Raum & Ort</option>
+                        <option value="category">Kategorie</option>
+                        <option value="quantity">Menge (absteigend)</option>
+                        <option value="date">Zuletzt geändert</option>
+                    </select>
+                </div>
+
+                <!-- Action Button -->
+                <div class="col-span-2 lg:col-span-1 flex items-end">
+                    <button onclick="resetFilters()" class="w-full py-2 px-3 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-medium transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-filter-circle-xmark"></i> Filter zurücksetzen
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW TOGGLE AND ITEM COUNTER -->
+        <div class="flex items-center justify-between text-xs sm:text-sm text-slate-500 dark:text-slate-400 px-1">
+            <div>
+                Gefunden: <span id="visibleCount" class="font-bold text-slate-800 dark:text-slate-200">0</span> von <span id="totalCount" class="font-bold text-slate-800 dark:text-slate-200">0</span> Teilen
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <!-- View Mode Buttons -->
+                <button onclick="setViewMode('grid')" id="viewGridBtn" class="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white" title="Kartenansicht">
+                    <i class="fa-solid fa-border-all"></i>
+                </button>
+                <button onclick="setViewMode('table')" id="viewTableBtn" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white" title="Tabellenansicht">
+                    <i class="fa-solid fa-table-list"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- DISPLAY CONTENT (GRID / TABLE) -->
+        <section class="flex-1 overflow-y-auto pr-1">
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden flex-col items-center justify-center py-16 text-center">
+                <div class="w-20 h-20 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400 dark:text-slate-500 text-3xl mb-4">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-700 dark:text-slate-300">Keine Gegenstände gefunden</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 max-w-sm mt-1 mb-4">Passe deinen Suchbegriff an oder trage ein neues Teil ein.</p>
+                <button onclick="openItemModal()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm">
+                    <i class="fa-solid fa-plus mr-1"></i> Teil hinzufügen
+                </button>
+            </div>
+
+            <!-- Grid Container -->
+            <div id="itemsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- Table Container -->
+            <div id="itemsTableContainer" class="hidden overflow-x-auto bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="bg-slate-50 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 text-xs font-semibold uppercase">
+                        <tr>
+                            <th class="py-3 px-4">Name</th>
+                            <th class="py-3 px-4">Kategorie</th>
+                            <th class="py-3 px-4">Raum</th>
+                            <th class="py-3 px-4">Ort / Schrank</th>
+                            <th class="py-3 px-4">Kiste / Fach</th>
+                            <th class="py-3 px-4">Menge</th>
+                            <th class="py-3 px-4 text-right">Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody" class="divide-y divide-slate-200 dark:divide-slate-700">
+                        <!-- Injected via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL 1: ADD / EDIT ITEM -->
+    <div id="itemModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-xl w-full border border-slate-200 dark:border-slate-700 overflow-hidden my-8">
+            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <h2 id="itemModalTitle" class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-box-archive text-brand-500"></i> Neues Objekt hinzufügen
+                </h2>
+                <button onclick="closeItemModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg transition">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <form id="itemForm" onsubmit="saveItem(event)" class="p-6 space-y-4">
+                <input type="hidden" id="itemId">
+
+                <!-- Name -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Name / Bezeichnung *</label>
+                    <input type="text" id="itemName" required placeholder="z.B. Widerstand 10k Ohm, Lötkolben..." 
+                        class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <!-- Category -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Kategorie *</label>
+                    <select id="itemCategory" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <!-- Options generated dynamically -->
+                    </select>
+                </div>
+
+                <!-- Hierarchy Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Raum *</label>
+                        <select id="itemRoom" required onchange="onModalRoomChange()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <!-- Options generated dynamically -->
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Ort / Schrank *</label>
+                        <select id="itemLocation" required onchange="onModalLocationChange()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <!-- Options generated dynamically -->
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Kiste / Fach</label>
+                        <select id="itemBox" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <!-- Options generated dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Quantity & Unit -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Menge</label>
+                        <input type="number" id="itemQuantity" min="0" step="any" value="1" 
+                            class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Einheit</label>
+                        <select id="itemUnit" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="Stück">Stück</option>
+                            <option value="Packung">Packung</option>
+                            <option value="Set">Set</option>
+                            <option value="Rolle">Rolle</option>
+                            <option value="Meter">Meter</option>
+                            <option value="Karton">Karton</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Notes / Spec -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Notizen / Werte / Spezifikation</label>
+                    <textarea id="itemNotes" rows="3" placeholder="z.B. 10k Ohm 1/4W 1%, Pinout, Zustand..." 
+                        class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end space-x-3">
+                    <button type="button" onclick="closeItemModal()" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium transition">
+                        Abbrechen
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium transition shadow-md flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Speichern
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: MASTER DATA MANAGEMENT (Räume, Orte, Kisten, Kategorien) -->
+    <div id="masterModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full border border-slate-200 dark:border-slate-700 overflow-hidden my-8">
+            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-brand-500"></i> Stammdaten verwalten
+                </h2>
+                <button onclick="closeMasterModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg transition">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 px-6 pt-3 gap-2">
+                <button onclick="switchMasterTab('rooms')" id="tabRooms" class="pb-2.5 px-3 text-sm font-semibold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400">Räume</button>
+                <button onclick="switchMasterTab('locations')" id="tabLocations" class="pb-2.5 px-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">Orte / Schränke</button>
+                <button onclick="switchMasterTab('boxes')" id="tabBoxes" class="pb-2.5 px-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">Kisten / Fächer</button>
+                <button onclick="switchMasterTab('categories')" id="tabCategories" class="pb-2.5 px-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">Kategorien</button>
+            </div>
+
+            <!-- Tab Content Area -->
+            <div class="p-6 space-y-4">
+                <!-- Add Form -->
+                <div id="masterAddForm" class="flex flex-col sm:flex-row gap-2">
+                    <!-- Dynamic Inputs injected by JS -->
+                </div>
+
+                <!-- Existing Items List -->
+                <div class="max-h-64 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-200 dark:divide-slate-700" id="masterList">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700 text-right">
+                <button onclick="closeMasterModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-medium transition">
+                    Schließen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-800 text-white dark:bg-white dark:text-slate-900 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-slate-700 dark:border-slate-200">
+            <span id="toastIcon" class="text-emerald-400 dark:text-emerald-600 text-lg"><i class="fa-solid fa-circle-check"></i></span>
+            <span id="toastMessage" class="text-sm font-medium">Erfolgreich</span>
+        </div>
+    </div>
+
+    <!-- APP JAVASCRIPT -->
+    <script>
+        // INITIAL DEFAULT DATA (Electronics & Storage Structure)
+        const DEFAULT_ROOMS = ["Werkstatt", "Büro", "Keller", "Wohnzimmer"];
+
+        const DEFAULT_LOCATIONS = [
+            { id: "loc1", room: "Werkstatt", name: "Elektroniktisch" },
+            { id: "loc2", room: "Werkstatt", name: "Lötplatz" },
+            { id: "loc3", room: "Werkstatt", name: "Bauteileregal" },
+            { id: "loc4", room: "Werkstatt", name: "Schrank 2" },
+            { id: "loc5", room: "Büro", name: "Schreibtisch" },
+            { id: "loc6", room: "Keller", name: "Schwerlastregal" }
+        ];
+
+        const DEFAULT_BOXES = [
+            { id: "box1", location: "Elektroniktisch", name: "Oberes Regal" },
+            { id: "box2", location: "Elektroniktisch", name: "Werkzeugständer" },
+            { id: "box3", location: "Lötplatz", name: "Schublade 1" },
+            { id: "box4", location: "Bauteileregal", name: "Sortimentskasten A" },
+            { id: "box5", location: "Bauteileregal", name: "Sortimentskasten B" },
+            { id: "box6", location: "Schrank 2", name: "Kabelbox" },
+            { id: "box7", location: "Schreibtisch", name: "Mikrocontroller Box" },
+            { id: "box8", location: "Schreibtisch", name: "Prototyping Kiste" }
+        ];
+
+        const DEFAULT_CATEGORIES = [
+            { name: "Mess- & Speisegeräte", color: "#0284c7" },
+            { name: "Löttechnik", color: "#e11d48" },
+            { name: "Passive Bauteile", color: "#d97706" },
+            { name: "Aktive Bauteile", color: "#7c3aed" },
+            { name: "Optoelektronik", color: "#059669" },
+            { name: "Mikrocontroller & Module", color: "#2563eb" },
+            { name: "Kabel & Stecker", color: "#4b5563" },
+            { name: "Werkzeuge", color: "#ca8a04" }
+        ];
+
+        const DEFAULT_ITEMS = [
+            {
+                id: "1",
+                name: "Labornetzgerät 0-30V / 0-5A",
+                category: "Mess- & Speisegeräte",
+                room: "Werkstatt",
+                location: "Elektroniktisch",
+                box: "Oberes Regal",
+                quantity: 1,
+                unit: "Stück",
+                notes: "Regelbares Netzteil mit Digitalanzeige und Kurzschlussschutz.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "2",
+                name: "Digital-Multimeter Auto-Range",
+                category: "Mess- & Speisegeräte",
+                room: "Werkstatt",
+                location: "Elektroniktisch",
+                box: "Werkzeugständer",
+                quantity: 1,
+                unit: "Stück",
+                notes: "True RMS Messgerät inkl. Krokodilklemmen und Temperaturfühler.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "3",
+                name: "Lötkolben Station 60W ESD",
+                category: "Löttechnik",
+                room: "Werkstatt",
+                location: "Lötplatz",
+                box: "Schublade 1",
+                quantity: 1,
+                unit: "Stück",
+                notes: "Temperaturregelbar von 200°C bis 480°C mit Ersatzspitzen.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "4",
+                name: "Entlötsaugpumpe & Litze",
+                category: "Löttechnik",
+                room: "Werkstatt",
+                location: "Lötplatz",
+                box: "Schublade 1",
+                quantity: 2,
+                unit: "Set",
+                notes: "Alu Entlötsaugpumpe + 2m Entlötlitze 2.5mm.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "5",
+                name: "Widerstände Sortiment 1/4W 1%",
+                category: "Passive Bauteile",
+                room: "Werkstatt",
+                location: "Bauteileregal",
+                box: "Sortimentskasten A",
+                quantity: 600,
+                unit: "Stück",
+                notes: "Metallfilm 10 Ohm bis 1 MOhm, 30 Werte.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "6",
+                name: "Elektrolytkondensatoren Elko Set",
+                category: "Passive Bauteile",
+                room: "Werkstatt",
+                location: "Bauteileregal",
+                box: "Sortimentskasten A",
+                quantity: 120,
+                unit: "Stück",
+                notes: "1uF bis 1000uF 16V-50V.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "7",
+                name: "LED Sortiment 5mm Diffus",
+                category: "Optoelektronik",
+                room: "Werkstatt",
+                location: "Bauteileregal",
+                box: "Sortimentskasten B",
+                quantity: 200,
+                unit: "Stück",
+                notes: "Rot, Grün, Gelb, Blau, Weiß mit Vorwiderständen.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "8",
+                name: "Transistoren BC547 & BC557",
+                category: "Aktive Bauteile",
+                room: "Werkstatt",
+                location: "Bauteileregal",
+                box: "Sortimentskasten B",
+                quantity: 100,
+                unit: "Stück",
+                notes: "Universal NPN/PNP Transistoren TO-92.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "9",
+                name: "Arduino Nano V3 Boards",
+                category: "Mikrocontroller & Module",
+                room: "Büro",
+                location: "Schreibtisch",
+                box: "Mikrocontroller Box",
+                quantity: 4,
+                unit: "Stück",
+                notes: "ATmega328P mit Mini-USB Schnittstelle.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "10",
+                name: "Breadboards Steckplatinen 830 Kontakte",
+                category: "Mikrocontroller & Module",
+                room: "Büro",
+                location: "Schreibtisch",
+                box: "Prototyping Kiste",
+                quantity: 3,
+                unit: "Stück",
+                notes: "Prototypen-Steckbretter solderless.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "11",
+                name: "Jumper Wire Kabel Steckbrücken",
+                category: "Kabel & Stecker",
+                room: "Büro",
+                location: "Schreibtisch",
+                box: "Prototyping Kiste",
+                quantity: 120,
+                unit: "Stück",
+                notes: "M/M, M/F, F/F bunt 20cm.",
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: "12",
+                name: "Schrumpfschlauch Sortiment",
+                category: "Kabel & Stecker",
+                room: "Werkstatt",
+                location: "Schrank 2",
+                box: "Kabelbox",
+                quantity: 1,
+                unit: "Set",
+                notes: "Verschiedene Durchmesser 1mm bis 10mm.",
+                updatedAt: new Date().toISOString()
+            }
+        ];
+
+        // GLOBAL APP STATE
+        let rooms = [];
+        let locations = [];
+        let boxes = [];
+        let categories = [];
+        let items = [];
+
+        let currentViewMode = 'grid'; // 'grid' or 'table'
+        let currentTheme = 'dark'; // 'light', 'dark', 'bunt'
+        let currentMasterTab = 'rooms';
+
+        // INIT APPLICATION
+        window.addEventListener('DOMContentLoaded', () => {
+            loadAllData();
+            initTheme();
+            updateAllDropdowns();
+            applyFilters();
+            renderStats();
+
+            // Menu outside click close
+            document.addEventListener('click', (e) => {
+                const dataMenu = document.getElementById('dataMenu');
+                if (!e.target.closest('#dataMenu') && !e.target.closest('button[onclick="toggleDataMenu()"]')) {
+                    dataMenu.classList.add('hidden');
+                }
+            });
+        });
+
+        // LOCAL STORAGE LOAD & SAVE
+        function loadAllData() {
+            rooms = JSON.parse(localStorage.getItem('kk_rooms')) || DEFAULT_ROOMS;
+            locations = JSON.parse(localStorage.getItem('kk_locations')) || DEFAULT_LOCATIONS;
+            boxes = JSON.parse(localStorage.getItem('kk_boxes')) || DEFAULT_BOXES;
+            categories = JSON.parse(localStorage.getItem('kk_categories')) || DEFAULT_CATEGORIES;
+            items = JSON.parse(localStorage.getItem('kk_items')) || DEFAULT_ITEMS;
+        }
+
+        function saveAllData() {
+            localStorage.setItem('kk_rooms', JSON.stringify(rooms));
+            localStorage.setItem('kk_locations', JSON.stringify(locations));
+            localStorage.setItem('kk_boxes', JSON.stringify(boxes));
+            localStorage.setItem('kk_categories', JSON.stringify(categories));
+            localStorage.setItem('kk_items', JSON.stringify(items));
+            
+            updateAllDropdowns();
+            renderStats();
+        }
+
+        function resetToDefaultData() {
+            if (confirm('Möchtest du wirklich alle Daten inklusive Räumen, Orten und Gegenständen auf die Werkseinstellungen zurücksetzen?')) {
+                rooms = [...DEFAULT_ROOMS];
+                locations = [...DEFAULT_LOCATIONS];
+                boxes = [...DEFAULT_BOXES];
+                categories = [...DEFAULT_CATEGORIES];
+                items = [...DEFAULT_ITEMS];
+                saveAllData();
+                applyFilters();
+                showToast('Standard-Daten erfolgreich wiederhergestellt', 'fa-rotate-left');
+                toggleDataMenu();
+            }
+        }
+
+        // THEME MANAGEMENT
+        function initTheme() {
+            const savedTheme = localStorage.getItem('kk_theme') || 'dark';
+            setTheme(savedTheme);
+        }
+
+        function cycleTheme() {
+            if (currentTheme === 'dark') setTheme('light');
+            else if (currentTheme === 'light') setTheme('bunt');
+            else setTheme('dark');
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            localStorage.setItem('kk_theme', theme);
+
+            const body = document.getElementById('appBody');
+            const icon = document.getElementById('themeIcon');
+
+            document.documentElement.classList.remove('dark');
+            body.classList.remove('theme-bunt');
+
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                icon.className = 'fa-solid fa-moon text-lg text-indigo-300';
+                showToast('Dark Mode aktiviert', 'fa-moon');
+            } else if (theme === 'bunt') {
+                body.classList.add('theme-bunt');
+                icon.className = 'fa-solid fa-palette text-lg text-emerald-600';
+                showToast('Bunt-Farbschema aktiviert', 'fa-palette');
+            } else {
+                icon.className = 'fa-solid fa-sun text-lg text-amber-500';
+                showToast('Light Mode aktiviert', 'fa-sun');
+            }
+        }
+
+        // FULLSCREEN
+        function toggleFullscreen() {
+            const icon = document.getElementById('fullscreenIcon');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    icon.className = 'fa-solid fa-compress text-lg';
+                }).catch(() => {});
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().then(() => {
+                        icon.className = 'fa-solid fa-expand text-lg';
+                    });
+                }
+            }
+        }
+
+        // DROPDOWN POPULATION LOGIC
+        function updateAllDropdowns() {
+            // Filter Rooms Dropdown
+            const filterRoomSelect = document.getElementById('filterRoom');
+            const selectedFilterRoom = filterRoomSelect.value;
+            filterRoomSelect.innerHTML = '<option value="">Alle Räume</option>' + 
+                rooms.map(r => `<option value="${escapeHtml(r)}" ${r === selectedFilterRoom ? 'selected' : ''}>${escapeHtml(r)}</option>`).join('');
+
+            // Filter Categories Dropdown
+            const filterCatSelect = document.getElementById('filterCategory');
+            const selectedFilterCat = filterCatSelect.value;
+            filterCatSelect.innerHTML = '<option value="">Alle Kategorien</option>' + 
+                categories.map(c => `<option value="${escapeHtml(c.name)}" ${c.name === selectedFilterCat ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('');
+
+            // Filter Locations Dropdown
+            updateFilterLocations();
+
+            // Item Modal Category Select
+            const itemCatSelect = document.getElementById('itemCategory');
+            itemCatSelect.innerHTML = categories.map(c => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join('');
+
+            // Item Modal Rooms Select
+            const itemRoomSelect = document.getElementById('itemRoom');
+            itemRoomSelect.innerHTML = rooms.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+        }
+
+        function updateFilterLocations() {
+            const roomVal = document.getElementById('filterRoom').value;
+            const filterLocSelect = document.getElementById('filterLocation');
+            const currentLoc = filterLocSelect.value;
+
+            let filteredLocs = locations;
+            if (roomVal) {
+                filteredLocs = locations.filter(l => l.room === roomVal);
+            }
+
+            filterLocSelect.innerHTML = '<option value="">Alle Orte</option>' + 
+                filteredLocs.map(l => `<option value="${escapeHtml(l.name)}" ${l.name === currentLoc ? 'selected' : ''}>${escapeHtml(l.name)} (${escapeHtml(l.room)})</option>`).join('');
+        }
+
+        function onFilterRoomChange() {
+            updateFilterLocations();
+            applyFilters();
+        }
+
+        // MODAL ROOM -> LOCATION -> BOX CASCADING
+        function onModalRoomChange() {
+            const roomVal = document.getElementById('itemRoom').value;
+            const locSelect = document.getElementById('itemLocation');
+
+            const roomLocs = locations.filter(l => l.room === roomVal);
+            locSelect.innerHTML = roomLocs.length ? 
+                roomLocs.map(l => `<option value="${escapeHtml(l.name)}">${escapeHtml(l.name)}</option>`).join('') :
+                '<option value="">(Kein Ort vorhanden)</option>';
+
+            onModalLocationChange();
+        }
+
+        function onModalLocationChange() {
+            const locVal = document.getElementById('itemLocation').value;
+            const boxSelect = document.getElementById('itemBox');
+
+            const locBoxes = boxes.filter(b => b.location === locVal);
+            boxSelect.innerHTML = '<option value="">(Keine Kiste)</option>' + 
+                locBoxes.map(b => `<option value="${escapeHtml(b.name)}">${escapeHtml(b.name)}</option>`).join('');
+        }
+
+        // STATS RENDER
+        function renderStats() {
+            document.getElementById('statTotalItems').textContent = items.length;
+            document.getElementById('statTotalRooms').textContent = rooms.length;
+            document.getElementById('statTotalLocations').textContent = locations.length;
+            document.getElementById('statTotalBoxes').textContent = boxes.length;
+        }
+
+        // SEARCH AND FILTER ENGINE
+        function applyFilters() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const roomFilter = document.getElementById('filterRoom').value;
+            const locFilter = document.getElementById('filterLocation').value;
+            const catFilter = document.getElementById('filterCategory').value;
+            const sortBy = document.getElementById('sortBy').value;
+
+            document.getElementById('clearSearchBtn').classList.toggle('hidden', query === '');
+
+            let filtered = items.filter(item => {
+                // Universal multi-field search (includes Room, Location, Box, Notes, Specs)
+                const matchesSearch = query === '' || 
+                    (item.name && item.name.toLowerCase().includes(query)) ||
+                    (item.category && item.category.toLowerCase().includes(query)) ||
+                    (item.room && item.room.toLowerCase().includes(query)) ||
+                    (item.location && item.location.toLowerCase().includes(query)) ||
+                    (item.box && item.box.toLowerCase().includes(query)) ||
+                    (item.notes && item.notes.toLowerCase().includes(query));
+
+                const matchesRoom = roomFilter === '' || item.room === roomFilter;
+                const matchesLoc = locFilter === '' || item.location === locFilter;
+                const matchesCat = catFilter === '' || item.category === catFilter;
+
+                return matchesSearch && matchesRoom && matchesLoc && matchesCat;
+            });
+
+            // Sorting
+            filtered.sort((a, b) => {
+                if (sortBy === 'name') return (a.name || '').localeCompare(b.name || '');
+                if (sortBy === 'room') return `${a.room} ${a.location}`.localeCompare(`${b.room} ${b.location}`);
+                if (sortBy === 'category') return (a.category || '').localeCompare(b.category || '');
+                if (sortBy === 'quantity') return (b.quantity || 0) - (a.quantity || 0);
+                if (sortBy === 'date') return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0);
+                return 0;
+            });
+
+            renderItems(filtered);
+
+            document.getElementById('visibleCount').textContent = filtered.length;
+            document.getElementById('totalCount').textContent = items.length;
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            applyFilters();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterRoom').value = '';
+            document.getElementById('filterLocation').value = '';
+            document.getElementById('filterCategory').value = '';
+            document.getElementById('sortBy').value = 'name';
+            updateFilterLocations();
+            applyFilters();
+        }
+
+        // VIEW MODE SWITCH (Grid vs Table)
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            const gridBtn = document.getElementById('viewGridBtn');
+            const tableBtn = document.getElementById('viewTableBtn');
+            const gridContainer = document.getElementById('itemsGrid');
+            const tableContainer = document.getElementById('itemsTableContainer');
+
+            if (mode === 'grid') {
+                gridBtn.className = 'p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white';
+                tableBtn.className = 'p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white';
+                gridContainer.classList.remove('hidden');
+                tableContainer.classList.add('hidden');
+            } else {
+                tableBtn.className = 'p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white';
+                gridBtn.className = 'p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white';
+                tableContainer.classList.remove('hidden');
+                gridContainer.classList.add('hidden');
+            }
+            applyFilters();
+        }
+
+        // RENDER ITEMS (GRID & TABLE)
+        function renderItems(itemsToRender) {
+            const grid = document.getElementById('itemsGrid');
+            const tableBody = document.getElementById('itemsTableBody');
+            const emptyState = document.getElementById('emptyState');
+
+            if (itemsToRender.length === 0) {
+                grid.innerHTML = '';
+                tableBody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+
+            // Render Cards Grid
+            grid.innerHTML = itemsToRender.map(item => {
+                const catObj = categories.find(c => c.name === item.category);
+                const badgeBg = catObj ? catObj.color : '#0284c7';
+
+                return `
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all border border-slate-200 dark:border-slate-700/80 flex flex-col justify-between group">
+                    <div>
+                        <!-- Header / Category Badge & Actions -->
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold text-white shadow-sm" style="background-color: ${badgeBg}">
+                                <i class="fa-solid fa-tag text-[10px] mr-1"></i> ${escapeHtml(item.category || 'Allgemein')}
+                            </span>
+                            <div class="flex items-center space-x-1 opacity-80 group-hover:opacity-100 transition">
+                                <button onclick="openItemModal('${item.id}')" class="p-1.5 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Bearbeiten">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deleteItem('${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Löschen">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Item Name -->
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug mb-3">
+                            ${escapeHtml(item.name)}
+                        </h3>
+
+                        <!-- Location Breadcrumb Hierarchy -->
+                        <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3 border border-slate-100 dark:border-slate-700/50 space-y-1.5 text-xs text-slate-600 dark:text-slate-300 mb-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-house text-slate-400 w-4 text-center"></i>
+                                <span class="font-medium">Raum:</span>
+                                <span class="text-slate-900 dark:text-slate-100 font-semibold">${escapeHtml(item.room || '-')}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-warehouse text-slate-400 w-4 text-center"></i>
+                                <span class="font-medium">Ort:</span>
+                                <span class="text-slate-900 dark:text-slate-100 font-semibold">${escapeHtml(item.location || '-')}</span>
+                            </div>
+                            ${item.box ? `
+                            <div class="flex items-center gap-2 text-brand-600 dark:text-brand-400">
+                                <i class="fa-solid fa-box text-brand-500 w-4 text-center"></i>
+                                <span class="font-medium">Kiste/Fach:</span>
+                                <span class="font-semibold">${escapeHtml(item.box)}</span>
+                            </div>` : ''}
+                        </div>
+
+                        <!-- Notes -->
+                        ${item.notes ? `
+                        <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 italic mb-3">
+                            "${escapeHtml(item.notes)}"
+                        </p>` : ''}
+                    </div>
+
+                    <!-- Footer Quantity -->
+                    <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
+                        <span class="text-slate-400 dark:text-slate-500">Bestand:</span>
+                        <div class="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 dark:bg-slate-700/80 rounded-xl font-bold text-slate-800 dark:text-slate-100">
+                            <span>${item.quantity || 1}</span>
+                            <span class="text-[11px] font-normal text-slate-500 dark:text-slate-400">${escapeHtml(item.unit || 'Stück')}</span>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            // Render Table Rows
+            tableBody.innerHTML = itemsToRender.map(item => {
+                const catObj = categories.find(c => c.name === item.category);
+                const badgeBg = catObj ? catObj.color : '#0284c7';
+
+                return `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition">
+                    <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">${escapeHtml(item.name)}</td>
+                    <td class="py-3 px-4">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold text-white" style="background-color: ${badgeBg}">
+                            ${escapeHtml(item.category || '-')}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-slate-700 dark:text-slate-300">${escapeHtml(item.room || '-')}</td>
+                    <td class="py-3 px-4 text-slate-700 dark:text-slate-300">${escapeHtml(item.location || '-')}</td>
+                    <td class="py-3 px-4 text-slate-700 dark:text-slate-300">${escapeHtml(item.box || '-')}</td>
+                    <td class="py-3 px-4 font-semibold">${item.quantity || 1} ${escapeHtml(item.unit || '')}</td>
+                    <td class="py-3 px-4 text-right space-x-1">
+                        <button onclick="openItemModal('${item.id}')" class="p-1.5 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button onclick="deleteItem('${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-600">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        // ITEM MODAL LOGIC
+        function openItemModal(editId = null) {
+            const modal = document.getElementById('itemModal');
+            const form = document.getElementById('itemForm');
+            const title = document.getElementById('itemModalTitle');
+
+            form.reset();
+            updateAllDropdowns();
+
+            if (editId) {
+                const item = items.find(i => i.id === editId);
+                if (item) {
+                    document.getElementById('itemId').value = item.id;
+                    document.getElementById('itemName').value = item.name || '';
+                    document.getElementById('itemCategory').value = item.category || '';
+                    document.getElementById('itemRoom').value = item.room || '';
+                    
+                    onModalRoomChange();
+                    document.getElementById('itemLocation').value = item.location || '';
+                    
+                    onModalLocationChange();
+                    document.getElementById('itemBox').value = item.box || '';
+
+                    document.getElementById('itemQuantity').value = item.quantity !== undefined ? item.quantity : 1;
+                    document.getElementById('itemUnit').value = item.unit || 'Stück';
+                    document.getElementById('itemNotes').value = item.notes || '';
+
+                    title.innerHTML = `<i class="fa-solid fa-pen-to-square text-brand-500"></i> Gegenstand bearbeiten`;
+                }
+            } else {
+                document.getElementById('itemId').value = '';
+                onModalRoomChange();
+                title.innerHTML = `<i class="fa-solid fa-box-archive text-brand-500"></i> Neues Objekt hinzufügen`;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeItemModal() {
+            document.getElementById('itemModal').classList.add('hidden');
+        }
+
+        function saveItem(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('itemId').value;
+            const name = document.getElementById('itemName').value.trim();
+            const category = document.getElementById('itemCategory').value;
+            const room = document.getElementById('itemRoom').value;
+            const location = document.getElementById('itemLocation').value;
+            const box = document.getElementById('itemBox').value;
+            const quantity = parseFloat(document.getElementById('itemQuantity').value) || 1;
+            const unit = document.getElementById('itemUnit').value;
+            const notes = document.getElementById('itemNotes').value.trim();
+
+            if (!name || !room || !location) {
+                alert('Bitte Name, Raum und Ort ausfüllen.');
+                return;
+            }
+
+            if (id) {
+                const idx = items.findIndex(i => i.id === id);
+                if (idx !== -1) {
+                    items[idx] = {
+                        ...items[idx],
+                        name, category, room, location, box, quantity, unit, notes,
+                        updatedAt: new Date().toISOString()
+                    };
+                    showToast('Gegenstand aktualisiert', 'fa-pen-to-square');
+                }
+            } else {
+                const newItem = {
+                    id: Date.now().toString(),
+                    name, category, room, location, box, quantity, unit, notes,
+                    updatedAt: new Date().toISOString()
+                };
+                items.unshift(newItem);
+                showToast('Gegenstand neu hinzugefügt', 'fa-circle-check');
+            }
+
+            saveAllData();
+            applyFilters();
+            closeItemModal();
+        }
+
+        function deleteItem(id) {
+            const item = items.find(i => i.id === id);
+            if (!item) return;
+
+            if (confirm(`Möchtest du "${item.name}" wirklich löschen?`)) {
+                items = items.filter(i => i.id !== id);
+                saveAllData();
+                applyFilters();
+                showToast('Gegenstand gelöscht', 'fa-trash-can');
+            }
+        }
+
+        // MASTER DATA MANAGEMET MODAL (Räume, Orte, Kisten, Kategorien)
+        function openMasterModal(tab = 'rooms') {
+            document.getElementById('masterModal').classList.remove('hidden');
+            switchMasterTab(tab);
+        }
+
+        function closeMasterModal() {
+            document.getElementById('masterModal').classList.add('hidden');
+            updateAllDropdowns();
+            applyFilters();
+        }
+
+        function switchMasterTab(tab) {
+            currentMasterTab = tab;
+            const tabs = ['rooms', 'locations', 'boxes', 'categories'];
+
+            tabs.forEach(t => {
+                const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+                if (t === tab) {
+                    btn.className = 'pb-2.5 px-3 text-sm font-semibold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400';
+                } else {
+                    btn.className = 'pb-2.5 px-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300';
+                }
+            });
+
+            renderMasterContent();
+        }
+
+        function renderMasterContent() {
+            const formContainer = document.getElementById('masterAddForm');
+            const listContainer = document.getElementById('masterList');
+
+            if (currentMasterTab === 'rooms') {
+                formContainer.innerHTML = `
+                    <input type="text" id="newRoomInput" placeholder="Neuer Raum Name (z.B. Dachboden)..." class="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl text-sm">
+                    <button onclick="addMasterRoom()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-plus"></i> Raum Hinzufügen
+                    </button>
+                `;
+
+                listContainer.innerHTML = rooms.map(r => `
+                    <div class="px-4 py-3 flex items-center justify-between text-sm">
+                        <span class="font-medium text-slate-800 dark:text-slate-200"><i class="fa-solid fa-house text-slate-400 mr-2"></i> ${escapeHtml(r)}</span>
+                        <button onclick="deleteMasterRoom('${escapeHtml(r)}')" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `).join('') || '<p class="p-4 text-xs text-slate-400">Keine Räume vorhanden.</p>';
+
+            } else if (currentMasterTab === 'locations') {
+                formContainer.innerHTML = `
+                    <select id="newLocRoomSelect" class="px-3 py-2 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl text-sm">
+                        ${rooms.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('')}
+                    </select>
+                    <input type="text" id="newLocInput" placeholder="Ort / Schrank (z.B. Regal B)..." class="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl text-sm">
+                    <button onclick="addMasterLocation()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-plus"></i> Ort Hinzufügen
+                    </button>
+                `;
+
+                listContainer.innerHTML = locations.map(l => `
+                    <div class="px-4 py-3 flex items-center justify-between text-sm">
+                        <div>
+                            <span class="font-medium text-slate-800 dark:text-slate-200"><i class="fa-solid fa-warehouse text-slate-400 mr-2"></i> ${escapeHtml(l.name)}</span>
+                            <span class="text-xs text-slate-400 ml-2">(${escapeHtml(l.room)})</span>
+                        </div>
+                        <button onclick="deleteMasterLocation('${l.id}')" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `).join('') || '<p class="p-4 text-xs text-slate-400">Keine Orte vorhanden.</p>';
+
+            } else if (currentMasterTab === 'boxes') {
+                formContainer.innerHTML = `
+                    <select id="newBoxLocSelect" class="px-3 py-2 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl text-sm">
+                        ${locations.map(l => `<option value="${escapeHtml(l.name)}">${escapeHtml(l.name)} (${escapeHtml(l.room)})</option>`).join('')}
+                    </select>
+                    <input type="text" id="newBoxInput" placeholder="Kiste / Fach (z.B. Fach 4)..." class="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl text-sm">
+                    <button onclick="addMasterBox()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-plus"></i> Kiste Hinzufügen
+                    </button>
+                `;
+
+                listContainer.innerHTML = boxes.map(b => `
+                    <div class="px-4 py-3 flex items-center justify-between text-sm">
+                        <div>
+                            <span class="font-medium text-slate-800 dark:text-slate-200"><i class="fa-solid fa-box text-slate-400 mr-2"></i> ${escapeHtml(b.name)}</span>
+                            <span class="text-xs text-slate-400 ml-2">(${escapeHtml(b.location)})</span>
+                        </div>
+                        <button onclick="deleteMasterBox('${b.id}')" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `).join('') || '<p class="p-4 text-xs text-slate-400">Keine Kisten vorhanden.</p>';
+
+            } else if (currentMasterTab === 'categories') {
+                formContainer.innerHTML = `
+                    <input type="text" id="newCatInput" placeholder="Kategorie Name..." class="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 rounded-xl text-sm">
+                    <input type="color" id="newCatColor" value="#0284c7" class="h-9 w-12 rounded-xl cursor-pointer bg-transparent border-0">
+                    <button onclick="addMasterCategory()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-plus"></i> Kategorie Hinzufügen
+                    </button>
+                `;
+
+                listContainer.innerHTML = categories.map(c => `
+                    <div class="px-4 py-3 flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3.5 h-3.5 rounded-full inline-block" style="background-color: ${c.color}"></span>
+                            <span class="font-medium text-slate-800 dark:text-slate-200">${escapeHtml(c.name)}</span>
+                        </div>
+                        <button onclick="deleteMasterCategory('${escapeHtml(c.name)}')" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `).join('') || '<p class="p-4 text-xs text-slate-400">Keine Kategorien vorhanden.</p>';
+            }
+        }
+
+        // MASTER DATA ADD / DELETE ACTIONS
+        function addMasterRoom() {
+            const input = document.getElementById('newRoomInput');
+            const val = input.value.trim();
+            if (val && !rooms.includes(val)) {
+                rooms.push(val);
+                saveAllData();
+                renderMasterContent();
+                showToast('Raum hinzugefügt', 'fa-house');
+            }
+        }
+
+        function deleteMasterRoom(roomName) {
+            if (confirm(`Raum "${roomName}" löschen?`)) {
+                rooms = rooms.filter(r => r !== roomName);
+                saveAllData();
+                renderMasterContent();
+            }
+        }
+
+        function addMasterLocation() {
+            const room = document.getElementById('newLocRoomSelect').value;
+            const input = document.getElementById('newLocInput');
+            const name = input.value.trim();
+
+            if (name && room) {
+                locations.push({ id: Date.now().toString(), room, name });
+                saveAllData();
+                renderMasterContent();
+                showToast('Ort/Schrank hinzugefügt', 'fa-warehouse');
+            }
+        }
+
+        function deleteMasterLocation(id) {
+            locations = locations.filter(l => l.id !== id);
+            saveAllData();
+            renderMasterContent();
+        }
+
+        function addMasterBox() {
+            const location = document.getElementById('newBoxLocSelect').value;
+            const input = document.getElementById('newBoxInput');
+            const name = input.value.trim();
+
+            if (name && location) {
+                boxes.push({ id: Date.now().toString(), location, name });
+                saveAllData();
+                renderMasterContent();
+                showToast('Kiste/Fach hinzugefügt', 'fa-box');
+            }
+        }
+
+        function deleteMasterBox(id) {
+            boxes = boxes.filter(b => b.id !== id);
+            saveAllData();
+            renderMasterContent();
+        }
+
+        function addMasterCategory() {
+            const input = document.getElementById('newCatInput');
+            const color = document.getElementById('newCatColor').value;
+            const name = input.value.trim();
+
+            if (name && !categories.some(c => c.name === name)) {
+                categories.push({ name, color });
+                saveAllData();
+                renderMasterContent();
+                showToast('Kategorie hinzugefügt', 'fa-tag');
+            }
+        }
+
+        function deleteMasterCategory(catName) {
+            categories = categories.filter(c => c.name !== catName);
+            saveAllData();
+            renderMasterContent();
+        }
+
+        // DATA MENU TOGGLE & IMPORT/EXPORT
+        function toggleDataMenu() {
+            document.getElementById('dataMenu').classList.toggle('hidden');
+        }
+
+        function exportJSON() {
+            const exportData = {
+                rooms,
+                locations,
+                boxes,
+                categories,
+                items,
+                exportDate: new Date().toISOString()
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+            const a = document.createElement('a');
+            a.setAttribute("href", dataStr);
+            a.setAttribute("download", `krims_kram_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            showToast('Sicherung als JSON exportiert!', 'fa-file-export');
+            toggleDataMenu();
+        }
+
+        function importJSON(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const parsed = JSON.parse(event.target.result);
+                    if (parsed.items && Array.isArray(parsed.items)) {
+                        rooms = parsed.rooms || rooms;
+                        locations = parsed.locations || locations;
+                        boxes = parsed.boxes || boxes;
+                        categories = parsed.categories || categories;
+                        items = parsed.items;
+                    } else if (Array.isArray(parsed)) {
+                        items = parsed;
+                    }
+                    saveAllData();
+                    applyFilters();
+                    showToast('Sicherung erfolgreich importiert!', 'fa-file-import');
+                } catch(err) {
+                    alert('Fehler beim Importieren der Datei: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            toggleDataMenu();
+            e.target.value = '';
+        }
+
+        // HELPERS
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function showToast(message, iconClass = 'fa-circle-check') {
+            const toast = document.getElementById('toast');
+            const msg = document.getElementById('toastMessage');
+            const icon = document.getElementById('toastIcon');
+
+            msg.textContent = message;
+            icon.innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
