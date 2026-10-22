@@ -1,0 +1,263 @@
+{
+  "rooms": [
+    "Werkstatt",
+    "Büro",
+    "Keller",
+    "Wohnzimmer"
+  ],
+  "locations": [
+    {
+      "id": "loc1",
+      "room": "Werkstatt",
+      "name": "Elektroniktisch"
+    },
+    {
+      "id": "loc2",
+      "room": "Werkstatt",
+      "name": "Lötplatz"
+    },
+    {
+      "id": "loc3",
+      "room": "Werkstatt",
+      "name": "Bauteileregal"
+    },
+    {
+      "id": "loc4",
+      "room": "Werkstatt",
+      "name": "Schrank 2"
+    },
+    {
+      "id": "loc5",
+      "room": "Büro",
+      "name": "Schreibtisch"
+    },
+    {
+      "id": "loc6",
+      "room": "Keller",
+      "name": "Schwerlastregal"
+    }
+  ],
+  "boxes": [
+    {
+      "id": "box1",
+      "location": "Elektroniktisch",
+      "name": "Oberes Regal"
+    },
+    {
+      "id": "box2",
+      "location": "Elektroniktisch",
+      "name": "Werkzeugständer"
+    },
+    {
+      "id": "box3",
+      "location": "Lötplatz",
+      "name": "Schublade 1"
+    },
+    {
+      "id": "box4",
+      "location": "Bauteileregal",
+      "name": "Sortimentskasten A"
+    },
+    {
+      "id": "box5",
+      "location": "Bauteileregal",
+      "name": "Sortimentskasten B"
+    },
+    {
+      "id": "box6",
+      "location": "Schrank 2",
+      "name": "Kabelbox"
+    },
+    {
+      "id": "box7",
+      "location": "Schreibtisch",
+      "name": "Mikrocontroller Box"
+    },
+    {
+      "id": "box8",
+      "location": "Schreibtisch",
+      "name": "Prototyping Kiste"
+    }
+  ],
+  "categories": [
+    {
+      "name": "Mess- & Speisegeräte",
+      "color": "#0284c7"
+    },
+    {
+      "name": "Löttechnik",
+      "color": "#e11d48"
+    },
+    {
+      "name": "Passive Bauteile",
+      "color": "#d97706"
+    },
+    {
+      "name": "Aktive Bauteile",
+      "color": "#7c3aed"
+    },
+    {
+      "name": "Optoelektronik",
+      "color": "#059669"
+    },
+    {
+      "name": "Mikrocontroller & Module",
+      "color": "#2563eb"
+    },
+    {
+      "name": "Kabel & Stecker",
+      "color": "#4b5563"
+    },
+    {
+      "name": "Werkzeuge",
+      "color": "#ca8a04"
+    }
+  ],
+  "items": [
+    {
+      "id": "1",
+      "name": "Labornetzgerät 0-30V / 0-5A",
+      "category": "Mess- & Speisegeräte",
+      "room": "Werkstatt",
+      "location": "Elektroniktisch",
+      "box": "Oberes Regal",
+      "quantity": 1,
+      "unit": "Stück",
+      "notes": "Regelbares Netzteil mit Digitalanzeige und Kurzschlussschutz.",
+      "updatedAt": "2026-10-22T14:52:54.128Z"
+    },
+    {
+      "id": "2",
+      "name": "Digital-Multimeter Auto-Range",
+      "category": "Mess- & Speisegeräte",
+      "room": "Werkstatt",
+      "location": "Elektroniktisch",
+      "box": "Werkzeugständer",
+      "quantity": 1,
+      "unit": "Stück",
+      "notes": "True RMS Messgerät inkl. Krokodilklemmen und Temperaturfühler.",
+      "updatedAt": "2026-10-22T14:52:54.128Z"
+    },
+    {
+      "id": "3",
+      "name": "Lötkolben Station 60W ESD",
+      "category": "Löttechnik",
+      "room": "Werkstatt",
+      "location": "Lötplatz",
+      "box": "Schublade 1",
+      "quantity": 1,
+      "unit": "Stück",
+      "notes": "Temperaturregelbar von 200°C bis 480°C mit Ersatzspitzen.",
+      "updatedAt": "2026-10-22T14:52:54.128Z"
+    },
+    {
+      "id": "4",
+      "name": "Entlötsaugpumpe & Litze",
+      "category": "Löttechnik",
+      "room": "Werkstatt",
+      "location": "Lötplatz",
+      "box": "Schublade 1",
+      "quantity": 2,
+      "unit": "Set",
+      "notes": "Alu Entlötsaugpumpe + 2m Entlötlitze 2.5mm.",
+      "updatedAt": "2026-10-22T14:52:54.128Z"
+    },
+    {
+      "id": "5",
+      "name": "Widerstände Sortiment 1/4W 1%",
+      "category": "Passive Bauteile",
+      "room": "Werkstatt",
+      "location": "Bauteileregal",
+      "box": "Sortimentskasten A",
+      "quantity": 600,
+      "unit": "Stück",
+      "notes": "Metallfilm 10 Ohm bis 1 MOhm, 30 Werte.",
+      "updatedAt": "2026-10-22T14:52:54.128Z"
+    },
+    {
+      "id": "6",
+      "name": "Elektrolytkondensatoren Elko Set",
+      "category": "Passive Bauteile",
+      "room": "Werkstatt",
+      "location": "Bauteileregal",
+      "box": "Sortimentskasten A",
+      "quantity": 120,
+      "unit": "Stück",
+      "notes": "1uF bis 1000uF 16V-50V.",
+      "updatedAt": "2026-10-22T14:52:54.128Z"
+    },
+    {
+      "id": "7",
+      "name": "LED Sortiment 5mm Diffus",
+      "category": "Optoelektronik",
+      "room": "Werkstatt",
+      "location": "Bauteileregal",
+      "box": "Sortimentskasten B",
+      "quantity": 200,
+      "unit": "Stück",
+      "notes": "Rot, Grün, Gelb, Blau, Weiß mit Vorwiderständen.",
+      "updatedAt": "2026-10-22T14:52:54.128Z"
+    },
+    {
+      "id": "8",
+      "name": "Transistoren BC547 & BC557",
+      "category": "Aktive Bauteile",
+      "room": "Werkstatt",
+      "location": "Bauteileregal",
+      "box": "Sortimentskasten B",
+      "quantity": 100,
+      "unit": "Stück",
+      "notes": "Universal NPN/PNP Transistoren TO-92.",
+      "updatedAt": "2026-10-22T14:52:54.128Z"
+    },
+    {
+      "id": "9",
+      "name": "Arduino Nano V3 Boards",
+      "category": "Mikrocontroller & Module",
+      "room": "Büro",
+      "location": "Schreibtisch",
+      "box": "Mikrocontroller Box",
+      "quantity": 4,
+      "unit": "Stück",
+      "notes": "ATmega328P mit Mini-USB Schnittstelle.",
+      "updatedAt": "2026-10-22T14:52:54.128Z"
+    },
+    {
+      "id": "10",
+      "name": "Breadboards Steckplatinen 830 Kontakte",
+      "category": "Mikrocontroller & Module",
+      "room": "Büro",
+      "location": "Schreibtisch",
+      "box": "Prototyping Kiste",
+      "quantity": 3,
+      "unit": "Stück",
+      "notes": "Prototypen-Steckbretter solderless.",
+      "updatedAt": "2026-10-22T14:52:54.128Z"
+    },
+    {
+      "id": "11",
+      "name": "Jumper Wire Kabel Steckbrücken",
+      "category": "Kabel & Stecker",
+      "room": "Büro",
+      "location": "Schreibtisch",
+      "box": "Prototyping Kiste",
+      "quantity": 120,
+      "unit": "Stück",
+      "notes": "M/M, M/F, F/F bunt 20cm.",
+      "updatedAt": "2026-10-22T14:52:54.128Z"
+    },
+    {
+      "id": "12",
+      "name": "Schrumpfschlauch Sortiment",
+      "category": "Kabel & Stecker",
+      "room": "Werkstatt",
+      "location": "Schrank 2",
+      "box": "Kabelbox",
+      "quantity": 1,
+      "unit": "Set",
+      "notes": "Verschiedene Durchmesser 1mm bis 10mm.",
+      "updatedAt": "2026-10-22T14:52:54.128Z"
+    }
+  ],
+  "exportDate": "2026-10-22T14:53:01.037Z"
+}

@@ -1,0 +1,301 @@
+{
+  "metadata": {
+    "title": "Krims & Kram Inventar",
+    "version": "2.0",
+    "exported_at": "2026-10-22",
+    "source_file": "Electro_Teile_2.ods"
+  },
+  "elektronikteile": [
+    {
+      "id": "E-001",
+      "bezeichnung": "Labor-Netzteil 30V 5A",
+      "kategorie": "Stromversorgung",
+      "raum": "Werkstatt",
+      "ort": "Hauptregal R1",
+      "kiste_fach": "Fach A1",
+      "anzahl": 1,
+      "anmerkungen": "Regelbar, CC/CV Modus"
+    },
+    {
+      "id": "E-002",
+      "bezeichnung": "Stecknetzteil 12V 2A",
+      "kategorie": "Stromversorgung",
+      "raum": "Werkstatt",
+      "ort": "Schrank S2",
+      "kiste_fach": "Kiste K-03",
+      "anzahl": 3,
+      "anmerkungen": "Hohlstecker 5.5/2.1mm"
+    },
+    {
+      "id": "E-003",
+      "bezeichnung": "USB-C Netzgerät 65W",
+      "kategorie": "Stromversorgung",
+      "raum": "Büro",
+      "ort": "Schreibtisch",
+      "kiste_fach": "Schublade 1",
+      "anzahl": 2,
+      "anmerkungen": "Power Delivery 3.0"
+    },
+    {
+      "id": "E-004",
+      "bezeichnung": "Widerstands-Sortiment (1/4W)",
+      "kategorie": "Passive Bauteile",
+      "raum": "Werkstatt",
+      "ort": "Sortimenter-Wand",
+      "kiste_fach": "Magazin M-1",
+      "anzahl": 1,
+      "anmerkungen": "600 Teile, 10 Ohm - 1M Ohm"
+    },
+    {
+      "id": "E-005",
+      "bezeichnung": "Keramik-Kondensatoren Set",
+      "kategorie": "Passive Bauteile",
+      "raum": "Werkstatt",
+      "ort": "Sortimenter-Wand",
+      "kiste_fach": "Magazin M-1",
+      "anzahl": 1,
+      "anmerkungen": "10pF - 100nF"
+    },
+    {
+      "id": "E-006",
+      "bezeichnung": "Elektrolyt-Kondensatoren 16V-50V",
+      "kategorie": "Passive Bauteile",
+      "raum": "Werkstatt",
+      "ort": "Sortimenter-Wand",
+      "kiste_fach": "Magazin M-2",
+      "anzahl": 1,
+      "anmerkungen": "1uF - 1000uF"
+    },
+    {
+      "id": "E-007",
+      "bezeichnung": "Standard LEDs 5mm (Rot, Grün, Gelb, Blau)",
+      "kategorie": "Optoelektronik",
+      "raum": "Werkstatt",
+      "ort": "Sortimenter-Wand",
+      "kiste_fach": "Magazin M-3",
+      "anzahl": 1,
+      "anmerkungen": "ca. 200 Stück inklusive Vorwiderständen"
+    },
+    {
+      "id": "E-008",
+      "bezeichnung": "Arduino Uno R3 Mikrokontroller",
+      "kategorie": "Mikrocontroller",
+      "raum": "Werkstatt",
+      "ort": "Regal R2",
+      "kiste_fach": "Kiste K-01 (Dev-Kits)",
+      "anzahl": 4,
+      "anmerkungen": "ATmega328P, USB-B"
+    },
+    {
+      "id": "E-009",
+      "bezeichnung": "ESP32 NodeMCU WiFi+Bluetooth",
+      "kategorie": "Mikrocontroller",
+      "raum": "Werkstatt",
+      "ort": "Regal R2",
+      "kiste_fach": "Kiste K-01 (Dev-Kits)",
+      "anzahl": 6,
+      "anmerkungen": "CP2102, Micro-USB"
+    },
+    {
+      "id": "E-010",
+      "bezeichnung": "Raspberry Pi 4 Model B (4GB)",
+      "kategorie": "Mikrocontroller",
+      "raum": "Büro",
+      "ort": "Schrank S1",
+      "kiste_fach": "Fach B2",
+      "anzahl": 2,
+      "anmerkungen": "Inklusive Gehäuse und Lüfter"
+    },
+    {
+      "id": "E-011",
+      "bezeichnung": "Lötstation 60W Digital",
+      "kategorie": "Werkzeug & Lötzeug",
+      "raum": "Werkstatt",
+      "ort": "Löttisch",
+      "kiste_fach": "Tischplatte",
+      "anzahl": 1,
+      "anmerkungen": "ESD-sicher, 200-480°C"
+    },
+    {
+      "id": "E-012",
+      "bezeichnung": "Lötdraht Bleifrei Sn99.3 Cu0.7",
+      "kategorie": "Werkzeug & Lötzeug",
+      "raum": "Werkstatt",
+      "ort": "Löttisch",
+      "kiste_fach": "Halterung L1",
+      "anzahl": 2,
+      "anmerkungen": "100g Rolle, 0.8mm"
+    },
+    {
+      "id": "E-013",
+      "bezeichnung": "Entlötsaugpumpe & Entlötlitze",
+      "kategorie": "Werkzeug & Lötzeug",
+      "raum": "Werkstatt",
+      "ort": "Löttisch",
+      "kiste_fach": "Schublade T1",
+      "anzahl": 1,
+      "anmerkungen": "Manuell mit PTFE Spitze"
+    },
+    {
+      "id": "E-014",
+      "bezeichnung": "Digitales Multimeter True-RMS",
+      "kategorie": "Messgeräte",
+      "raum": "Werkstatt",
+      "ort": "Hauptregal R1",
+      "kiste_fach": "Fach A2",
+      "anzahl": 1,
+      "anmerkungen": "Inklusive Messspitzen & Klemmen"
+    },
+    {
+      "id": "E-015",
+      "bezeichnung": "Oszilloskop 2-Kanal 50MHz",
+      "kategorie": "Messgeräte",
+      "raum": "Werkstatt",
+      "ort": "Hauptregal R1",
+      "kiste_fach": "Fach A2",
+      "anzahl": 1,
+      "anmerkungen": "Tischgerät mit Tastköpfen"
+    },
+    {
+      "id": "E-016",
+      "bezeichnung": "Jumper Wire Steckbrücken Set",
+      "kategorie": "Kabel & Adapter",
+      "raum": "Werkstatt",
+      "ort": "Regal R2",
+      "kiste_fach": "Kiste K-02",
+      "anzahl": 3,
+      "anmerkungen": "Male-Male, Male-Female, Female-Female"
+    },
+    {
+      "id": "E-017",
+      "bezeichnung": "Bananenstecker Messkabel 4mm",
+      "kategorie": "Kabel & Adapter",
+      "raum": "Werkstatt",
+      "ort": "Regal R2",
+      "kiste_fach": "Kiste K-02",
+      "anzahl": 10,
+      "anmerkungen": "Rot/Schwarz silikonisoliert"
+    },
+    {
+      "id": "E-018",
+      "bezeichnung": "Schrumpfschlauch Sortiment",
+      "kategorie": "Verbindungstechnik",
+      "raum": "Werkstatt",
+      "ort": "Sortimenter-Wand",
+      "kiste_fach": "Magazin M-4",
+      "anzahl": 1,
+      "anmerkungen": "Verschiedene Farben & Größen 1mm-10mm"
+    },
+    {
+      "id": "E-019",
+      "bezeichnung": "NPN Transistoren BC547",
+      "kategorie": "Halbleiter",
+      "raum": "Werkstatt",
+      "ort": "Sortimenter-Wand",
+      "kiste_fach": "Magazin M-5",
+      "anzahl": 50,
+      "anmerkungen": "TO-92 Gehäuse"
+    },
+    {
+      "id": "E-020",
+      "bezeichnung": "NE555 Timer ICs",
+      "kategorie": "Halbleiter",
+      "raum": "Werkstatt",
+      "ort": "Sortimenter-Wand",
+      "kiste_fach": "Magazin M-5",
+      "anzahl": 15,
+      "anmerkungen": "DIP-8 Sockelgehäuse"
+    }
+  ],
+  "raeume_orte": [
+    {
+      "raum": "Werkstatt",
+      "ort": "Hauptregal R1",
+      "kisten_faecher": "Fach A1, Fach A2, Fach A3",
+      "beschreibung": "Schwerlastregal links am Fenster für Messgeräte & Netzteile"
+    },
+    {
+      "raum": "Werkstatt",
+      "ort": "Regal R2",
+      "kisten_faecher": "Kiste K-01 (Dev-Kits), Kiste K-02 (Kabel), Kiste K-03",
+      "beschreibung": "Holzregal rechts für Zubehör & Kisten"
+    },
+    {
+      "raum": "Werkstatt",
+      "ort": "Sortimenter-Wand",
+      "kisten_faecher": "Magazin M-1 bis M-6",
+      "beschreibung": "Kleinteile-Klemm-Magazine an der Hauptwand"
+    },
+    {
+      "raum": "Werkstatt",
+      "ort": "Löttisch",
+      "kisten_faecher": "Tischplatte, Schublade T1, Halterung L1",
+      "beschreibung": "ESD-Arbeitsplatz für Lötarbeiten"
+    },
+    {
+      "raum": "Büro",
+      "ort": "Schrank S1",
+      "kisten_faecher": "Fach B1, Fach B2",
+      "beschreibung": "Akten- & Dokumentenschrank mit Elektronikfach"
+    },
+    {
+      "raum": "Büro",
+      "ort": "Schreibtisch",
+      "kisten_faecher": "Schublade 1, Schublade 2",
+      "beschreibung": "Täglich genutztes Kleinmaterial & Adapter"
+    },
+    {
+      "raum": "Keller",
+      "ort": "Lagerkiste L1",
+      "kisten_faecher": "Großkiste Grau",
+      "beschreibung": "Kabeltrommeln & Ersatzteile"
+    }
+  ],
+  "kategorien": [
+    {
+      "kategorie": "Stromversorgung",
+      "farb_code": "#ef4444",
+      "beschreibung": "Netzteile, Akkus, Spannungswandler"
+    },
+    {
+      "kategorie": "Passive Bauteile",
+      "farb_code": "#f59e0b",
+      "beschreibung": "Widerstände, Kondensatoren, Spulen"
+    },
+    {
+      "kategorie": "Optoelektronik",
+      "farb_code": "#10b981",
+      "beschreibung": "LEDs, Displays, Optokoppler"
+    },
+    {
+      "kategorie": "Mikrocontroller",
+      "farb_code": "#06b6d4",
+      "beschreibung": "Arduino, ESP32, Raspberry Pi, Dev-Boards"
+    },
+    {
+      "kategorie": "Werkzeug & Lötzeug",
+      "farb_code": "#3b82f6",
+      "beschreibung": "Lötstation, Lötzinn, Zangen, Schraubendreher"
+    },
+    {
+      "kategorie": "Messgeräte",
+      "farb_code": "#8b5cf6",
+      "beschreibung": "Multimeter, Oszilloskop, Logikanalysator"
+    },
+    {
+      "kategorie": "Kabel & Adapter",
+      "farb_code": "#ec4899",
+      "beschreibung": "Jumper Wire, USB-Kabel, Steckverbinder"
+    },
+    {
+      "kategorie": "Verbindungstechnik",
+      "farb_code": "#64748b",
+      "beschreibung": "Schrumpfschläuche, Klemmen, Lötverbinder"
+    },
+    {
+      "kategorie": "Halbleiter",
+      "farb_code": "#84cc16",
+      "beschreibung": "Transistoren, Dioden, Integrierte Schaltkreise (ICs)"
+    }
+  ]
+}
