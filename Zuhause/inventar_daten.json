@@ -3,299 +3,1251 @@
     "title": "Krims & Kram Inventar",
     "version": "2.0",
     "exported_at": "2026-10-22",
-    "source_file": "Electro_Teile_2.ods"
+    "source_file": "Daten.json"
   },
   "elektronikteile": [
     {
       "id": "E-001",
-      "bezeichnung": "Labor-Netzteil 30V 5A",
-      "kategorie": "Stromversorgung",
-      "raum": "Werkstatt",
-      "ort": "Hauptregal R1",
-      "kiste_fach": "Fach A1",
+      "bezeichnung": "ZHITING VS1053 Module de Lecteur Audio MP3 Carte de décodeur Audio Mic",
+      "kategorie": "Audio",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
       "anzahl": 1,
-      "anmerkungen": "Regelbar, CC/CV Modus"
+      "anmerkungen": "ZHITING VS1053 Module de Lecteur Audio MP3 Carte de décodeur Audio Microphone d'enregistrement intégré Interface SPI Port de Sortie OGG entrée Lig | Verkäufer: KYYKA-EU | Kaufdatum: 2021-10-18"
     },
     {
       "id": "E-002",
-      "bezeichnung": "Stecknetzteil 12V 2A",
-      "kategorie": "Stromversorgung",
-      "raum": "Werkstatt",
-      "ort": "Schrank S2",
-      "kiste_fach": "Kiste K-03",
-      "anzahl": 3,
-      "anmerkungen": "Hohlstecker 5.5/2.1mm"
+      "bezeichnung": "5 Fenster-/Türkontakt-Sensoren (Magnet)",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 5,
+      "anmerkungen": "5 Capteurs FenÊTre Porte, Capteur ABS Contact FenÊTre Porte, SystÈMe D'alarme de SÉCuritÉ Domestique à Interrupteur MagnÉTique, Alarme de Conta | Kaufdatum: 2021-08-03"
     },
     {
       "id": "E-003",
-      "bezeichnung": "USB-C Netzgerät 65W",
+      "bezeichnung": "Innovateking-EU LM2596S DC-DC Buck Converter Step Down Convertisseur a",
       "kategorie": "Stromversorgung",
-      "raum": "Büro",
-      "ort": "Schreibtisch",
-      "kiste_fach": "Schublade 1",
-      "anzahl": 2,
-      "anmerkungen": "Power Delivery 3.0"
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 5,
+      "anmerkungen": "Innovateking-EU LM2596S DC-DC Buck Converter Step Down Convertisseur abaisseur régulateur de Tension Module d'alimentation réglable 36V 24V 12V à 5 | Kaufdatum: 2021-08-03"
     },
     {
       "id": "E-004",
-      "bezeichnung": "Widerstands-Sortiment (1/4W)",
-      "kategorie": "Passive Bauteile",
-      "raum": "Werkstatt",
-      "ort": "Sortimenter-Wand",
-      "kiste_fach": "Magazin M-1",
-      "anzahl": 1,
-      "anmerkungen": "600 Teile, 10 Ohm - 1M Ohm"
+      "bezeichnung": "ICQUANZX ARCELI 5 PCS KY-019 5 V Un Canal Relais Module Bouclier",
+      "kategorie": "Relais & Schalter",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 5,
+      "anmerkungen": "ICQUANZX ARCELI 5 PCS KY-019 5 V Un Canal Relais Module Bouclier pour PIC AVR DSP Arm pour arduino Relais | Kaufdatum: 2021-08-03"
     },
     {
       "id": "E-005",
-      "bezeichnung": "Keramik-Kondensatoren Set",
-      "kategorie": "Passive Bauteile",
-      "raum": "Werkstatt",
-      "ort": "Sortimenter-Wand",
-      "kiste_fach": "Magazin M-1",
+      "bezeichnung": "Goobay 50380 Composite Audio Video Verbindungskabel",
+      "kategorie": "Audio",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
       "anzahl": 1,
-      "anmerkungen": "10pF - 100nF"
+      "anmerkungen": "Goobay 50380 Composite Audio Video Verbindungskabel; 3x Cinch-Stecker auf 3x Cinch-Stecke | Verkäufer: Amazon EU S.a.r.L. | Kaufdatum: 2021-05-12"
     },
     {
       "id": "E-006",
-      "bezeichnung": "Elektrolyt-Kondensatoren 16V-50V",
-      "kategorie": "Passive Bauteile",
-      "raum": "Werkstatt",
-      "ort": "Sortimenter-Wand",
-      "kiste_fach": "Magazin M-2",
+      "bezeichnung": "deleyCON Scart auf 3X Cinch Buchsen IN/Out Umschalter + S-Video S-VHS",
+      "kategorie": "Audio",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
       "anzahl": 1,
-      "anmerkungen": "1uF - 1000uF"
+      "anmerkungen": "deleyCON Scart auf 3X Cinch Buchsen IN/Out Umschalter + S-Video S-VHS AV Audio Video Adapter - Schwarz | Verkäufer: *MEMORYKING* | Kaufdatum: 2021-05-12"
     },
     {
       "id": "E-007",
-      "bezeichnung": "Standard LEDs 5mm (Rot, Grün, Gelb, Blau)",
-      "kategorie": "Optoelektronik",
-      "raum": "Werkstatt",
-      "ort": "Sortimenter-Wand",
-      "kiste_fach": "Magazin M-3",
-      "anzahl": 1,
-      "anmerkungen": "ca. 200 Stück inklusive Vorwiderständen"
+      "bezeichnung": "AZDelivery 5 x Digispark Rev.3 Kickstarter mit ATTiny85 und USB",
+      "kategorie": "Mikrocontroller",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 5,
+      "anmerkungen": "AZDelivery 5 x Digispark Rev.3 Kickstarter mit ATTiny85 und USB kompatibel mit Arduino inklusive E-Book! | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2021-05-12"
     },
     {
       "id": "E-008",
-      "bezeichnung": "Arduino Uno R3 Mikrokontroller",
-      "kategorie": "Mikrocontroller",
-      "raum": "Werkstatt",
-      "ort": "Regal R2",
-      "kiste_fach": "Kiste K-01 (Dev-Kits)",
-      "anzahl": 4,
-      "anmerkungen": "ATmega328P, USB-B"
+      "bezeichnung": "sourcing map 25 Stücke 5 Pin Panel Montage 3.5mm Female Ohrhörer Audio",
+      "kategorie": "Kabel & Verbinder",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "sourcing map 25 Stücke 5 Pin Panel Montage 3.5mm Female Ohrhörer Audio Jack Socket Connector DE de | Verkäufer: Weisser Berg | Kaufdatum: 2021-05-26"
     },
     {
       "id": "E-009",
-      "bezeichnung": "ESP32 NodeMCU WiFi+Bluetooth",
-      "kategorie": "Mikrocontroller",
-      "raum": "Werkstatt",
-      "ort": "Regal R2",
-      "kiste_fach": "Kiste K-01 (Dev-Kits)",
-      "anzahl": 6,
-      "anmerkungen": "CP2102, Micro-USB"
+      "bezeichnung": "Bojack 250 Transistoren Sortiment",
+      "kategorie": "Halbleiter",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 250,
+      "anmerkungen": "Bojack 10 Werte, 250 Stück, A1015 / BC327 / BC337 / C1815 / S8050 / S8550 / 2N222 / 2N2907 / 2N3904 / 2N3906 / PNP / NPN Leistung, Allzweck, Transistoren, Sortimentskit | Verkäufer: BOJACK | Kaufdatum: 2021-03-27"
     },
     {
       "id": "E-010",
-      "bezeichnung": "Raspberry Pi 4 Model B (4GB)",
-      "kategorie": "Mikrocontroller",
-      "raum": "Büro",
-      "ort": "Schrank S1",
-      "kiste_fach": "Fach B2",
-      "anzahl": 2,
-      "anmerkungen": "Inklusive Gehäuse und Lüfter"
+      "bezeichnung": "Bojack 600 Keramikkondensatoren Sortiment",
+      "kategorie": "Passive Bauteile",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 600,
+      "anmerkungen": "BOJACK 15 Wert 600 Stück Keramik kondensator 10pF 20pF 30pF 47pF 56pF 68pF 100pF 220pF 330pF 680pF 1nF 4.7nF 10nF 47nF 100nF Sortiments kit | Verkäufer: BOJACK | Kaufdatum: 2021-03-15"
     },
     {
       "id": "E-011",
-      "bezeichnung": "Lötstation 60W Digital",
-      "kategorie": "Werkzeug & Lötzeug",
-      "raum": "Werkstatt",
-      "ort": "Löttisch",
-      "kiste_fach": "Tischplatte",
+      "bezeichnung": "ARCELI Arc Generator DC 3,7V–6V",
+      "kategorie": "Stromversorgung",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
       "anzahl": 1,
-      "anmerkungen": "ESD-sicher, 200-480°C"
+      "anmerkungen": "ARCELI Arc Generator DC 3,7V-6V bis 1000KV Boost Power Module Hochspannungsgenerator-Impuls Hochspannungsinverter | Verkäufer: QC EU | Kaufdatum: 2021-03-11"
     },
     {
       "id": "E-012",
-      "bezeichnung": "Lötdraht Bleifrei Sn99.3 Cu0.7",
-      "kategorie": "Werkzeug & Lötzeug",
-      "raum": "Werkstatt",
-      "ort": "Löttisch",
-      "kiste_fach": "Halterung L1",
-      "anzahl": 2,
-      "anmerkungen": "100g Rolle, 0.8mm"
+      "bezeichnung": "DollaTek 5Pcs 817 Optokoppler 2-Wege-Spannungsisolationsplatine Spannu",
+      "kategorie": "Halbleiter",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 5,
+      "anmerkungen": "DollaTek 5Pcs 817 Optokoppler 2-Wege-Spannungsisolationsplatine Spannungssteuerungs-Schaltmodul | Verkäufer: DollaTek | Kaufdatum: 2021-03-10"
     },
     {
       "id": "E-013",
-      "bezeichnung": "Entlötsaugpumpe & Entlötlitze",
-      "kategorie": "Werkzeug & Lötzeug",
-      "raum": "Werkstatt",
-      "ort": "Löttisch",
-      "kiste_fach": "Schublade T1",
-      "anzahl": 1,
-      "anmerkungen": "Manuell mit PTFE Spitze"
+      "bezeichnung": "10 teile/los Fotodiode BPW34",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 10,
+      "anmerkungen": "10 teile/los Fotodiode BPW34 | Verkäufer: LDCRE Official Store | Kaufdatum: 2021-03-10"
     },
     {
       "id": "E-014",
-      "bezeichnung": "Digitales Multimeter True-RMS",
-      "kategorie": "Messgeräte",
-      "raum": "Werkstatt",
-      "ort": "Hauptregal R1",
-      "kiste_fach": "Fach A2",
-      "anzahl": 1,
-      "anmerkungen": "Inklusive Messspitzen & Klemmen"
+      "bezeichnung": "LM358P DIP-8 Operationsverstärker (10 Stk.)",
+      "kategorie": "Halbleiter",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 10,
+      "anmerkungen": "Ils - 10 Stück LM358P LM358N LM358 DIP-8-Chip IC Dual Operational Amplifie | Verkäufer: ILS I LOVE SHOPPING | Kaufdatum: 2021-03-10"
     },
     {
       "id": "E-015",
-      "bezeichnung": "Oszilloskop 2-Kanal 50MHz",
-      "kategorie": "Messgeräte",
-      "raum": "Werkstatt",
-      "ort": "Hauptregal R1",
-      "kiste_fach": "Fach A2",
-      "anzahl": 1,
-      "anmerkungen": "Tischgerät mit Tastköpfen"
+      "bezeichnung": "Doppelseitig Lochrasterplatte Kit",
+      "kategorie": "Platinen & Prototyping",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 70,
+      "anmerkungen": "70Stk Doppelseitig Lochrasterplatte Kit - Nabance Doppelseitig Lochrasterplatte Lochrasterplatine Leiterplatte Platine PCB Universal Board Kit 25 PCB Universal Board+30 Kopfleiste +15 Screw Terminal | Verkäufer: Forest bird | Kaufdatum: 2021-03-05"
     },
     {
       "id": "E-016",
-      "bezeichnung": "Jumper Wire Steckbrücken Set",
-      "kategorie": "Kabel & Adapter",
-      "raum": "Werkstatt",
-      "ort": "Regal R2",
-      "kiste_fach": "Kiste K-02",
-      "anzahl": 3,
-      "anmerkungen": "Male-Male, Male-Female, Female-Female"
+      "bezeichnung": "Laser-Modul, 3 Pin 650nm Rot Laser Transmitter Dot Diode Modul",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 4,
+      "anmerkungen": "Laser-Modul, 3 Pin 650nm Rot Laser Transmitter Dot Diode Modul für Laser Sensor Projekte 4 Stck | Verkäufer: Partgry | Kaufdatum: 2021-03-01"
     },
     {
       "id": "E-017",
-      "bezeichnung": "Bananenstecker Messkabel 4mm",
-      "kategorie": "Kabel & Adapter",
-      "raum": "Werkstatt",
-      "ort": "Regal R2",
-      "kiste_fach": "Kiste K-02",
+      "bezeichnung": "YOUMILE 10er Pack KY-008 3pin 650nm 5V Laser Transmitter Sensor Modul",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
       "anzahl": 10,
-      "anmerkungen": "Rot/Schwarz silikonisoliert"
+      "anmerkungen": "YOUMILE 10er Pack KY-008 3pin 650nm 5V Laser Transmitter Sensor Modul für Arduino AVR PIC | Verkäufer: YoumileDirect | Kaufdatum: 2021-02-17"
     },
     {
       "id": "E-018",
-      "bezeichnung": "Schrumpfschlauch Sortiment",
-      "kategorie": "Verbindungstechnik",
-      "raum": "Werkstatt",
-      "ort": "Sortimenter-Wand",
-      "kiste_fach": "Magazin M-4",
+      "bezeichnung": "AZDelivery ESP32 D1 Mini NodeMCU WiFi Modul + Bluetooth Internet Entwi",
+      "kategorie": "Mikrocontroller",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
       "anzahl": 1,
-      "anmerkungen": "Verschiedene Farben & Größen 1mm-10mm"
+      "anmerkungen": "AZDelivery ESP32 D1 Mini NodeMCU WiFi Modul + Bluetooth Internet Entwicklungsboard kompatibel mit Arduino | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2021-02-19"
     },
     {
       "id": "E-019",
-      "bezeichnung": "NPN Transistoren BC547",
-      "kategorie": "Halbleiter",
-      "raum": "Werkstatt",
-      "ort": "Sortimenter-Wand",
-      "kiste_fach": "Magazin M-5",
-      "anzahl": 50,
-      "anmerkungen": "TO-92 Gehäuse"
+      "bezeichnung": "AZDelivery 220V zu 5V Mini-Netzteil",
+      "kategorie": "Stromversorgung",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "AZDelivery 220V zu 5V Mini-Netzteil kompatibel mit Arduino und Raspberry Pi inklusive E-Book! | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2021-02-19"
     },
     {
       "id": "E-020",
-      "bezeichnung": "NE555 Timer ICs",
+      "bezeichnung": "Electrely 6 Stücke 1-Kanal-Relais-Modul",
+      "kategorie": "Relais & Schalter",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 6,
+      "anmerkungen": "Electrely 6 Stücke 1-Kanal-Relais-Modul, 5V, mit Optokoppler, Unterstützt High und Low Level Trigger, für Arduino | Verkäufer: Electrely | Kaufdatum: 2021-01-18"
+    },
+    {
+      "id": "E-021",
+      "bezeichnung": "AZDelivery 3 x ESP32 NodeMCU Module WLAN WiFi Dev Kit C Development Bo",
+      "kategorie": "Mikrocontroller",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 3,
+      "anmerkungen": "AZDelivery 3 x ESP32 NodeMCU Module WLAN WiFi Dev Kit C Development Board mit CP2102 (Nachfolgermodell zum ESP8266) und inklusive E-Book! | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2021-01-18"
+    },
+    {
+      "id": "E-022",
+      "bezeichnung": "Hohe Qualität 10 PCS 5mm GL5516 Lichtabhängige Widerstand LDR Fotowide",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 10,
+      "anmerkungen": "Hohe Qualität 10 PCS 5mm GL5516 Lichtabhängige Widerstand LDR Fotowiderstand | Verkäufer: WHITE ROSE --- ENKI --- ACCESSORIES | Kaufdatum: 2020-12-15"
+    },
+    {
+      "id": "E-023",
+      "bezeichnung": "Haospace 3 Pcs AM312 Mini Pyroelectric PIR Human Sensor Module PIR Mot",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 3,
+      "anmerkungen": "Haospace 3 Pcs AM312 Mini Pyroelectric PIR Human Sensor Module PIR Motion Sensor Body Manual Motion Infrared IR Detector | Verkäufer: iHaospace | Kaufdatum: 2020-12-15"
+    },
+    {
+      "id": "E-024",
+      "bezeichnung": "PCB Schraubklemmen Screw Terminal Block 114Stk Schraubklemme Steckverb",
+      "kategorie": "Kabel & Verbinder",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 114,
+      "anmerkungen": "PCB Schraubklemmen Screw Terminal Block 114Stk Schraubklemme Steckverbinder 2 Pin / 3 Pin / 4 Pin Lötbare Steckverbinder für Arduino Verwendet | Verkäufer: YYUWEI | Kaufdatum: 2020-12-11"
+    },
+    {
+      "id": "E-025",
+      "bezeichnung": "Donau Elektronik GMBH Original Kabel Kupfer Litzen 10er Set",
+      "kategorie": "Kabel & Verbinder",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 10,
+      "anmerkungen": "Donau Elektronik GMBH Original Kabel Kupfer Litzen 10er Set | Verkäufer: Amazon EU S.a.r.L. | Kaufdatum: 2020-12-07"
+    },
+    {
+      "id": "E-026",
+      "bezeichnung": "AZDelivery I2C Display 128 x 64 Pixel 0,96 Zoll",
+      "kategorie": "Displays",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 3,
+      "anmerkungen": "AZDelivery 3 x I2C Display 128 x 64 Pixel 0,96 Zoll Display mit weißen Zeichen kompatibel mit Arduino und Raspberry Pi inklusive E-Book! | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2020-12-08"
+    },
+    {
+      "id": "E-027",
+      "bezeichnung": "DollaTek MAX9814 Electret MIC Módulo Amplificador de Micrófono Auto Co",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "DollaTek MAX9814 Electret MIC Módulo Amplificador de Micrófono Auto Control de Ganancia para Arduino | Verkäufer: DollaTek | Kaufdatum: 2020-12-08"
+    },
+    {
+      "id": "E-028",
+      "bezeichnung": "DIP-IC-Sockel 2,54 mm Sortiment",
+      "kategorie": "Kabel & Verbinder",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 122,
+      "anmerkungen": "122 Stück DIP-IC-Sockel mit 2,54 mm Abstand Lötadapter-Sortimentskit (6/8 / 14/16 / 18/24 / 28/40 Stifte) | Verkäufer: ZHIWANGXIN | Kaufdatum: 2020-12-09"
+    },
+    {
+      "id": "E-029",
+      "bezeichnung": "ALLNICE 12 Stücke Dunkelblau AC 125 V 6A ON-ON 3 Pins 2 Position Mini-",
+      "kategorie": "Relais & Schalter",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 12,
+      "anmerkungen": "ALLNICE 12 Stücke Dunkelblau AC 125 V 6A ON-ON 3 Pins 2 Position Mini-Kippschalter Einzelanschluss MTS102 für Arduino | Verkäufer: ALLNICE | Kaufdatum: 2020-12-10"
+    },
+    {
+      "id": "E-030",
+      "bezeichnung": "AZDelivery Mikrocontroller Board ATmega328 ATmega16U2 mit USB-Kabel un",
+      "kategorie": "Mikrocontroller",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "AZDelivery Mikrocontroller Board ATmega328 ATmega16U2 mit USB-Kabel und kompatibel mit Arduino Entwicklungsumgebung inklusive E-Book! | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2020-11-19"
+    },
+    {
+      "id": "E-031",
+      "bezeichnung": "CQRobot-Lautsprecher 8 Ohm 5 Watt für Arduino",
+      "kategorie": "Audio",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 2,
+      "anmerkungen": "CQRobot-Lautsprecher 8 Ohm 5 Watt für Arduino, 2,54 mm Dupont-Schnittstelle. Es ist ideal für eine Vielzahl Kleiner elektronischer Projekte. | Verkäufer: CQRobot-DE | Kaufdatum: 2020-11-17"
+    },
+    {
+      "id": "E-032",
+      "bezeichnung": "Elegoo 3mm 5mm Diffus und klar Sortiert LED Kit 5 Farben",
       "kategorie": "Halbleiter",
-      "raum": "Werkstatt",
-      "ort": "Sortimenter-Wand",
-      "kiste_fach": "Magazin M-5",
-      "anzahl": 15,
-      "anmerkungen": "DIP-8 Sockelgehäuse"
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 600,
+      "anmerkungen": "Elegoo 3mm 5mm Diffus und klar Sortiert LED Kit 5 Farben für Arduino (600er Set) | Verkäufer: ELEGOO Official – DE | Kaufdatum: 2020-11-18"
+    },
+    {
+      "id": "E-033",
+      "bezeichnung": "2,54 mm Stiftleisten 40 Pin (M/F)",
+      "kategorie": "Platinen & Prototyping",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 30,
+      "anmerkungen": "30 Stücke 2.54mm 40 Pin Header Männlich und Weiblich Stiftleiste PCB Löten Buchsenleiste Lötpins Lochrasterplatine für Arduino Prototyp Shield | Kaufdatum: 2020-10-28"
+    },
+    {
+      "id": "E-034",
+      "bezeichnung": "PAM8403 DC Audio-Verstärkerplatine",
+      "kategorie": "Audio",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 4,
+      "anmerkungen": "PAM8403 DC Audio-Verstärkerplatine,5 V Mini Digital Audio Verstärker Leistungsverstärkermodul mit Potentiometer 5 V DC 4 Stk | Verkäufer: artgry | Kaufdatum: 2020-10-28"
+    },
+    {
+      "id": "E-035",
+      "bezeichnung": "ARCELI 5Pcs Hall Effekt KY-003 Magnetisches Sensormodul DC 5V",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 5,
+      "anmerkungen": "ARCELI 5Pcs Hall Effekt KY-003 Magnetisches Sensormodul DC 5V Für Arduino PIC AVR Smart Cars | Verkäufer: QC EU | Kaufdatum: 2020-10-28"
+    },
+    {
+      "id": "E-036",
+      "bezeichnung": "MP3 Music Shield Board",
+      "kategorie": "Audio",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "MP3 Music Shield Board, VS1053B Aufnahme-/Leistungsverstärkerplatine MP3 Music Shield Board AMS-1117 3,3 V/2,5 V Chip mit Speicherkartensteckplatz | Verkäufer: Sharainny | Kaufdatum: 2020-10-28"
+    },
+    {
+      "id": "E-037",
+      "bezeichnung": "iHaospace TEA5767 FM Stereo Radio Module with Antenna for Arduino Rasp",
+      "kategorie": "Funk & Netzwerk",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "iHaospace TEA5767 FM Stereo Radio Module with Antenna for Arduino Raspberry Pi DIY 76—108MHZ | Verkäufer: iHaospace | Kaufdatum: 2020-10-28"
+    },
+    {
+      "id": "E-038",
+      "bezeichnung": "AZDelivery GY-271 Kompassmodul Kompass Magnet Sensor",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "AZDelivery GY-271 Kompassmodul Kompass Magnet Sensor für Arduino und Raspberry Pi | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2020-10-23"
+    },
+    {
+      "id": "E-039",
+      "bezeichnung": "RUNCCI-YUN 20 Stk. Einzelpotentiometer 3PIN Drehpotentiometer Terminal",
+      "kategorie": "Passive Bauteile",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 20,
+      "anmerkungen": "RUNCCI-YUN 20 Stk. Einzelpotentiometer 3PIN Drehpotentiometer Terminal linear 5 Typen Potentiometer für Raspberry (B5K B10K B20K B50K B100K) | Verkäufer: RUNCCI-YUN | Kaufdatum: 2020-10-23"
+    },
+    {
+      "id": "E-040",
+      "bezeichnung": "Gebildet 24 Stücke 7mm Mini Momentan Druckknopf",
+      "kategorie": "Relais & Schalter",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 24,
+      "anmerkungen": "Gebildet 24 Stücke 7mm Mini Momentan Druckknopf, SPST EIN-AUS AC 250V/1A, 2 Pin Runder Flachknopf-Drück Knöpfe für Modelleisenbahn-Hobby | Verkäufer: Gebildet-DE | Kaufdatum: 2020-10-23"
+    },
+    {
+      "id": "E-041",
+      "bezeichnung": "tinxi® 5A 75W DC DC Step down Converter Spannungswandler",
+      "kategorie": "Stromversorgung",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "tinxi® 5A 75W DC DC Step down Converter Spannungswandler mit LED Voltmeter | Verkäufer: Xueyue2019 | Kaufdatum: 2020-10-23"
+    },
+    {
+      "id": "E-042",
+      "bezeichnung": "Akozon Junction Box IP65 Gehäuse",
+      "kategorie": "Gehäuse & Montage",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Akozon Junction Box, wasserdicht IP65 ABS-Projekt Gehäuse Fall Verdrahtung Anschlussdose 200 * 120 * 56mm DIY Kunststoff Gehäuse Fall Power Abzweigdose | Verkäufer: Miyinla519 | Kaufdatum: 2020-10-24"
+    },
+    {
+      "id": "E-043",
+      "bezeichnung": "AZDelivery Set 16 x PCB Board Lochrasterplatte Lochrasterplatine Leite",
+      "kategorie": "Platinen & Prototyping",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 16,
+      "anmerkungen": "AZDelivery Set 16 x PCB Board Lochrasterplatte Lochrasterplatine Leiterplatte inklusive E-Book! | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2020-10-15"
+    },
+    {
+      "id": "E-044",
+      "bezeichnung": "AZDelivery TonUINO Set (Mp3 Player",
+      "kategorie": "Mikrocontroller",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "AZDelivery TonUINO Set (Mp3 Player, Nano V3.0, RFID Kit und 10 x 13,56 MHz RFID Karten) inklusive E-Book! | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2020-10-16"
+    },
+    {
+      "id": "E-045",
+      "bezeichnung": "AZDelivery 3 x MB 102 Breadboard Kit - 830 Breadboard",
+      "kategorie": "Platinen & Prototyping",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 3,
+      "anmerkungen": "AZDelivery 3 x MB 102 Breadboard Kit - 830 Breadboard, Netzteil Adapter 3,3V 5V, 65Stk Steckbrücken kompatibel mit Arduino inklusive Ebook! | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2020-10-16"
+    },
+    {
+      "id": "E-046",
+      "bezeichnung": "Flachbandkabel 1,27 mm Rainbow",
+      "kategorie": "Kabel & Verbinder",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 30,
+      "anmerkungen": "Aussel Flachbandkabel 1,27 mm Rainbow Color Flachkabel für 2,54 mm Steckverbinder (30Wire/3M) | Verkäufer: WiMas | Kaufdatum: 2020-05-11"
+    },
+    {
+      "id": "E-047",
+      "bezeichnung": "Crimpzange Dupont-Set (1550 Stk.)",
+      "kategorie": "Werkzeug",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1550,
+      "anmerkungen": "Crimpzange Dupont Stecker Set - Preciva 1550 pcs 2,54 mm Dupont Steckverbinder und Crimp Pins, 460 pcs 2,54 mm JST-XH JST Stecker Kit Crimpkontakten und Buchsengehäuse, Crimpzange für 0,1-1 mm² | Verkäufer: MEIXUAN | Kaufdatum: 2020-05-11"
+    },
+    {
+      "id": "E-048",
+      "bezeichnung": "Elegoo 130er Jumper Wire Male Male Steckbrücken Breadboard Jumperkabel",
+      "kategorie": "Platinen & Prototyping",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 130,
+      "anmerkungen": "Elegoo 130er Jumper Wire Male Male Steckbrücken Breadboard Jumperkabel 30AWG Wiederverwendbare Farbige Drähte für Steckbrett | Verkäufer: ELEGOO Official - DE | Kaufdatum: 2020-05-11"
+    },
+    {
+      "id": "E-049",
+      "bezeichnung": "Jumper Wire Mit Breadboard",
+      "kategorie": "Platinen & Prototyping",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 2,
+      "anmerkungen": "Jumper Wire Mit Breadboard - ALLEU BJ-021 2pcs 400 Pin plus 2pcs 830 Pin Breadboard UND 40x20 Female-Female, Male-Male, Female-Male Jumper Kabel Steckbrücken für Arduino Raspberry Pi | Verkäufer: Rk Education | Kaufdatum: 2020-05-12"
+    },
+    {
+      "id": "E-050",
+      "bezeichnung": "ELEGOO UNO R3 Mikrocontroller Board ATmega328P ATMEGA16U2 Hauptplatine",
+      "kategorie": "Mikrocontroller",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "ELEGOO UNO R3 Mikrocontroller Board ATmega328P ATMEGA16U2 Hauptplatine mit USB-Kabel Kompatibel mit Arduino Entwicklungsumgebung | Verkäufer: ELEGOO Official - DE | Kaufdatum: 2020-05-06"
+    },
+    {
+      "id": "E-051",
+      "bezeichnung": "Raspberry Pi 4 Kamera 5MP (OV5647)",
+      "kategorie": "Sonstiges",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Exemplar(e) von: Longruner for Raspberry Pi 4 Camera Module 5MP 1080p OV5647 Sensor HD Video Webcam Supports Night Vision For Raspberry Pi 4 3 model B B+ A+ RPi 2 1 Kamera LSC15 | Verkäufer: GAOFEIYANG | Kaufdatum: 2020-05-11"
+    },
+    {
+      "id": "E-052",
+      "bezeichnung": "3,5\" TFT LCD Modul 480x320",
+      "kategorie": "Displays",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "3,5 Zoll TFT LCD Bildschirm Modul 480x320 Auflösung HD Unterstützung für Arduino UNO MEGA 2560 Board DIY, Panel(Mit Berührung) | Verkäufer: sanurety | Kaufdatum: 2020-04-27"
+    },
+    {
+      "id": "E-053",
+      "bezeichnung": "KeeYees WiFi + Bluetooth Modul Kit",
+      "kategorie": "Mikrocontroller",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "KeeYees WiFi + Bluetooth Modul Kit, 4M PSRAM ESP32-CAM Dual-Core 32 Bit CPU Entwicklungsboard + OV2640 2MP Kameramodul + 8 dBi WiFi Antenne + IPEX RP-SMA Buchse Pigtail WiFi Antenne Kabel | Verkäufer: KeeYees | Kaufdatum: 2020-04-29"
+    },
+    {
+      "id": "E-054",
+      "bezeichnung": "AZDelivery ESP32 NodeMCU Module WLAN WiFi Development Board",
+      "kategorie": "Mikrocontroller",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "AZDelivery ESP32 NodeMCU Module WLAN WiFi Development Board mit CP2102 (Nachfolgermodell zum ESP8266) und inklusive E-Book | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2020-05-02"
+    },
+    {
+      "id": "E-055",
+      "bezeichnung": "AZDelivery DatenLogger Modul Data Recorder Shield",
+      "kategorie": "Sonstiges",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "AZDelivery DatenLogger Modul Data Recorder Shield für Arduino mit eBook | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2020-01-07"
+    },
+    {
+      "id": "E-056",
+      "bezeichnung": "KY-038 Klangsensor Mikrofon",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 3,
+      "anmerkungen": "AZDelivery KY-038 Klangerfassungsmodul Mikrofon Voice- Ton Sensor für Arduino, 3er Set | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2020-01-06"
+    },
+    {
+      "id": "E-057",
+      "bezeichnung": "AZ Delivery 3 x KY-008 Laser Sensor Modul 650nm",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 3,
+      "anmerkungen": "AZ Delivery 3 x KY-008 Laser Sensor Modul 650nm für Arduino | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2020-01-07"
+    },
+    {
+      "id": "E-058",
+      "bezeichnung": "AZDelivery SPI Reader Micro Speicher SD TF Karte Memory Card Shield Mo",
+      "kategorie": "PC & Speicher",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "AZDelivery SPI Reader Micro Speicher SD TF Karte Memory Card Shield Modul für Arduino | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2018-04-24"
+    },
+    {
+      "id": "E-059",
+      "bezeichnung": "Elegoo 8 Kanal DC 5V Relaismodul mit Optokoppler",
+      "kategorie": "Relais & Schalter",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Elegoo 8 Kanal DC 5V Relaismodul mit Optokoppler für Arduino UNO R3 MEGA 2560 1280 DSP ARM PIC AVR STM32 Raspberry Pi | Verkäufer: ElegooDE | Kaufdatum: 2018-04-24"
+    },
+    {
+      "id": "E-060",
+      "bezeichnung": "AZDelivery esp8266 01 Wlan / WiFi Modul",
+      "kategorie": "Mikrocontroller",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Exemplar(e) von: AZDelivery esp8266 01 Wlan / WiFi Modul für Arduino und Raspberry Pi mit GRATIS eBook! | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2018-04-24"
+    },
+    {
+      "id": "E-061",
+      "bezeichnung": "AZDelivery HC-05 Bluetooth Wireless RF-Transceiver-Modul RS232 seriell",
+      "kategorie": "Funk & Netzwerk",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Exemplar(e) von: AZDelivery HC-05 Bluetooth Wireless RF-Transceiver-Modul RS232 serielle TTL und HC-06 drahtlose Bluetooth Serieller Transceiver Modul Slave serielle K | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2018-04-24"
+    },
+    {
+      "id": "E-062",
+      "bezeichnung": "AZDelivery OLED I2C Display 128 x 64 Pixel 0,96 Zoll",
+      "kategorie": "Displays",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "AZDelivery 128 x 64 Pixel 0,96 Zoll OLED I2C Display für Arduino und Raspberry Pi mit gratis eBook | Verkäufer: AZ-Delivery Vertriebs GmbH | Kaufdatum: 2018-04-24"
+    },
+    {
+      "id": "E-063",
+      "bezeichnung": "Set / Kit für Arduino",
+      "kategorie": "Kits & Sets",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Set / Kit für Arduino - Elegoo MEGA2560 Projekt Ultimate Starter Kit mit Deutschem Tutorial, MEGA2560 R3 Mikrocontroller und viel Zubehör für Arduino Mega2560 R3 | Verkäufer: ElegooDE | Kaufdatum: 2018-04-12"
+    },
+    {
+      "id": "E-064",
+      "bezeichnung": "DS18B20 digitaler Temperatursensor TO92-55°C",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "DS18B20 digitaler Temperatursensor TO92-55°C - +125°C für Raspberry Pi | Kaufdatum: 2021-10-12"
+    },
+    {
+      "id": "E-065",
+      "bezeichnung": "TEC1-12706 Thermoelektischer Wandler",
+      "kategorie": "Stromversorgung",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 5,
+      "anmerkungen": "TEC1-12706 Thermoelektischer Wandler | Kaufdatum: 2021-10-13"
+    },
+    {
+      "id": "E-066",
+      "bezeichnung": "KY-005 IR Sender Modul",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 3,
+      "anmerkungen": "KY-005 IR Infrarot Sender Transceiver Modul | Kaufdatum: 2021-08-30"
+    },
+    {
+      "id": "E-067",
+      "bezeichnung": "ENC28J60 Ethernet Shield LAN Netzwerk Modul",
+      "kategorie": "Funk & Netzwerk",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "ENC28J60 Ethernet Shield LAN Netzwerk Modul | Kaufdatum: 2021-08-31"
+    },
+    {
+      "id": "E-068",
+      "bezeichnung": "220V zu 5V Mini-Netzteil",
+      "kategorie": "Stromversorgung",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 3,
+      "anmerkungen": "220V zu 5V Mini-Netzteil kompatibel mit Arduino und Raspberry Pi | Kaufdatum: 2021-09-01"
+    },
+    {
+      "id": "E-069",
+      "bezeichnung": "ADS1115 ADC Modul 16bit 4 Kanäle",
+      "kategorie": "Halbleiter",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "ADS1115 ADC Modul 16bit 4 Kanäle für Raspberry Pi | Kaufdatum: 2021-03-12"
+    },
+    {
+      "id": "E-070",
+      "bezeichnung": "16 in 1 Kit Zubehörset mit Sensoren und Modulen",
+      "kategorie": "Kits & Sets",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 16,
+      "anmerkungen": "16 in 1 Kit Zubehörset mit Sensoren und Modulen kompatibel mit Arduino und Raspberry Pi | Kaufdatum: 2021-03-13"
+    },
+    {
+      "id": "E-071",
+      "bezeichnung": "Batterieclip 9-Volt I-Typ Clip Snap mit 15cm Anschlusskabel",
+      "kategorie": "Stromversorgung",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 10,
+      "anmerkungen": "Batterieclip 9-Volt I-Typ Clip Snap mit 15cm Anschlusskabel für 9V Block Batterie Akku | Kaufdatum: 2020-10-15"
+    },
+    {
+      "id": "E-072",
+      "bezeichnung": "ESP32 D1 R32 Entwicklungsboard",
+      "kategorie": "Mikrocontroller",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 3,
+      "anmerkungen": "ESP32 D1 R32 Entwicklungsboard mit CH340G und WiFi + Bluetooth (Arduino kompatibles Internet Development Board) - 3 | Kaufdatum: 2020-10-16"
+    },
+    {
+      "id": "E-073",
+      "bezeichnung": "433 MHz Funk - Sende und Empfänger Modul Set",
+      "kategorie": "Funk & Netzwerk",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "433 MHz Funk - Sende und Empfänger Modul Set für Raspberry und Arduino Wireless Transmitter Receiver - 1x 433 MHz Set | Kaufdatum: 2020-06-04"
+    },
+    {
+      "id": "E-074",
+      "bezeichnung": "Mini MP3 Player DFPlayer Master Module",
+      "kategorie": "Audio",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Mini MP3 Player DFPlayer Master Module | Kaufdatum: 2020-06-05"
+    },
+    {
+      "id": "E-075",
+      "bezeichnung": "GY-BME280 Barometrischer Sensor für Temperatur",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 3,
+      "anmerkungen": "GY-BME280 Barometrischer Sensor für Temperatur, Luftfeuchtigkeit und Luftdruck | Kaufdatum: 2020-06-06"
+    },
+    {
+      "id": "E-076",
+      "bezeichnung": "ESP8266 ESP-01 mit USB-Adapter Wlan WiFi Modul",
+      "kategorie": "Mikrocontroller",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "ESP8266 ESP-01 mit USB-Adapter Wlan WiFi Modul | Kaufdatum: 2020-02-04"
+    },
+    {
+      "id": "E-077",
+      "bezeichnung": "D1 Mini NodeMcu mit ESP8266-12F WLAN Modul",
+      "kategorie": "Mikrocontroller",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "D1 Mini NodeMcu mit ESP8266-12F WLAN Modul | Kaufdatum: 2020-02-05"
+    },
+    {
+      "id": "E-078",
+      "bezeichnung": "1M Kabel DS18B20 digitaler Edelstahl Temperatursensor Temperaturfühler",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 2,
+      "anmerkungen": "1M Kabel DS18B20 digitaler Edelstahl Temperatursensor Temperaturfühler, wasserdicht für Raspberry Pi | Kaufdatum: 2020-02-06"
+    },
+    {
+      "id": "E-079",
+      "bezeichnung": "NEO-6M GPS Modul baugleich zu Ublox",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "NEO-6M GPS Modul baugleich zu Ublox - 1x Set | Kaufdatum: 2020-02-07"
+    },
+    {
+      "id": "E-080",
+      "bezeichnung": "X7R-2,5 33N Vielschicht-Keramikkondensator 33N, 10%",
+      "kategorie": "Passive Bauteile",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 4,
+      "anmerkungen": "X7R-2,5 33N Vielschicht-Keramikkondensator 33N, 10% | Kaufdatum: 2021-03-08"
+    },
+    {
+      "id": "E-081",
+      "bezeichnung": "BF 256B N-Kanal J-FET",
+      "kategorie": "Halbleiter",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 8,
+      "anmerkungen": "BF 256B N-Kanal J-FET, 30V, 13mA, 350mW, TO-92 | Kaufdatum: 2021-03-09"
+    },
+    {
+      "id": "E-082",
+      "bezeichnung": "KERKO 47P Keramik-Kondensator 47P",
+      "kategorie": "Passive Bauteile",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 4,
+      "anmerkungen": "KERKO 47P Keramik-Kondensator 47P | Kaufdatum: 2021-03-10"
+    },
+    {
+      "id": "E-083",
+      "bezeichnung": "KERKO-500 47P Keramik-Kondensator",
+      "kategorie": "Passive Bauteile",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 4,
+      "anmerkungen": "KERKO-500 47P Keramik-Kondensator, 500V, 47P | Kaufdatum: 2021-03-11"
+    },
+    {
+      "id": "E-084",
+      "bezeichnung": "RAD FC 100/25 Elko radial",
+      "kategorie": "Passive Bauteile",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 4,
+      "anmerkungen": "RAD FC 100/25 Elko radial, 100 uF, 25 V, 105°C, low ESR, AEC-Q200 | Kaufdatum: 2021-03-12"
+    },
+    {
+      "id": "E-085",
+      "bezeichnung": "LM 358 DIP Operationsverstärker",
+      "kategorie": "Halbleiter",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 4,
+      "anmerkungen": "LM 358 DIP Operationsverstärker, 2-fach, DIP-8 | Kaufdatum: 2021-03-13"
+    },
+    {
+      "id": "E-086",
+      "bezeichnung": "BPW 34 OSO Silizium-PIN-Fotodiode",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 4,
+      "anmerkungen": "BPW 34 OSO Silizium-PIN-Fotodiode, 50µA / 420...1120nm | Kaufdatum: 2021-03-14"
+    },
+    {
+      "id": "E-087",
+      "bezeichnung": "IRLZ 34N MOSFET, N-CH, 55V, 30A, 68W, TO-220AB",
+      "kategorie": "Halbleiter",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 3,
+      "anmerkungen": "IRLZ 34N MOSFET, N-CH, 55V, 30A, 68W, TO-220AB | Kaufdatum: 2019-10-14"
+    },
+    {
+      "id": "E-088",
+      "bezeichnung": "ESP32 Development Board 2,4\" Display",
+      "kategorie": "Mikrocontroller",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "ESP32 Development Board WiFi Bluetooth 2,4\" 240 x 320 Smart Display | Kaufdatum: 2024-09-20"
+    },
+    {
+      "id": "E-089",
+      "bezeichnung": "BYZESTY ESP32 2,8\" Display Board",
+      "kategorie": "Mikrocontroller",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "BYZESTY ESP32 Écran 2,8\" 240 x 320 ESP32 Carte de développement avec WiFi et Bluetooth, module tactile TFT compatible avec Arduino/LVGL | Kaufdatum: 2024-09-26"
+    },
+    {
+      "id": "E-090",
+      "bezeichnung": "1aTTack Cat6 Netzwerkkabel 5 x 2 m",
+      "kategorie": "Kabel & Verbinder",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "1aTTack.de - Câble réseau catégorie 6 - Bleu - 5 x 2 m - Lot de câbles Ethernet - 1000 Mbit/s | Kaufdatum: 2024-07-19"
+    },
+    {
+      "id": "E-091",
+      "bezeichnung": "GL.iNet GL-SFT1200 (Opal) Reiserouter",
+      "kategorie": "Funk & Netzwerk",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "GL.iNet GL-SFT1200 (Opal) Routeur WiFi de Voyage sécurisé - Internet sans Fil Gigabit Ethernet Double Bande AC1200 | IPv6 | USB 2.0 | MU-MIMO | 128 Mo de RAM | Pont répéteur | Mode Point d'accès | Kaufdatum: 2024-07-16"
+    },
+    {
+      "id": "E-092",
+      "bezeichnung": "USB-Ladegerät 4 Ports QC3.0",
+      "kategorie": "Stromversorgung",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "4 Ports Rapide Chargeur USB QC3.0 Chargeur USB Secteur Rapide Prise USB Mural Adaptateurs de Quick Charge Multiple Universel pour IPhone Samsung Huawei Xiaomi HTC LG Motorola Honor IPad AirPods Etc | Kaufdatum: 2023-11-16"
+    },
+    {
+      "id": "E-093",
+      "bezeichnung": "PremiumCord USB-C auf USB 3.0 Kabel 3 m",
+      "kategorie": "Kabel & Verbinder",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "PremiumCord Câble de connexion USB-C vers USB 3.0 3 m, câble de données SuperSpeed jusqu'à 10 Gbit/s, connexion jusqu'à 3 A, USB 3.1 génération 2 types C, couleur : blanc, longueur : 1 m | Kaufdatum: 2023-11-07"
+    },
+    {
+      "id": "E-094",
+      "bezeichnung": "ANGEEK FTDI FT232RL Adaptateur convertisseur USB vers TTL 5 V et 3",
+      "kategorie": "PC & Speicher",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "ANGEEK FTDI FT232RL Adaptateur convertisseur USB vers TTL 5 V et 3,3 V pour Arduino | Kaufdatum: 2023-11-06"
+    },
+    {
+      "id": "E-095",
+      "bezeichnung": "Intenso Top Performance 2.5\" 512 Go Série ATA III MLC",
+      "kategorie": "PC & Speicher",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Intenso Top Performance 2.5\" 512 Go Série ATA III MLC | Kaufdatum: 2023-04-17"
+    },
+    {
+      "id": "E-096",
+      "bezeichnung": "Bluetooth 5.3 USB-Dongle",
+      "kategorie": "Funk & Netzwerk",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Adaptateur Bluetooth 5.3, dongle USB Bluetooth pour PC EDR Clé Bluetooth pour PC, ordinateur de bureau, ordinateur portable compatible avec Windows 11/10/8.1/7 | Kaufdatum: 2023-03-29"
+    },
+    {
+      "id": "E-097",
+      "bezeichnung": "AZDelivery 3X VL53L0X Capteur de Distance Laser à Temps de Vol 940nm",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 3,
+      "anmerkungen": "AZDelivery 3X VL53L0X Capteur de Distance Laser à Temps de Vol 940nm Compatible avec Arduino et Raspberry Pi incluant Un E-Book! | Kaufdatum: 2023-03-27"
+    },
+    {
+      "id": "E-098",
+      "bezeichnung": "VooGenzek 2,54 mm Buchsenleisten 120 Stück",
+      "kategorie": "Kabel & Verbinder",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "VooGenzek 120 Pièces 2.54mm PCB Carte Femelle Broche Connecteur Socket Connecteur Bande Kit, Femelle Pin Header Socket Connecteur Bande, pour Arduino Empilable Shield (4/6/8/10/12/16/20/40 Pin) | Kaufdatum: 2023-03-17"
+    },
+    {
+      "id": "E-099",
+      "bezeichnung": "AZDelivery 3 x ESP-32 Dev Kit C V4",
+      "kategorie": "Mikrocontroller",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 3,
+      "anmerkungen": "AZDelivery 3 x ESP-32 Dev Kit C V4 Compatible avec Arduino incluant Un Ebook | Kaufdatum: 2023-03-15"
+    },
+    {
+      "id": "E-100",
+      "bezeichnung": "Wasserdichte Abzweigdosen (2er Pack)",
+      "kategorie": "Gehäuse & Montage",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 2,
+      "anmerkungen": "Lot de 2 boîtes de jonction étanches en plastique pour extérieur - Pour appareils électroniques, alimentations, instruments - 100 x 68 x 50 mm - Noir | Kaufdatum: 2023-03-02"
+    },
+    {
+      "id": "E-101",
+      "bezeichnung": "Raogoodcx 360 Abstandsschrauben M2/M3/M4",
+      "kategorie": "Gehäuse & Montage",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Raogoodcx Assortiment de 360 vis d'espacement hexagonales M2 M3 M4 mâle femelle en nylon | Kaufdatum: 2023-03-02"
+    },
+    {
+      "id": "E-102",
+      "bezeichnung": "PremiumCord Klinkenkabel 3,5 mm 4-polig",
+      "kategorie": "Kabel & Verbinder",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "PremiumCord Câble Jack 3,5 mm 4 pôles pour Transmission Audio et vocale, Permet l'utilisation d'un Microphone, AUX Casque Audio rallonge M/F Longueur 1 m | Kaufdatum: 2023-02-24"
+    },
+    {
+      "id": "E-103",
+      "bezeichnung": "Ziyan USB BT5.0 2 en 1 Émetteur Bluetooth Transmetteur Récepteur sans",
+      "kategorie": "Funk & Netzwerk",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Ziyan USB BT5.0 2 en 1 Émetteur Bluetooth Transmetteur Récepteur sans fil Aux Audio Adaptateur pour casque MP3/MP4 HiFi Haut-parleur Radio Voiture TV PC Ordinateur Portable Tablette | Kaufdatum: 2023-02-24"
+    },
+    {
+      "id": "E-104",
+      "bezeichnung": "Retoo Récepteur audio USB Bluetooth 5.0 avec câble AUX 3",
+      "kategorie": "Funk & Netzwerk",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Retoo Récepteur audio USB Bluetooth 5.0 avec câble AUX 3,5 mm, récepteur 2 en 1 pour voiture, PC, TV avec réduction du bruit et système mains libres dans la voiture, portée de 10 m | Kaufdatum: 2023-02-24"
+    },
+    {
+      "id": "E-105",
+      "bezeichnung": "GTIWUNG Ensemble de Connecteur de Servo 2 Prises 3 Broches Mâles et 3",
+      "kategorie": "Kabel & Verbinder",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "GTIWUNG Ensemble de Connecteur de Servo 2 Prises 3 Broches Mâles et 3 Broches Femelles pour DIY Rallonges de Servo RC Voiture Heli, 720Pcs Jr/Hitec/Spektrum/Futaba Style Servo Plugs Connecteur | Kaufdatum: 2023-02-13"
+    },
+    {
+      "id": "E-106",
+      "bezeichnung": "ARCELI 620 Pcs 2,54 mm Steckverbinder",
+      "kategorie": "Kabel & Verbinder",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "ARCELI 620 Pcs 2.54mm Pas SM Logement Connecteur Connecteur Mâle Femelle À Sertir Goupilles Adaptateur Assortiment jst Connecteur kit | Kaufdatum: 2023-02-13"
+    },
+    {
+      "id": "E-107",
+      "bezeichnung": "Intenso SSD 2,5\" 1 TB",
+      "kategorie": "PC & Speicher",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Intenso Disque dur interne SSD SATA III Top 2,5\" 1 To 550 Mo/s Noir | Kaufdatum: 2023-01-25"
+    },
+    {
+      "id": "E-108",
+      "bezeichnung": "Icy Box 2,5\" auf 3,5\" SATA Adapter",
+      "kategorie": "PC & Speicher",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Icy Box IB-2538StS Convertisseur 1 x 2,5\" vers 1 x 3,5\" pour SATA HDD/SSD Plastique Filetage en laiton SATA III Noir | Kaufdatum: 2023-01-20"
+    },
+    {
+      "id": "E-109",
+      "bezeichnung": "Aceele Hub USB 3.0 avec câble prolongé de 120 cm",
+      "kategorie": "PC & Speicher",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Aceele Hub USB 3.0 avec câble prolongé de 120 cm, hub USB ultra fin vers 4 ports USB 3.0, compatible avec les ordinateurs de bureau, MacBook Pro/Air, iMac, Surface Pro, PS 4 et autres ordinateurs | Kaufdatum: 2023-01-25"
+    },
+    {
+      "id": "E-110",
+      "bezeichnung": "WELLER Lötspitze 0,4 mm",
+      "kategorie": "Werkzeug",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "WELLER et anneau de s Sold Tip 1 feuilles, Conico 0,4 mm | Kaufdatum: 2023-01-17"
+    },
+    {
+      "id": "E-111",
+      "bezeichnung": "Câble adaptateur USB 3.0 vers SATA pour disques SSD/HDD 2",
+      "kategorie": "PC & Speicher",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Câble adaptateur USB 3.0 vers SATA pour disques SSD/HDD 2,5\", Convertisseur externe SATA vers USB 3.0, convertisseur USB 3.0, Convertisseur SATA III (câble SATA) | Kaufdatum: 2023-01-11"
+    },
+    {
+      "id": "E-112",
+      "bezeichnung": "ORICO Externes 2,5\" Festplattengehäuse USB 3.0",
+      "kategorie": "PC & Speicher",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "ORICO Boîtier de disque dur externe 2,5\" USB 3.0 transparent pour lecteur SATA 9,5 mm et 7 mm 2,5\" | Kaufdatum: 2023-01-11"
+    },
+    {
+      "id": "E-113",
+      "bezeichnung": "Intenso SSD 2,5\" 1 TB",
+      "kategorie": "PC & Speicher",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "Intenso Disque dur interne SSD SATA III Top 2,5\" 1 To 550 Mo/s Noir | Kaufdatum: 2023-01-11"
+    },
+    {
+      "id": "E-114",
+      "bezeichnung": "AZDelivery 3X VL53L0X Capteur de Distance Laser à Temps de Vol 940nm",
+      "kategorie": "Sensoren",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 3,
+      "anmerkungen": "AZDelivery 3X VL53L0X Capteur de Distance Laser à Temps de Vol 940nm Compatible avec Arduino et Raspberry Pi incluant Un E-Book! | Kaufdatum: 2022-11-27"
+    },
+    {
+      "id": "E-115",
+      "bezeichnung": "PremiumCord Câble de connexion USB-C vers USB 3.0 de 3 m",
+      "kategorie": "Kabel & Verbinder",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "PremiumCord Câble de connexion USB-C vers USB 3.0 de 3 m, câble de données SuperSpeed jusqu'à 10 Gbit/s, connexion jusqu'à 3 A, USB 3.1 génération 2 types C, couleur : blanc, longueur : 0,5 m | Kaufdatum: 2022-11-03"
+    },
+    {
+      "id": "E-116",
+      "bezeichnung": "PremiumCord Câble de charge rapide USB-C",
+      "kategorie": "Kabel & Verbinder",
+      "raum": "",
+      "ort": "",
+      "kiste_fach": "",
+      "anzahl": 1,
+      "anmerkungen": "PremiumCord Câble de charge rapide USB-C, 1 m, charge super rapide de 5A, fiche USB 3.1 type C vers fiche USB 2.0, charge rapide et câble de données compatible avec les appareils de type C, blanc, 1 m | Kaufdatum: 2022-11-01"
     }
   ],
-  "raeume_orte": [
-    {
-      "raum": "Werkstatt",
-      "ort": "Hauptregal R1",
-      "kisten_faecher": "Fach A1, Fach A2, Fach A3",
-      "beschreibung": "Schwerlastregal links am Fenster für Messgeräte & Netzteile"
-    },
-    {
-      "raum": "Werkstatt",
-      "ort": "Regal R2",
-      "kisten_faecher": "Kiste K-01 (Dev-Kits), Kiste K-02 (Kabel), Kiste K-03",
-      "beschreibung": "Holzregal rechts für Zubehör & Kisten"
-    },
-    {
-      "raum": "Werkstatt",
-      "ort": "Sortimenter-Wand",
-      "kisten_faecher": "Magazin M-1 bis M-6",
-      "beschreibung": "Kleinteile-Klemm-Magazine an der Hauptwand"
-    },
-    {
-      "raum": "Werkstatt",
-      "ort": "Löttisch",
-      "kisten_faecher": "Tischplatte, Schublade T1, Halterung L1",
-      "beschreibung": "ESD-Arbeitsplatz für Lötarbeiten"
-    },
-    {
-      "raum": "Büro",
-      "ort": "Schrank S1",
-      "kisten_faecher": "Fach B1, Fach B2",
-      "beschreibung": "Akten- & Dokumentenschrank mit Elektronikfach"
-    },
-    {
-      "raum": "Büro",
-      "ort": "Schreibtisch",
-      "kisten_faecher": "Schublade 1, Schublade 2",
-      "beschreibung": "Täglich genutztes Kleinmaterial & Adapter"
-    },
-    {
-      "raum": "Keller",
-      "ort": "Lagerkiste L1",
-      "kisten_faecher": "Großkiste Grau",
-      "beschreibung": "Kabeltrommeln & Ersatzteile"
-    }
-  ],
+  "raeume_orte": [],
   "kategorien": [
     {
-      "kategorie": "Stromversorgung",
+      "kategorie": "Audio",
       "farb_code": "#ef4444",
-      "beschreibung": "Netzteile, Akkus, Spannungswandler"
+      "beschreibung": "Bauteile und Module der Kategorie Audio"
     },
     {
-      "kategorie": "Passive Bauteile",
+      "kategorie": "Displays",
       "farb_code": "#f59e0b",
-      "beschreibung": "Widerstände, Kondensatoren, Spulen"
+      "beschreibung": "Bauteile und Module der Kategorie Displays"
     },
     {
-      "kategorie": "Optoelektronik",
+      "kategorie": "Funk & Netzwerk",
       "farb_code": "#10b981",
-      "beschreibung": "LEDs, Displays, Optokoppler"
+      "beschreibung": "Bauteile und Module der Kategorie Funk & Netzwerk"
+    },
+    {
+      "kategorie": "Gehäuse & Montage",
+      "farb_code": "#06b6d4",
+      "beschreibung": "Bauteile und Module der Kategorie Gehäuse & Montage"
+    },
+    {
+      "kategorie": "Halbleiter",
+      "farb_code": "#3b82f6",
+      "beschreibung": "Bauteile und Module der Kategorie Halbleiter"
+    },
+    {
+      "kategorie": "Kabel & Verbinder",
+      "farb_code": "#8b5cf6",
+      "beschreibung": "Bauteile und Module der Kategorie Kabel & Verbinder"
+    },
+    {
+      "kategorie": "Kits & Sets",
+      "farb_code": "#ec4899",
+      "beschreibung": "Bauteile und Module der Kategorie Kits & Sets"
     },
     {
       "kategorie": "Mikrocontroller",
-      "farb_code": "#06b6d4",
-      "beschreibung": "Arduino, ESP32, Raspberry Pi, Dev-Boards"
-    },
-    {
-      "kategorie": "Werkzeug & Lötzeug",
-      "farb_code": "#3b82f6",
-      "beschreibung": "Lötstation, Lötzinn, Zangen, Schraubendreher"
-    },
-    {
-      "kategorie": "Messgeräte",
-      "farb_code": "#8b5cf6",
-      "beschreibung": "Multimeter, Oszilloskop, Logikanalysator"
-    },
-    {
-      "kategorie": "Kabel & Adapter",
-      "farb_code": "#ec4899",
-      "beschreibung": "Jumper Wire, USB-Kabel, Steckverbinder"
-    },
-    {
-      "kategorie": "Verbindungstechnik",
       "farb_code": "#64748b",
-      "beschreibung": "Schrumpfschläuche, Klemmen, Lötverbinder"
+      "beschreibung": "Bauteile und Module der Kategorie Mikrocontroller"
     },
     {
-      "kategorie": "Halbleiter",
+      "kategorie": "PC & Speicher",
       "farb_code": "#84cc16",
-      "beschreibung": "Transistoren, Dioden, Integrierte Schaltkreise (ICs)"
+      "beschreibung": "Bauteile und Module der Kategorie PC & Speicher"
+    },
+    {
+      "kategorie": "Passive Bauteile",
+      "farb_code": "#ef4444",
+      "beschreibung": "Bauteile und Module der Kategorie Passive Bauteile"
+    },
+    {
+      "kategorie": "Platinen & Prototyping",
+      "farb_code": "#f59e0b",
+      "beschreibung": "Bauteile und Module der Kategorie Platinen & Prototyping"
+    },
+    {
+      "kategorie": "Relais & Schalter",
+      "farb_code": "#10b981",
+      "beschreibung": "Bauteile und Module der Kategorie Relais & Schalter"
+    },
+    {
+      "kategorie": "Sensoren",
+      "farb_code": "#06b6d4",
+      "beschreibung": "Bauteile und Module der Kategorie Sensoren"
+    },
+    {
+      "kategorie": "Sonstiges",
+      "farb_code": "#3b82f6",
+      "beschreibung": "Bauteile und Module der Kategorie Sonstiges"
+    },
+    {
+      "kategorie": "Stromversorgung",
+      "farb_code": "#8b5cf6",
+      "beschreibung": "Bauteile und Module der Kategorie Stromversorgung"
+    },
+    {
+      "kategorie": "Werkzeug",
+      "farb_code": "#ec4899",
+      "beschreibung": "Bauteile und Module der Kategorie Werkzeug"
     }
   ]
 }
